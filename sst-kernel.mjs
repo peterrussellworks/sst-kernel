@@ -663,7 +663,13 @@ function residueOf(actual, expected) {
   while (p < actual.length && p < expected.length && actual[p] === expected[p]) p++;
   let s = 0;
   while (s < actual.length - p && s < expected.length - p && actual[actual.length - 1 - s] === expected[expected.length - 1 - s]) s++;
-  return actual.slice(p, actual.length - s);
+  let e = actual.length - s;
+  if (p >= e) return '';
+  // A residue quoted to a human must not fabricate a corrupted word: back the
+  // prefix/suffix trim off to the nearest whitespace boundary before slicing.
+  while (p > 0 && !/\s/.test(actual[p - 1])) p--;
+  while (e < actual.length && !/\s/.test(actual[e])) e++;
+  return actual.slice(p, e);
 }
 
 function blockCompleteness(html, manifest, evidence) {
