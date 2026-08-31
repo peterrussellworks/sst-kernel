@@ -1,0 +1,569 @@
+{
+  "@type": "SstConformanceVectors",
+  "fixture": "v1-fixture",
+  "format": "SST Dual-Native v1.1",
+  "merkle_convention": "v1.1-rfc6962-tagged (domain-separated, SPEC §2.4)",
+  "generated_at": "2026-07-21T22:59:42.105Z",
+  "note": "Ground truth for vectors/v1-fixture/. Every value is produced by the production implementation run over the fixture (compileAtoms/buildPageManifest via SubstratePaths, generateAtomId, buildGeometry, the charter compiler + validator) — the generator computes nothing itself. A verify mismatch means the fixture or the format moved: deliberate re-pins only (npx tsx vectors/v1-fixture/expected-values.ts --write).",
+  "atoms": [
+    {
+      "name": "wordmark",
+      "normalized": "Fixture Atelier",
+      "atom_id": "d8610d4c25ad9f0d63df41d539dbd17dd9d1053eef3aa911204539dca95ed570"
+    },
+    {
+      "name": "place",
+      "normalized": "Windsor, Berkshire",
+      "atom_id": "4f842792d57947eadbe398ed15365d03aa0228a150ed637474c1b23884ac0d15"
+    },
+    {
+      "name": "follow",
+      "normalized": "Follow along.",
+      "atom_id": "a65fa19c197adc7db40266c343e5bc3d17c50f0dd4a9f953e6da3cf43b9465ae"
+    },
+    {
+      "name": "whitespace-runs",
+      "normalized": "spaced out across lines",
+      "atom_id": "5281b8fbf3823392d7a30baaac778e778f7da3173d3a3330aae9f86755934f70"
+    },
+    {
+      "name": "whitespace-unicode-class",
+      "normalized": "Cut to measure finished.",
+      "atom_id": "514f8d9361ac92070457abb6a79c794e9ef624117278b9d06f96138bad4b1860"
+    },
+    {
+      "name": "smart-quotes",
+      "normalized": "\"It's flawless,\" she said.",
+      "atom_id": "a08e97ff5dc896cc4820d78b584b8b387d9fb6dd9891f1d0e65721ac2f00c317"
+    },
+    {
+      "name": "nfc-composed",
+      "normalized": "café",
+      "atom_id": "850f7dc43910ff890f8879c0ed26fe697c93a067ad93a7d50f466a7028a9bf4e"
+    },
+    {
+      "name": "nfc-decomposed",
+      "normalized": "café",
+      "atom_id": "850f7dc43910ff890f8879c0ed26fe697c93a067ad93a7d50f466a7028a9bf4e"
+    },
+    {
+      "name": "emphasis",
+      "normalized": "Cut with *precision* and **care**.",
+      "atom_id": "908c78c65cfbebbe0914a02265dd8eee9b860f35859dd38be99d34bd0412027a"
+    },
+    {
+      "name": "escaped-asterisk",
+      "normalized": "Rated A\\* on every seam.",
+      "atom_id": "bc9a349431aca158dd801158a0ed2163e8caf94d61b0e4394aa089802bb897d0"
+    },
+    {
+      "name": "entities",
+      "normalized": "Bespoke & tailored: <cut> \"just so\"",
+      "atom_id": "d1eecc553a97e8e4cad8f3e6abb3018ab1958e697872a14dd22743aa6c796bdb"
+    },
+    {
+      "name": "dress-code",
+      "normalized": "BLACK_TIE",
+      "atom_id": "434a978b6e8a173d5a41799f4f6bd09c01c9f1cb196e699e1ca20e422939efa2"
+    },
+    {
+      "name": "masthead-heading",
+      "normalized": "Fixture",
+      "atom_id": "2ab25f10948b26d75da5b1623465c24e8ad39e11a3295c95c810e99dfa56e462"
+    },
+    {
+      "name": "service-1",
+      "normalized": "Bespoke suits",
+      "atom_id": "3862c14989111963fdc4777e557d5e08a38fa0270d6c9c9fdd6ab7d76a143cd3"
+    },
+    {
+      "name": "service-2",
+      "normalized": "Bridal couture",
+      "atom_id": "6c0c117777675930e8570dd6ff4f1ab01c80cbfb8b3fdf65750b8f12193ad366"
+    },
+    {
+      "name": "service-3",
+      "normalized": "Heritage restoration",
+      "atom_id": "aa5f5b1df419994d5e748ae923adbcf3ced014452e6ae59388bd0fbe36ca7245"
+    },
+    {
+      "name": "seo-title",
+      "normalized": "Fixture Atelier — Windsor",
+      "atom_id": "8c0cca1ccc1f57f81b6e758d131c84e2e96d4330bae2445434ee10e35cb13ffd"
+    },
+    {
+      "name": "seo-description",
+      "normalized": "The SST conformance fixture: one tiny artefact exercising every identity edge case.",
+      "atom_id": "81ee0969436d262e092669e0f30dbdb86db2784eab3df920f52643faea3c79f9"
+    },
+    {
+      "name": "_PENDING_",
+      "normalized": "_PENDING_",
+      "atom_id": "61108cbd2acf2a22d1e061ef6635589e0586ba179327d3d0cda29c562c26c75a",
+      "sentinel": true
+    },
+    {
+      "name": "_NA_OMITTED_",
+      "normalized": "_NA_OMITTED_",
+      "atom_id": "74db0c5f823bb1bd790b7e1355d4892d1a7c0b955edb365e5f196d1a30c22e3c",
+      "sentinel": true
+    },
+    {
+      "name": "_NA_IMPOSSIBLE_",
+      "normalized": "_NA_IMPOSSIBLE_",
+      "atom_id": "d8418ba7300149c57482061d47dd34d6e8968cc8d39d82ebcdb217bc24e7c4a6",
+      "sentinel": true
+    }
+  ],
+  "blocks": [
+    {
+      "page": "global",
+      "section": "brand",
+      "name": "identity",
+      "block_type": "paragraph",
+      "block_id": "4d2005507304f0a6c9a0d9cc5c10dcf8a63fc3128f8bc819158aa99a5672abc3",
+      "atom_count": 2
+    },
+    {
+      "page": "global",
+      "section": "footer",
+      "name": "connect",
+      "block_type": "paragraph",
+      "block_id": "ddce749706f80540deb539392b738d56c6796cda8c1d1a474541f70cad4c1c89",
+      "atom_count": 1
+    },
+    {
+      "page": "home",
+      "section": "meta",
+      "name": "seo",
+      "block_type": "meta",
+      "block_id": "0045c29a20a244a4c6b8f72fae3c512096df239f0ddc9325eeefc6714740fcf2",
+      "atom_count": 2
+    },
+    {
+      "page": "home",
+      "section": "normalization",
+      "name": "whitespace",
+      "block_type": "paragraph",
+      "block_id": "784525fca28d1f81a10fc402fbd64d63466ecded6c9dae88816b5791aa0504cb",
+      "atom_count": 1
+    },
+    {
+      "page": "home",
+      "section": "normalization",
+      "name": "whitespace-unicode",
+      "block_type": "paragraph",
+      "block_id": "ba830be13c54b70829125a54bdee38e94fbdeb75469b45e21ea95b4a6f50d0e6",
+      "atom_count": 1
+    },
+    {
+      "page": "home",
+      "section": "normalization",
+      "name": "smart-quotes",
+      "block_type": "paragraph",
+      "block_id": "de3b615e8d614544cdb241ee4f1277641e7b5e8f5b06eee9c1ef5dac9df11450",
+      "atom_count": 1
+    },
+    {
+      "page": "home",
+      "section": "normalization",
+      "name": "unicode",
+      "block_type": "paragraph",
+      "block_id": "4bb7a5205bdc343fd18e88398d92d1dd09be800354a21b57c80ac9efd3ae711a",
+      "atom_count": 2
+    },
+    {
+      "page": "home",
+      "section": "inline-vocab",
+      "name": "prose",
+      "block_type": "paragraph",
+      "block_id": "c2c7fc44b3b9ed5fe8dcb9b8d4d2ea2e4fca590901c09252183ffc6196f48f0f",
+      "atom_count": 2
+    },
+    {
+      "page": "home",
+      "section": "entities",
+      "name": "body",
+      "block_type": "paragraph",
+      "block_id": "4ff22ceaa8d80ff71db5d55fc428b63e379024aa01c553cafb04bc06f65a65e8",
+      "atom_count": 1
+    },
+    {
+      "page": "home",
+      "section": "attire",
+      "name": "dress-code",
+      "block_type": "paragraph",
+      "block_id": "cc6756ea6ec97bfa924eb56af8986026b7f4eb34f7d8a46945ea7fe28a6c7a46",
+      "atom_count": 1
+    },
+    {
+      "page": "home",
+      "section": "services",
+      "name": "list",
+      "block_type": "list",
+      "block_id": "de9130602ccd21c7d0d7f10058ad445251913dc4bc51853c982d989f384bf91b",
+      "atom_count": 3
+    },
+    {
+      "page": "home",
+      "section": "masthead",
+      "name": "titles",
+      "block_type": "paragraph",
+      "block_id": "88ec09a04ea13e6942f52bd4ce18e919b9f19067510e17cc4027da2345b2c862",
+      "atom_count": 2
+    }
+  ],
+  "page_manifests": {
+    "home": {
+      "@context": "https://danielarussell.com/contexts/sst-manifest-v1",
+      "@type": "SstPageManifest",
+      "page": "home",
+      "version": "1.1",
+      "page_merkle_root": "1eaf2f5b5a97cc12d79976f5eeb4a7b894be9dc21ca47dcf34c4458ad793bdb7",
+      "block_count": 12,
+      "atom_count": 19,
+      "blocks": [
+        {
+          "@type": "SstBlock",
+          "hash": "4d2005507304f0a6c9a0d9cc5c10dcf8a63fc3128f8bc819158aa99a5672abc3",
+          "page": "global",
+          "section": "brand",
+          "name": "identity",
+          "block_type": "paragraph",
+          "order": 0,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "d8610d4c25ad9f0d63df41d539dbd17dd9d1053eef3aa911204539dca95ed570",
+              "role": "wordmark",
+              "order": 0,
+              "content": "Fixture Atelier"
+            },
+            {
+              "@type": "SstAtom",
+              "hash": "4f842792d57947eadbe398ed15365d03aa0228a150ed637474c1b23884ac0d15",
+              "role": "tagline",
+              "order": 1,
+              "content": "Windsor, Berkshire"
+            }
+          ]
+        },
+        {
+          "@type": "SstBlock",
+          "hash": "ddce749706f80540deb539392b738d56c6796cda8c1d1a474541f70cad4c1c89",
+          "page": "global",
+          "section": "footer",
+          "name": "connect",
+          "block_type": "paragraph",
+          "order": 0,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "a65fa19c197adc7db40266c343e5bc3d17c50f0dd4a9f953e6da3cf43b9465ae",
+              "role": "body",
+              "order": 0,
+              "content": "Follow along."
+            }
+          ]
+        },
+        {
+          "@type": "SstBlock",
+          "hash": "0045c29a20a244a4c6b8f72fae3c512096df239f0ddc9325eeefc6714740fcf2",
+          "page": "home",
+          "section": "meta",
+          "name": "seo",
+          "block_type": "meta",
+          "order": 0,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "8c0cca1ccc1f57f81b6e758d131c84e2e96d4330bae2445434ee10e35cb13ffd",
+              "role": "title",
+              "order": 0,
+              "content": "Fixture Atelier — Windsor"
+            },
+            {
+              "@type": "SstAtom",
+              "hash": "81ee0969436d262e092669e0f30dbdb86db2784eab3df920f52643faea3c79f9",
+              "role": "description",
+              "order": 1,
+              "content": "The SST conformance fixture: one tiny artefact exercising every identity edge case."
+            }
+          ]
+        },
+        {
+          "@type": "SstBlock",
+          "hash": "784525fca28d1f81a10fc402fbd64d63466ecded6c9dae88816b5791aa0504cb",
+          "page": "home",
+          "section": "normalization",
+          "name": "whitespace",
+          "block_type": "paragraph",
+          "order": 0,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "5281b8fbf3823392d7a30baaac778e778f7da3173d3a3330aae9f86755934f70",
+              "role": "body",
+              "order": 0,
+              "content": "  spaced   out\tacross\nlines  "
+            }
+          ]
+        },
+        {
+          "@type": "SstBlock",
+          "hash": "ba830be13c54b70829125a54bdee38e94fbdeb75469b45e21ea95b4a6f50d0e6",
+          "page": "home",
+          "section": "normalization",
+          "name": "whitespace-unicode",
+          "block_type": "paragraph",
+          "order": 1,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "514f8d9361ac92070457abb6a79c794e9ef624117278b9d06f96138bad4b1860",
+              "role": "body",
+              "order": 0,
+              "content": "　  Cut to measure　\tfinished. 　"
+            }
+          ]
+        },
+        {
+          "@type": "SstBlock",
+          "hash": "de3b615e8d614544cdb241ee4f1277641e7b5e8f5b06eee9c1ef5dac9df11450",
+          "page": "home",
+          "section": "normalization",
+          "name": "smart-quotes",
+          "block_type": "paragraph",
+          "order": 2,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "a08e97ff5dc896cc4820d78b584b8b387d9fb6dd9891f1d0e65721ac2f00c317",
+              "role": "body",
+              "order": 0,
+              "content": "“It’s flawless,” she said."
+            }
+          ]
+        },
+        {
+          "@type": "SstBlock",
+          "hash": "4bb7a5205bdc343fd18e88398d92d1dd09be800354a21b57c80ac9efd3ae711a",
+          "page": "home",
+          "section": "normalization",
+          "name": "unicode",
+          "block_type": "paragraph",
+          "order": 3,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "850f7dc43910ff890f8879c0ed26fe697c93a067ad93a7d50f466a7028a9bf4e",
+              "role": "body",
+              "order": 0,
+              "content": "café"
+            },
+            {
+              "@type": "SstAtom",
+              "hash": "850f7dc43910ff890f8879c0ed26fe697c93a067ad93a7d50f466a7028a9bf4e",
+              "role": "body",
+              "order": 1,
+              "content": "café"
+            }
+          ]
+        },
+        {
+          "@type": "SstBlock",
+          "hash": "c2c7fc44b3b9ed5fe8dcb9b8d4d2ea2e4fca590901c09252183ffc6196f48f0f",
+          "page": "home",
+          "section": "inline-vocab",
+          "name": "prose",
+          "block_type": "paragraph",
+          "order": 0,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "908c78c65cfbebbe0914a02265dd8eee9b860f35859dd38be99d34bd0412027a",
+              "role": "body",
+              "order": 0,
+              "content": "Cut with *precision* and **care**."
+            },
+            {
+              "@type": "SstAtom",
+              "hash": "bc9a349431aca158dd801158a0ed2163e8caf94d61b0e4394aa089802bb897d0",
+              "role": "body",
+              "order": 1,
+              "content": "Rated A\\* on every seam."
+            }
+          ]
+        },
+        {
+          "@type": "SstBlock",
+          "hash": "4ff22ceaa8d80ff71db5d55fc428b63e379024aa01c553cafb04bc06f65a65e8",
+          "page": "home",
+          "section": "entities",
+          "name": "body",
+          "block_type": "paragraph",
+          "order": 0,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "d1eecc553a97e8e4cad8f3e6abb3018ab1958e697872a14dd22743aa6c796bdb",
+              "role": "body",
+              "order": 0,
+              "content": "Bespoke & tailored: <cut> \"just so\""
+            }
+          ]
+        },
+        {
+          "@type": "SstBlock",
+          "hash": "cc6756ea6ec97bfa924eb56af8986026b7f4eb34f7d8a46945ea7fe28a6c7a46",
+          "page": "home",
+          "section": "attire",
+          "name": "dress-code",
+          "block_type": "paragraph",
+          "order": 0,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "434a978b6e8a173d5a41799f4f6bd09c01c9f1cb196e699e1ca20e422939efa2",
+              "role": "dress-code",
+              "order": 0,
+              "content": "BLACK_TIE"
+            }
+          ]
+        },
+        {
+          "@type": "SstBlock",
+          "hash": "de9130602ccd21c7d0d7f10058ad445251913dc4bc51853c982d989f384bf91b",
+          "page": "home",
+          "section": "services",
+          "name": "list",
+          "block_type": "list",
+          "order": 0,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "3862c14989111963fdc4777e557d5e08a38fa0270d6c9c9fdd6ab7d76a143cd3",
+              "role": "list-item",
+              "order": 0,
+              "content": "Bespoke suits"
+            },
+            {
+              "@type": "SstAtom",
+              "hash": "6c0c117777675930e8570dd6ff4f1ab01c80cbfb8b3fdf65750b8f12193ad366",
+              "role": "list-item",
+              "order": 1,
+              "content": "Bridal couture"
+            },
+            {
+              "@type": "SstAtom",
+              "hash": "aa5f5b1df419994d5e748ae923adbcf3ced014452e6ae59388bd0fbe36ca7245",
+              "role": "list-item",
+              "order": 2,
+              "content": "Heritage restoration"
+            }
+          ]
+        },
+        {
+          "@type": "SstBlock",
+          "hash": "88ec09a04ea13e6942f52bd4ce18e919b9f19067510e17cc4027da2345b2c862",
+          "page": "home",
+          "section": "masthead",
+          "name": "titles",
+          "block_type": "paragraph",
+          "order": 0,
+          "atoms": [
+            {
+              "@type": "SstAtom",
+              "hash": "2ab25f10948b26d75da5b1623465c24e8ad39e11a3295c95c810e99dfa56e462",
+              "role": "heading",
+              "order": 0,
+              "content": "Fixture"
+            },
+            {
+              "@type": "SstAtom",
+              "hash": "4f842792d57947eadbe398ed15365d03aa0228a150ed637474c1b23884ac0d15",
+              "role": "tagline",
+              "order": 1,
+              "content": "Windsor, Berkshire"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "geometry": {
+    "@type": "SstGeometrySpine",
+    "version": "1.0",
+    "geometry_root": "0c24bccc2ebeaa85727a0485f6e1717ce75acd9effb370b399ca7fb954841ef3",
+    "site_count": 18,
+    "block_count": 13,
+    "states": {
+      "present": 15,
+      "pending": 1,
+      "na-omitted": 1,
+      "na-impossible": 1
+    }
+  },
+  "charter": {
+    "validates": true,
+    "universal_categories": [
+      "human_reading",
+      "agent_ingestion",
+      "quoting",
+      "derivative_works",
+      "training",
+      "oracle_and_sentiment_mining"
+    ],
+    "compiled_jsonld": {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork",
+      "name": "Fixture Atelier",
+      "description": "The SST conformance fixture — a tiny substrate exercising every identity edge case.",
+      "url": "https://example.com/sst-fixture",
+      "inLanguage": "en-GB",
+      "version": "1.0.0",
+      "sst_charter": {
+        "rights": "sovereign",
+        "format": "SST Dual-Native v1.1",
+        "atom": "block",
+        "addressing": "random_stable_id",
+        "provenance": {
+          "methodology": "conformance_fixture",
+          "operator": "SST Format (synthetic fixture operator)",
+          "archive_status": "not_applicable"
+        },
+        "permissions": {
+          "human_reading": {
+            "permission": "public",
+            "rule": "Free to read on the canonical URL."
+          },
+          "agent_ingestion": {
+            "permission": "permitted_with_attribution",
+            "rule": "Agents may ingest this fixture. Citation must include a canonical URL.",
+            "citation_format": "example.com/sst-fixture/{path}#{block_id}"
+          },
+          "quoting": {
+            "permission": "spans_only",
+            "rule": "Share defined spans only; each shared span links to its canonical URL.",
+            "max_unit": "block"
+          },
+          "derivative_works": {
+            "permission": "prohibited_without_licence",
+            "rule": "No adaptation or reproduction without explicit written licence."
+          },
+          "training": {
+            "permission": "prohibited",
+            "rule": "This content may not be used to train, fine-tune, distil, evaluate, or embed any model."
+          },
+          "oracle_and_sentiment_mining": {
+            "permission": "strictly_prohibited",
+            "rule": "Extraction for predictive scoring, trading signals, sentiment analysis, or behavioural profiling is prohibited."
+          }
+        },
+        "lifecycle": "living",
+        "deployment_level": 1,
+        "conformance": "hallmark-1.0"
+      }
+    }
+  }
+}

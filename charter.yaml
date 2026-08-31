@@ -1,0 +1,79 @@
+# charter.yaml — this repository's own terms, declared in the format's own instrument.
+#
+# STATUS: PROPOSED. The terms below are drafted to be CONSISTENT with the licences
+# this repository actually ships under (LICENSE, LICENSE-DOCS); the wording has not
+# yet had the operator's voice pass. Peter Russell adopts or amends it.
+#
+# THE CONSTRAINT THAT SHAPED IT. A charter declares terms; a licence grants rights.
+# Where the two disagree the artefact contradicts itself at its own front door — the
+# first failure SST exists to catch. Apache-2.0 and CC BY 4.0 are both permissive:
+# they grant derivative works, redistribution, and any downstream use, attribution
+# being the only condition. A charter on THIS repository therefore cannot prohibit
+# derivative works, training, or mining without revoking what the licences already
+# gave. Prohibition would mean choosing different licences, not writing stricter
+# prose. (The demo artefact built by `node sst-kernel.mjs build` carries its own,
+# stricter charter — it stands for an operator who has NOT licensed their content
+# away, which is the ordinary case the format is designed for. Two charters, two
+# artefacts, deliberately different: compare them.)
+
+version: "1.0.0"
+
+artefact:
+  type: SoftwareSourceCode
+  name: "sst-kernel"
+  description: "The SST format's reference verification kernel: one dependency-free file, its fixture substrate, and the frozen conformance vectors."
+  url: "https://github.com/peterrussellworks/sst-kernel"
+  language: "en-GB"
+  lifecycle: living  # living | versioned | sealed
+
+deployment:
+  level: 0  # 0 conformant data; 1 block-rendered w/ provenance; 2 atom-rendered w/ sharing UI; 3 full sovereign
+
+conformance: hallmark-1.0
+
+sst_charter:
+  rights: sovereign
+  format: "SST Dual-Native v1.2"
+  atom: block
+  addressing: random_stable_id
+
+  provenance:
+    methodology: authored
+    operator: "Peter Russell"
+    archive_status: not_applicable  # lifecycle: living
+
+  # All six universal permission categories take an explicit stance. Silence is not
+  # consent, so a category left out would itself be non-conformant.
+  permissions:
+    human_reading:
+      permission: public
+      rule: "Free to read, clone, and run. No account, no registration, no telemetry."
+
+    agent_ingestion:
+      permission: permitted_with_attribution
+      rule: "Agents may read, index, and reason over this repository. Cite the repository and the file."
+      citation_format: "Peter Russell · SST — Single Source of Truth · github.com/peterrussellworks/sst-kernel/{path}"
+
+    quoting:
+      permission: permitted_with_attribution
+      rule: "Quote any length with attribution, per CC BY 4.0 for prose and Apache-2.0 for code."
+
+    derivative_works:
+      permission: permitted_with_attribution
+      rule: "Fork it, port it, embed it. Apache-2.0 governs the code; CC BY 4.0 governs the prose. Keep the notices."
+
+    training:
+      permission: permitted_with_attribution
+      rule: "Training on this repository is permitted — the licences grant it, and a charter that took it back would contradict them. Attribution is the condition, not permission."
+
+    oracle_and_sentiment_mining:
+      permission: permitted_with_attribution
+      rule: "Permitted on the same terms, for the same reason. This is a public specification: its purpose is to be read by machines."
+
+  # What this charter does NOT claim. The gates in sst-kernel.mjs prove internal
+  # consistency relative to an origin; they do not prove authorship (SPEC §6.5, and
+  # the "What the proof covers" section of README.md). Nothing here is a signature.
+  claims:
+    - consistent_by_construction
+    - tamper_evident_relative_to_origin
+    - verifiable_from_published_output_alone

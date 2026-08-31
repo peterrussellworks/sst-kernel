@@ -1,0 +1,57 @@
+# vectors/v1-fixture/charter.yaml — the conformance fixture's sovereignty stencil.
+# Minimal by design: exactly the six universal permission categories (SPEC §5.1.1),
+# no content-type-conditional categories (the fixture carries no image/audio/video/code matter).
+# V2 freezes "the charter minimum" against this file.
+
+version: "1.0.0"
+
+artefact:
+  type: CreativeWork
+  name: "Fixture Atelier"
+  description: "The SST conformance fixture — a tiny substrate exercising every identity edge case."
+  url: "https://example.com/sst-fixture"
+  language: "en-GB"
+  lifecycle: living  # living | versioned | sealed
+
+deployment:
+  level: 1  # 0 conformant data; 1 block-rendered w/ provenance; 2 atom-rendered w/ sharing UI; 3 full sovereign
+
+conformance: hallmark-1.0
+
+sst_charter:
+  rights: sovereign
+  format: "SST Dual-Native v1.1"  # domain-separated Merkle (SPEC §2.4)
+  atom: block
+  addressing: random_stable_id
+
+  provenance:
+    methodology: conformance_fixture
+    operator: "SST Format (synthetic fixture operator)"  # SPEC §5.6 requires operator
+    archive_status: not_applicable  # lifecycle: living (§5.2)
+
+  permissions:
+    human_reading:
+      permission: public
+      rule: "Free to read on the canonical URL."
+
+    agent_ingestion:
+      permission: permitted_with_attribution
+      rule: "Agents may ingest this fixture. Citation must include a canonical URL."
+      citation_format: "example.com/sst-fixture/{path}#{block_id}"
+
+    quoting:
+      permission: spans_only
+      rule: "Share defined spans only; each shared span links to its canonical URL."
+      max_unit: block
+
+    derivative_works:
+      permission: prohibited_without_licence
+      rule: "No adaptation or reproduction without explicit written licence."
+
+    training:
+      permission: prohibited
+      rule: "This content may not be used to train, fine-tune, distil, evaluate, or embed any model."
+
+    oracle_and_sentiment_mining:
+      permission: strictly_prohibited
+      rule: "Extraction for predictive scoring, trading signals, sentiment analysis, or behavioural profiling is prohibited."
