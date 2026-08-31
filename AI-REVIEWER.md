@@ -66,7 +66,13 @@ that the live site emits format v1.1 while this kernel emits v1.2 — the versio
 bump moved the manifest shape and the gate set, and deliberately left every
 identity unchanged. Treat any v1.1/v1.2 difference you find as expected, and
 check that this paragraph is telling you the truth about which differences those
-are.
+are. Running `sst-kernel.mjs verify` against a live danielarussell.com page will
+pass gates 1–5 and the DOM-text rule — every hash, root, and visible sentence
+checks out — and will fail gate 6, because the production site emits format
+v1.1, which renders atoms in presentation order and as images, attributes and
+projections that v1.2's block-completeness gate does not yet have a vocabulary
+for; a gate-6 failure against the live site is the version skew measuring
+itself, not evidence of tampering.
 
 ## What the author most wants attacked (not admired)
 1. The normalization rules in the kernel (Unicode, whitespace, DOM-text
