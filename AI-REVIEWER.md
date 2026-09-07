@@ -16,8 +16,9 @@ https://danielarussell.com (the live reference artefact) — nothing else about
   comes from. If the material doesn't state something, say "not in the provided
   material" — never infer silently.
 - Distinguish clearly between (a) what the documents CLAIM, (b) what you
-  VERIFIED, and (c) your OPINION. The format's own culture is exactly this
-  discipline; review it in its own register.
+  VERIFIED, and (c) what you INFERRED, with the exact evidence or hash behind
+  each inference. The format's own culture is exactly this discipline; review
+  it in its own register.
 - Its stated claim ladder is deliberately modest: *consistent by construction;
   tamper-evident relative to origin; verifiable from published output alone.*
   Evaluate whether even that wording overclaims — and equally whether your
@@ -67,7 +68,7 @@ bump moved the manifest shape and the gate set, and deliberately left every
 identity unchanged. Treat any v1.1/v1.2 difference you find as expected, and
 check that this paragraph is telling you the truth about which differences those
 are. Running `sst-kernel.mjs verify` against a live danielarussell.com page will
-pass gates 1–5 and the DOM-text rule — every hash, root, and visible sentence
+pass gates 1–5 and the DOM-text rule — every hash, root, and visible atom
 checks out — and will fail gate 6, because the production site emits format
 v1.1, which renders atoms in presentation order and as images, attributes and
 projections that v1.2's block-completeness gate does not yet have a vocabulary
