@@ -75,6 +75,15 @@ projections that v1.2's block-completeness gate does not yet have a vocabulary
 for; a gate-6 failure against the live site is the version skew measuring
 itself, not evidence of tampering.
 
+A clean run of gates 1–5 and the DOM-text rule proves content identity only —
+every atom, block root and page root re-hashes; it says nothing about block
+order or repetition (gates 3–4 work on sets and the manifest's own list), the
+manifest's descriptive fields (`role`, `order`, `section`, `name`,
+`block_type`), or the charter object in `<head>` — those are declared by the
+artefact, not verified by the kernel. Do not report a reordered block, an
+edited role, or a flipped charter permission as a gate failure; report it as
+an unverified declaration, which is a different finding.
+
 ## What the author most wants attacked (not admired)
 1. The normalization rules in the kernel (Unicode, whitespace, DOM-text
    mapping) — can two different texts collide, or one text evade?

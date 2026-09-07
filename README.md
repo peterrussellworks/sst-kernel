@@ -150,6 +150,21 @@ catch, so this project holds its own language to account first.
 - **Verifiable from the published output alone.** No access to the source, no
   API, no trust that the publisher served you faithful bytes. One file and Node.
 
+**The boundary, stated once, plainly.** `verify` establishes content identity
+from the page alone: every atom's text re-hashes to its declared id, every
+block root and the page root recompute from that content, and no block
+carries text its atoms do not attest. It does not yet establish the order or
+number of times a block is placed — gate 3 compares the two faces as sets and
+gate 4 recomputes the page root from the manifest's own list, so a page with
+blocks reordered or repeated passes unchanged. It does not check the
+manifest's descriptive fields — `role`, `order`, `section`, `name`,
+`block_type` sit outside every hash, so an edited field passes. And it does
+not check the charter object in `<head>` — flipping a permission, or deleting
+the charter outright, passes. The geometry attestation is a separate claim
+again: it lives in the committed sidecar, `dist/geometry-manifest.json`, and
+cannot be reconstructed from the page at all. These are declared by the
+artefact, not verified by this kernel.
+
 **What the gates do NOT prove:**
 
 - **Not authorship.** Nothing in the format cryptographically binds an artefact
