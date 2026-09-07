@@ -10,10 +10,11 @@
 // would — from the published HTML alone.
 //
 //   node sst-kernel.mjs build            substrate → dist/index.html
-//   node sst-kernel.mjs verify [file]    run the six gates on the HTML alone
+//   node sst-kernel.mjs verify [file]    run the gates on the HTML alone
 //   node sst-kernel.mjs tamper           flip one character, watch a gate fail
 //   node sst-kernel.mjs seal             seal a vacancy, watch the roots stay orthogonal
 //   node sst-kernel.mjs vectors          reproduce the frozen conformance vectors
+//   node sst-kernel.mjs root <file>      Merkle root over a published list
 //
 // NOT sst.dev. This "SST" is Single Source of Truth, a content-provenance
 // format; sst.dev is an unrelated serverless-infrastructure framework that
@@ -42,12 +43,18 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 
 // ───────────────────────── 1. IDENTITY PRIMITIVES ─────────────────────────
-// These three functions ARE the format (SST Dual-Native v1.2). They must
+// These three functions ARE the format (SST Dual-Native v1.3). They must
 // reproduce the production implementation byte-for-byte — the conformance
 // vectors (`node sst-kernel.mjs vectors`) prove it. Change any of them and every
 // identity in every SST artefact re-baselines; that is a format-version bump,
 // never a casual edit. v1.1 → v1.2 moved the MANIFEST SHAPE and the GATE SET,
 // and deliberately left this section untouched: every v1.1 identity survives.
+// v1.2 → v1.3 does exactly the same again — three declarations added to the
+// manifest, three gates added to the set, not one primitive touched.
+//
+// v1.3 proceeds on the reading that a format version names the manifest schema
+// and the gate set together while identities stay stable across versions; that
+// reading is proposed, not yet ruled, and `verify` dispatches on it (below).
 
 /** Normalize text before hashing — hash the MEANING, not the formatting.
  *  The rule is fixed and load-bearing (SPEC §2.1): trim, collapse internal
@@ -99,6 +106,12 @@ function merkleRoot(hashes) {
   return level[0];
 }
 
+/** The unit separator for the two NON-CONTENT leaf constructions — the geometry
+ *  spine's shape-coordinate (§4.7.2) and v1.3's placement leaf (§2.5). A glyph
+ *  that cannot collide with the kebab/ascii vocabulary of a coordinate, so the
+ *  joined fields are unambiguous without a length prefix or an escape rule. */
+const US = '␟';
+
 // ───────────────────────── 2. THE SUBSTRATE ─────────────────────────
 // Two tiny CSVs, deliberately split:
 //   atoms.csv   — WHAT exists (name → content). Content lives here once.
@@ -120,12 +133,19 @@ const PUBLISHED_PAGES = new Set([PAGE]);
  *  `section`/`name` ALONE, never `page`: under §2.5's optional provenance labels
  *  a superposed head block has no `page` to match, and keying on one would
  *  silently drop its exemption (P5.3, ruled 2026-08-24). */
+/** The charter attestation site. §2.5's sole structural departure: this block is
+ *  SYNTHESIZED from the charter, not compiled from a lattice row, so it has no
+ *  lattice position (it is appended after every substrate block) and no geometry
+ *  site (gate 8 exempts it; gate 9 is what binds it instead). */
+const CHARTER_ATTESTATION = { section: 'charter', name: 'attestation' };
 const HEAD_BLOCKS = [
   { section: 'meta', name: 'seo' },
-  { section: 'charter', name: 'attestation' },
+  CHARTER_ATTESTATION,
 ];
 const isHeadBlock = (b) =>
   HEAD_BLOCKS.some((h) => h.section === b.section && h.name === b.name);
+const isCharterAttestation = (b) =>
+  b.section === CHARTER_ATTESTATION.section && b.name === CHARTER_ATTESTATION.name;
 
 // ── Reserved sentinels (SPEC §4.7.2) ──────────────────────────────────────
 // A vacant lattice site is NOT a missing row — it is a row whose atom_ref is one
@@ -212,7 +232,6 @@ function compileBlocks(atoms, rows) {
 // on a content edit. Same merkleRoot primitive and the same row-order discipline
 // as the content spine (page → section → block → role, first appearance).
 
-const US = '␟'; // unit-separator glyph; can't collide with kebab/ascii coordinates
 const geomLeaf = (page, section, block, blockType, role, state) =>
   createHash('sha256').update([page, section, block, blockType, role, state].join(US)).digest('hex');
 
@@ -221,36 +240,65 @@ const geomLeaf = (page, section, block, blockType, role, state) =>
 const roleState = (refs) =>
   refs.some((r) => occupancyOf(r) === 'present') ? 'present' : refs.length ? occupancyOf(refs[0]) : 'pending';
 
-/** Build the geometry tree + census from the RAW lattice rows (sentinels
- *  INCLUDED). Returns { root, siteCount, blockCount, states }. */
-function buildGeometry(rows) {
-  const pages = []; const pIdx = new Map();
+/** ONE page's SITES, in canonical (first-appearance) order — section → block →
+ *  role, each role one coordinate valued by its aggregate occupancy state. This
+ *  is the ordered list the whole-artefact spine hashes AND the list v1.3 publishes
+ *  as the manifest's geometry slice: one derivation, read twice, so a verifier
+ *  recomputing the root from the published sites gets the builder's number. */
+function pageSites(rows, page) {
+  const sections = []; const sIdx = new Map();
   for (const r of rows) {
+    if (r.page !== page) continue;
     const blockType = r.block_type ?? 'paragraph'; // this kernel's own lattice has no block_type column
-    let p = pIdx.get(r.page); if (!p) { p = { page: r.page, sections: [], idx: new Map() }; pages.push(p); pIdx.set(r.page, p); }
-    let s = p.idx.get(r.section); if (!s) { s = { section: r.section, blocks: [], idx: new Map() }; p.sections.push(s); p.idx.set(r.section, s); }
+    let s = sIdx.get(r.section); if (!s) { s = { section: r.section, blocks: [], idx: new Map() }; sections.push(s); sIdx.set(r.section, s); }
     let b = s.idx.get(r.block); if (!b) { b = { block: r.block, blockType, roles: [], idx: new Map() }; s.blocks.push(b); s.idx.set(r.block, b); }
     let ro = b.idx.get(r.role); if (!ro) { ro = { role: r.role, refs: [] }; b.roles.push(ro); b.idx.set(r.role, ro); }
     ro.refs.push(r.atom_ref);
   }
-  const states = { present: 0, pending: 0, 'na-omitted': 0, 'na-impossible': 0 };
-  let siteCount = 0, blockCount = 0;
-  const pageRoots = pages.map((p) => {
-    const sectionRoots = p.sections.map((s) => {
-      const blockRoots = s.blocks.map((b) => {
-        blockCount++;
-        const leaves = b.roles.map((ro) => {
-          const state = roleState(ro.refs); states[state]++; siteCount++;
-          return geomLeaf(p.page, s.section, b.block, b.blockType, ro.role, state);
-        });
-        return merkleRoot(leaves);
-      });
-      return merkleRoot(blockRoots);
-    });
-    return merkleRoot(sectionRoots);
-  });
-  return { root: merkleRoot(pageRoots), siteCount, blockCount, states };
+  const sites = [];
+  for (const s of sections)
+    for (const b of s.blocks)
+      for (const ro of b.roles)
+        sites.push({ section: s.section, block: b.block, block_type: b.blockType, role: ro.role, state: roleState(ro.refs) });
+  return sites;
 }
+
+/** ONE page's geometry root from its ordered sites: leaves per block, a root per
+ *  block, a root per section, a root for the page — the same hierarchy and the
+ *  same row-order discipline as the content spine. Pure over `sites`, which is
+ *  what lets gate 8 recompute it from the manifest alone. */
+function pageGeometryRoot(page, sites) {
+  const sections = []; const sIdx = new Map();
+  for (const st of sites) {
+    let s = sIdx.get(st.section); if (!s) { s = { blocks: [], idx: new Map() }; sections.push(s); sIdx.set(st.section, s); }
+    let b = s.idx.get(st.block); if (!b) { b = { leaves: [] }; s.blocks.push(b); s.idx.set(st.block, b); }
+    b.leaves.push(geomLeaf(page, st.section, st.block, st.block_type, st.role, st.state));
+  }
+  return merkleRoot(sections.map((s) => merkleRoot(s.blocks.map((b) => merkleRoot(b.leaves)))));
+}
+
+/** Build the geometry tree + census from the RAW lattice rows (sentinels
+ *  INCLUDED). Returns { root, siteCount, blockCount, states }. */
+function buildGeometry(rows) {
+  const pages = [];
+  for (const r of rows) if (!pages.includes(r.page)) pages.push(r.page);
+  const states = { present: 0, pending: 0, 'na-omitted': 0, 'na-impossible': 0 };
+  let siteCount = 0; const blockKeys = new Set();
+  const pageRoots = pages.map((page) => {
+    const sites = pageSites(rows, page);
+    for (const st of sites) { states[st.state]++; siteCount++; blockKeys.add(`${page}/${st.section}/${st.block}`); }
+    return pageGeometryRoot(page, sites);
+  });
+  return { root: merkleRoot(pageRoots), siteCount, blockCount: blockKeys.size, states };
+}
+
+/** The GEOMETRY SLICE one page publishes in its v1.3 manifest: its own root over
+ *  its own sites, vacancies included. The whole-artefact sidecar stays where it
+ *  is — it carries the cross-page root, which no single page can. */
+const geometrySlice = (rows, page) => {
+  const sites = pageSites(rows, page);
+  return { root: pageGeometryRoot(page, sites), sites };
+};
 
 const geometryManifest = (g) => ({
   '@type': 'SstGeometrySpine',
@@ -410,6 +458,22 @@ function ownMarkup(html, blocks, i) {
   return out + html.slice(cursor, b.innerEnd);
 }
 
+// ─────────── THE COMPOSITION SPINE (v1.3) ───────────
+// A THIRD root, over the page's PLACEMENTS. The page root is a bill of the
+// identities the page carries and says so (P1-A, below); nothing on the page
+// attested WHERE those identities were printed or HOW MANY TIMES — so a page
+// with two blocks swapped, a block printed twice, or one of a superposed pair
+// deleted verified clean. The composition root closes that: order is meaning,
+// and the same placements in another order give another root.
+//
+// The leaf is a PLACEMENT-COORDINATE — the identity placed, and the coordinate
+// it was placed at — under the same unit separator the geometry leaf uses. The
+// root is the same `merkleRoot`, so the leaves are domain-separated by the
+// existing tags and a single-placement page still has a root distinct from its
+// leaf.
+const placementLeaf = (block, section, name) =>
+  createHash('sha256').update([block, section, name].join(US)).digest('hex');
+
 // §2.5 provenance labels (P2, ruled 2026-08-24). The four coordinate fields are
 // OPTIONAL, and each is a CLAIM about where this page rendered the identity.
 const COORDINATE_FIELDS = ['page', 'section', 'name', 'order'];
@@ -437,8 +501,9 @@ function labelFor(candidates, publishedPages) {
   return label;
 }
 
-function buildManifest(renderedBody, blocks, { page, publishedPages }) {
-  const evidence = new Set(readEvidence(renderedBody).blocks.map((b) => b.hash));
+function buildManifest(renderedBody, blocks, { page, publishedPages, version, rendered = [], rows = [], attestation }) {
+  const domOrder = readEvidence(renderedBody).blocks.map((b) => b.hash);
+  const evidence = new Set(domOrder);
   const head = blocks.filter((b) => b.page === page && isHeadBlock(b));
   const selected = blocks.filter((b) => evidence.has(b.hash) || head.includes(b));
 
@@ -461,27 +526,72 @@ function buildManifest(renderedBody, blocks, { page, publishedPages }) {
   // block_type is the paragraph default. The block list is in canonical lattice
   // order; a block's `order` label is its position on its own page, which is a
   // different number and a different claim.)
+  const entries = included.map((b) => ({
+    '@type': 'SstBlock',
+    hash: b.hash,
+    ...labelFor(blocks.filter((c) => c.hash === b.hash), publishedPages),
+    block_type: 'paragraph',
+    atoms: b.atoms.map((a, ai) => ({
+      '@type': 'SstAtom',
+      hash: a.hash,
+      role: a.role,
+      order: ai,
+      content: a.content,
+    })),
+  }));
+
+  if (version !== '1.3') {
+    return {
+      '@context': 'https://danielarussell.com/contexts/sst-manifest-v1',
+      '@type': 'SstPageManifest',
+      page,
+      version,
+      page_merkle_root: merkleRoot(entries.map((e) => e.hash)),
+      block_count: entries.length,
+      atom_count: entries.reduce((n, e) => n + e.atoms.length, 0),
+      blocks: entries,
+    };
+  }
+
+  // ── v1.3 additions ──────────────────────────────────────────────────────
+  // The charter attestation block joins the bill, appended after every substrate
+  // block (§2.5: it has no lattice position), so the operator's terms are inside
+  // page_merkle_root instead of merely sitting beside it in the head.
+  entries.push(attestation);
+
+  // The PLACEMENT TRANSCRIPT. `blocks` answers "what identities does this page
+  // carry"; `placements` answers the other question — what did it print, in what
+  // order, how many times. A superposed identity is ONE entry above and as many
+  // entries here as the page renders it.
+  //
+  // This is §2.5's P4 witness. A bill entry must omit the coordinate fields its
+  // candidate lattice rows disagree about, because no DOM evidence says which row
+  // a rendering came from; a placement IS that evidence, so it names its own
+  // coordinate and omits nothing. The twins that reach `blocks` as one shortened
+  // label reach `placements` as two full ones.
+  //
+  // Derived from the rendered body, like every other selection here: the order is
+  // the DOM's, and the coordinates come from the blocks that produced it. The
+  // guard is not decoration — if those two ever disagree the manifest would be
+  // describing a page that was not rendered.
+  if (domOrder.length !== rendered.length) throw new Error('placement drift: DOM wrappers ≠ rendered blocks');
+  const placements = rendered.map((b, i) => {
+    if (domOrder[i] !== b.hash) throw new Error(`placement drift at ${i}: DOM ${domOrder[i]} ≠ ${b.hash}`);
+    return { block: b.hash, section: b.section, name: b.name };
+  });
+
   return {
     '@context': 'https://danielarussell.com/contexts/sst-manifest-v1',
     '@type': 'SstPageManifest',
     page,
-    version: '1.2',
-    page_merkle_root: merkleRoot(included.map((b) => b.hash)),
-    block_count: included.length,
-    atom_count: included.reduce((n, b) => n + b.atoms.length, 0),
-    blocks: included.map((b) => ({
-      '@type': 'SstBlock',
-      hash: b.hash,
-      ...labelFor(blocks.filter((c) => c.hash === b.hash), publishedPages),
-      block_type: 'paragraph',
-      atoms: b.atoms.map((a, ai) => ({
-        '@type': 'SstAtom',
-        hash: a.hash,
-        role: a.role,
-        order: ai,
-        content: a.content,
-      })),
-    })),
+    version,
+    page_merkle_root: merkleRoot(entries.map((e) => e.hash)),
+    composition_root: merkleRoot(placements.map((p) => placementLeaf(p.block, p.section, p.name))),
+    block_count: entries.length,
+    atom_count: entries.reduce((n, e) => n + e.atoms.length, 0),
+    blocks: entries,
+    placements,
+    geometry: geometrySlice(rows, page),
   };
 }
 
@@ -507,34 +617,100 @@ const CHARTER = {
   },
 };
 
-/** Compile the artefact once: substrate → blocks → both faces → both spines.
- *  `build` writes what this returns; `vectors` compares it to the frozen values. */
-function compileArtefact() {
+/** The charter's ATTESTED CONTENT — the canonical serialisation of the charter
+ *  document, minus its own attestation pointer. ONE function, read twice: the
+ *  emitter hashes it into the attestation atom, and gate 9 recomputes it from the
+ *  served `<script>`, so the terms a reader is shown and the terms under the page
+ *  root cannot drift. (Parsing and re-serialising is a fixed point for anything
+ *  this serialiser emitted, so the canonical form is the served form.)
+ *
+ *  The pointer is excluded because it cannot be inside what it points at: an
+ *  attestation over bytes containing its own hash has no fixed point. Everything
+ *  a reader relies on — the operator, every permission category — is inside the
+ *  hash; only the address is outside it. */
+function charterAtomContent(charter) {
+  const { attestation, ...terms } = charter;
+  return JSON.stringify(terms);
+}
+
+/** The charter attestation block: ONE block, ONE atom whose content is the served
+ *  charter. Until v1.3 the charter was declared in the head and entered no hash at
+ *  all — flipping `training` moved nothing and failed nothing, on an artefact
+ *  whose whole subject is sovereignty. This brings it under the page root using
+ *  the head-block mechanism §2.5 already grants the SEO title: the atom renders as
+ *  JSON in `<head>`, an element that cannot carry a data attribute, so gate 3
+ *  exempts it in reverse — the exemption is from DOM EVIDENCE, never from
+ *  manifest membership.
+ *
+ *  Single source: the charter object. The atom is DERIVED at build time and never
+ *  copied into the substrate — a second copy of the terms would be exactly the
+ *  drift this format exists to prevent. */
+function charterAttestationBlock(charter) {
+  const content = charterAtomContent(charter);
+  const hash = atomId(content);
+  return {
+    '@type': 'SstBlock',
+    hash: merkleRoot([hash]),
+    // A fixed coordinate, not a lattice row: identical on every page the charter
+    // is served on, hence `global`. P2's agreement rule governs several lattice
+    // rows sharing one identity and does not reach a synthesized block.
+    page: 'global',
+    section: CHARTER_ATTESTATION.section,
+    name: CHARTER_ATTESTATION.name,
+    block_type: 'charter',
+    order: 0,
+    atoms: [{ '@type': 'SstAtom', hash, role: 'charter', order: 0, content }],
+  };
+}
+
+/** The format version this kernel EMITS. `verify` reads whatever the artefact in
+ *  front of it declares and runs that version's gate set (see the dispatch). */
+const FORMAT_VERSION = '1.3';
+
+/** Compile the artefact once: substrate → blocks → both faces → all three spines.
+ *  `build` writes what this returns; `vectors` compares it to the frozen values.
+ *  Parameterised by version because the frozen v1.2 set is a promise this kernel
+ *  keeps: the older shape is still emitted on demand, byte-for-byte. */
+function compileArtefact(version = FORMAT_VERSION) {
   const { atoms, rows } = readSubstrate();
   const blocks = compileBlocks(atoms, rows);
   const mine = blocks.filter((b) => b.page === PAGE);
-  const body = renderBody(mine.filter((b) => !isHeadBlock(b)));
+  const rendered = mine.filter((b) => !isHeadBlock(b));
+  const body = renderBody(rendered);
   const head = renderHeadBlocks(mine.filter((b) => isHeadBlock(b)));
-  const manifest = buildManifest(body, blocks, { page: PAGE, publishedPages: PUBLISHED_PAGES });
+  const attestation = charterAttestationBlock(CHARTER);
+  const manifest = buildManifest(body, blocks, {
+    page: PAGE, publishedPages: PUBLISHED_PAGES, version, rendered, rows, attestation,
+  });
   const geometry = geometryManifest(buildGeometry(rows));
-  return { rows, blocks, body, head, manifest, geometry };
+  // The charter carries its own address: which block, and which atom inside it,
+  // attests these terms. A reader who has only the charter can find its proof.
+  const charter = version === '1.3'
+    ? { ...CHARTER, attestation: { block: attestation.hash, atom: attestation.atoms[0].hash } }
+    : CHARTER;
+  return { rows, blocks, body, head, manifest, geometry, charter };
 }
 
-function build() {
-  const { blocks, body, head, manifest, geometry } = compileArtefact();
-  const html = `<!doctype html>
+/** The published page. One template, used by `build` and by the frozen page
+ *  vector, so a drift between what is written and what is frozen is impossible. */
+const renderPage = ({ head, charter, manifest, body }) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 ${head}
-<script type="application/ld+json">${JSON.stringify(CHARTER)}</script>
+<script type="application/ld+json">${JSON.stringify(charter)}</script>
 <script type="application/ld+json">${JSON.stringify(manifest)}</script>
 <style>body{max-width:42rem;margin:3rem auto;font:1rem/1.6 Georgia,serif;padding:0 1rem}h1{font-weight:normal}</style>
 </head>
 <body>
 ${body}
 </body>
-</html>\n`;
+</html>
+`;
+
+function build() {
+  const { blocks, body, head, manifest, geometry, charter } = compileArtefact();
+  const html = renderPage({ head, charter, manifest, body });
   mkdirSync('dist', { recursive: true });
   writeFileSync('dist/index.html', html);
 
@@ -545,9 +721,9 @@ ${body}
   // content/geometry-manifest.json; this kernel writes dist/geometry-manifest.json).
   writeFileSync('dist/geometry-manifest.json', JSON.stringify(geometry, null, 2) + '\n');
 
-  const placements = readEvidence(body).blocks.length;
-  console.log(`built dist/index.html — ${manifest.block_count} block identities from ${blocks.length} lattice coordinates`);
-  console.log(`      ${placements} rendered placements, page root ${manifest.page_merkle_root.slice(0, 16)}…`);
+  console.log(`built dist/index.html — format v${manifest.version}, ${manifest.block_count} block identities from ${blocks.length} lattice coordinates`);
+  console.log(`      ${manifest.placements.length} rendered placements, page root ${manifest.page_merkle_root.slice(0, 16)}…`);
+  console.log(`      composition root ${manifest.composition_root.slice(0, 16)}…   page geometry root ${manifest.geometry.root.slice(0, 16)}…`);
   console.log(`      dist/geometry-manifest.json — geometry root ${geometry.geometry_root.slice(0, 16)}…  ${JSON.stringify(geometry.states)}`);
 }
 
@@ -705,13 +881,22 @@ function blockCompleteness(html, manifest, evidence) {
 // No substrate, no source, no trust in the publisher. This is what any
 // agent — or any sceptic with node installed — can run against the page.
 // Six numbered gates on the two faces + the DOM-text rule (gate 5's DOM-side
-// counterpart) that pins the VISIBLE text.
+// counterpart) that pins the VISIBLE text; then, for an artefact declaring v1.3,
+// three more that pin composition, geometry and the charter.
+//
+// The gate set is chosen by the artefact's OWN declared version, not by the
+// verifier's: a v1.1 or v1.2 page gets the six gates it was built to meet, and
+// gets them unchanged. Returns the list of checks that failed, so a caller with
+// no interest in the transcript (the refusal vectors) can compare it.
 
-function verify(path = 'dist/index.html') {
-  const html = readFileSync(path, 'utf8');
+function verify(path = 'dist/index.html', log = console.log) {
+  return report(runGates(readFileSync(path, 'utf8'), log), log);
+}
+
+function runGates(html, log = console.log) {
   const fails = [];
   const gate = (n, ok, msg) => {
-    console.log(`  gate ${n} ${ok ? 'PASS' : 'FAIL'} — ${msg}`);
+    log(`  gate ${n} ${ok ? 'PASS' : 'FAIL'} — ${msg}`);
     if (!ok) fails.push(n);
   };
 
@@ -722,11 +907,10 @@ function verify(path = 'dist/index.html') {
   gate(1, domBlocks.length > 0 && domAtoms.length > 0, 'DOM carries block + atom hashes');
 
   // Gate 2: the machine face exists.
-  const manifest = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
-    .map((m) => JSON.parse(m[1]))
-    .find((d) => d['@type'] === 'SstPageManifest');
+  const ld = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
+  const manifest = ld.find((d) => d['@type'] === 'SstPageManifest');
   gate(2, !!manifest, 'manifest present in <head>');
-  if (!manifest) return report(fails);
+  if (!manifest) return fails;
 
   // Gate 3: parity, both directions — same identity SET on both faces.
   //
@@ -801,7 +985,7 @@ function verify(path = 'dist/index.html') {
   // Gate 6: block completeness — the block contains its atoms and nothing else.
   const complete = blockCompleteness(html, manifest, evidence);
   gate(6, complete.ok, 'every block wrapper reconstructs from its atoms and nothing else');
-  for (const e of complete.errors) console.log(`         · ${e}`);
+  for (const e of complete.errors) log(`         · ${e}`);
 
   // The §6.2 DOM-text rule — gate 5's DOM-side counterpart (a NAMED companion,
   // not a seventh gate). Gate 5 re-hashes the manifest's content strings; it
@@ -809,21 +993,160 @@ function verify(path = 'dist/index.html') {
   // mutated (attributes + manifest intact) still passes gate 5. This closes that
   // gap atom by atom, where gate 6 closes it block by block.
   const domText = domTextRule(html, manifest);
-  console.log(`  DOM-text ${domText.ok ? 'PASS' : 'FAIL'} — visible text re-hashes / projected label recomputes`);
+  log(`  DOM-text ${domText.ok ? 'PASS' : 'FAIL'} — visible text re-hashes / projected label recomputes`);
   if (!domText.ok) {
     fails.push('DOM-text');
-    for (const e of domText.errors) console.log(`         · ${e}`);
+    for (const e of domText.errors) log(`         · ${e}`);
   }
 
-  return report(fails);
+  // ─────────── VERSION DISPATCH ───────────
+  // The artefact names its format; the verifier runs that format's gate set. The
+  // version names the manifest SHAPE and the GATE SET together — identities are
+  // stable across versions, so an older artefact is not stale, it is older, and
+  // the six gates are the whole of what it ever promised.
+  //
+  // The one thing a version string must not become is a switch that turns checks
+  // off: a v1.3 manifest relabelled `1.2` still carries its v1.3 declarations, and
+  // silently skipping the gates that check them would let an attacker downgrade a
+  // page by editing five characters. So an older version carrying newer fields is
+  // itself the refusal.
+  const V13_FIELDS = ['placements', 'composition_root', 'geometry'];
+  const carried = V13_FIELDS.filter((f) => manifest[f] !== undefined);
+  if (manifest.version === '1.1' || manifest.version === '1.2') {
+    if (carried.length) {
+      fails.push('version');
+      log(`  version FAIL — declares ${manifest.version} but carries v1.3 field(s): ${carried.join(', ')}`);
+    }
+    return fails;
+  }
+  if (manifest.version !== '1.3') {
+    fails.push('version');
+    log(`  version FAIL — unknown manifest version ${JSON.stringify(manifest.version)}; this kernel knows 1.1, 1.2 and 1.3`);
+    return fails;
+  }
+
+  const entryByHash = new Map(manifest.blocks.map((b) => [b.hash, b]));
+  const why = [];
+
+  // Gate 7: COMPOSITION — the page's placement transcript, in document order.
+  //
+  // Gate 3 compares the two faces as SETS and gate 4 recomputes the page root
+  // from the manifest's own list, so neither sees order or multiplicity: two
+  // blocks swapped, a block printed twice, or one of a superposed pair deleted
+  // all passed. The transcript is the missing evidence, and the composition root
+  // is what makes the transcript itself tamper-evident.
+  const claimed = manifest.placements ?? [];
+  if (domBlocks.length !== claimed.length)
+    why.push(`gate 7: the page renders ${domBlocks.length} block wrappers, the transcript declares ${claimed.length}`);
+  else
+    for (let i = 0; i < domBlocks.length; i++)
+      if (domBlocks[i] !== claimed[i].block)
+        why.push(`gate 7: placement ${i} declares …${claimed[i].block.slice(0, 8)}, the page renders …${domBlocks[i].slice(0, 8)}`);
+  const compositionRoot = merkleRoot(claimed.map((c) => placementLeaf(c.block, c.section, c.name)));
+  if (compositionRoot !== manifest.composition_root)
+    why.push(`gate 7: composition root recomputes to ${compositionRoot.slice(0, 8)}… ≠ declared ${String(manifest.composition_root).slice(0, 8)}…`);
+
+  // A placement names its own coordinate (the P4 witness); a bill entry may carry
+  // a shortened one (P2). Where the entry does make a claim, the two must agree.
+  for (const c of claimed) {
+    const e = entryByHash.get(c.block);
+    if (!e) continue; // absent from the bill ⇒ already a gate-3 forward failure
+    if (e.section !== undefined && e.section !== c.section)
+      why.push(`gate 7: block …${c.block.slice(0, 8)} claims section "${e.section}", placed at "${c.section}"`);
+    if (e.name !== undefined && e.name !== c.name)
+      why.push(`gate 7: block …${c.block.slice(0, 8)} claims name "${e.name}", placed as "${c.name}"`);
+  }
+
+  // A block's `order` label claims its position among its page's blocks. The
+  // transcript is the only page-side evidence that can contradict it: distinct
+  // identities must carry increasing labels in the order they are printed. Where
+  // a label is omitted (P2) no claim is made and none is checked — this is a
+  // consistency check on a declared field, not a reconstruction of it.
+  const ordered = [];
+  for (const c of claimed) {
+    const e = entryByHash.get(c.block);
+    if (!e || e.order === undefined || ordered.some((o) => o.block === c.block)) continue;
+    ordered.push({ block: c.block, order: e.order });
+  }
+  for (let i = 1; i < ordered.length; i++)
+    if (!(ordered[i].order > ordered[i - 1].order))
+      why.push(`gate 7: block …${ordered[i].block.slice(0, 8)} claims order ${ordered[i].order}, printed after order ${ordered[i - 1].order}`);
+
+  gate(7, why.length === 0, 'the page renders exactly the declared placements, in order');
+  for (const e of why) log(`         · ${e.replace(/^gate 7: /, '')}`);
+
+  // Gate 8: GEOMETRY FROM THE PAGE — the shape, including its negative space.
+  //
+  // The geometry spine hashes section, block, block_type, role and occupancy
+  // state; the manifest declares the same fields and hashed none of them, so an
+  // edited role or a silently dropped vacancy cost nothing. Publishing the page's
+  // slice binds the two: the root recomputes from the published sites, and the
+  // sites and the bill must describe the same page.
+  const geo = manifest.geometry ?? {};
+  const sites = Array.isArray(geo.sites) ? geo.sites : [];
+  const why8 = [];
+  const geoRoot = pageGeometryRoot(manifest.page, sites);
+  if (!sites.length) why8.push('the manifest declares no geometry sites');
+  else if (geoRoot !== geo.root)
+    why8.push(`geometry root recomputes to ${geoRoot.slice(0, 8)}… ≠ declared ${String(geo.root).slice(0, 8)}…`);
+
+  // A bill entry may omit the coordinate fields its candidate rows disagree about
+  // (P2), and an omitted field makes no claim — so it constrains nothing here. A
+  // site and an entry are COMPATIBLE when every claim the entry does make agrees.
+  const compatible = (entry, site) =>
+    (entry.section === undefined || entry.section === site.section) &&
+    (entry.name === undefined || entry.name === site.block) &&
+    entry.block_type === site.block_type;
+
+  for (const site of sites) {
+    if (site.state !== 'present') continue; // a vacancy is declared, and renders nothing
+    if (!manifest.blocks.some((e) => compatible(e, site) && (e.atoms ?? []).some((a) => a.role === site.role)))
+      why8.push(`site ${site.section}/${site.block}/${site.role} is present, and no block carries it`);
+  }
+  for (const e of manifest.blocks) {
+    if (isCharterAttestation(e)) continue; // synthesized: no lattice row, hence no site (gate 9 binds it)
+    for (const role of new Set((e.atoms ?? []).map((a) => a.role)))
+      if (!sites.some((site) => site.state === 'present' && site.role === role && compatible(e, site)))
+        why8.push(`block …${e.hash.slice(0, 8)} declares role "${role}" that no present site declares`);
+  }
+
+  gate(8, why8.length === 0, 'the page geometry recomputes, and its sites and blocks agree');
+  for (const e of why8) log(`         · ${e}`);
+
+  // Gate 9: THE CHARTER — the operator's terms, under the page root.
+  //
+  // Until v1.3 `verify` never read the charter at all: flipping a permission, or
+  // deleting the declaration outright, failed nothing. Now the served terms are
+  // hashed by the same rule as any other content and the resulting atom must be
+  // the one the charter names, inside a block the manifest carries — which gate 4
+  // has already folded into the page root.
+  const charter = ld.find((d) => d['@type'] === 'SstCharter');
+  let why9 = null;
+  if (!charter) why9 = 'no charter in <head>';
+  else {
+    const declared = charter.attestation;
+    const atom = atomId(charterAtomContent(charter));
+    const entry = declared && entryByHash.get(declared.block);
+    if (!declared || typeof declared.atom !== 'string' || typeof declared.block !== 'string')
+      why9 = 'the charter declares no attestation';
+    else if (atom !== declared.atom)
+      why9 = `the served terms hash to ${atom.slice(0, 8)}… ≠ the declared ${declared.atom.slice(0, 8)}…`;
+    else if (!entry) why9 = `the attested block …${declared.block.slice(0, 8)} is not in the manifest`;
+    else if (!(entry.atoms ?? []).some((a) => a.hash === declared.atom))
+      why9 = `the attested atom is not in block …${declared.block.slice(0, 8)}`;
+  }
+  gate(9, why9 === null, 'the served charter hashes into a block under the page root');
+  if (why9) log(`         · ${why9}`);
+
+  return fails;
 }
 
-function report(fails) {
+function report(fails, log = console.log) {
   if (fails.length === 0) {
-    console.log('\n✓ Dual-Native: this artefact proves itself.');
+    log('\n✓ Dual-Native: this artefact proves itself.');
     return true;
   }
-  console.log(`\n✗ check(s) ${fails.join(', ')} failed: tampered, out-of-spec, or transitional.`);
+  log(`\n✗ check(s) ${fails.join(', ')} failed: tampered, out-of-spec, or transitional.`);
   return false;
 }
 
@@ -989,6 +1312,32 @@ function vectors() {
   return ok;
 }
 
+// ─────────── THE root VERB — recompute a published root by hand ───────────
+// Both composed roots the manifest declares are `merkleRoot` over a list the
+// manifest also publishes, so a sceptic should not have to write code to check
+// one. Hand this verb the manifest's `blocks` array and it prints the page root;
+// hand it the `placements` array and it prints the composition root. A bare JSON
+// array of 64-character hashes works too — that is what a leaf list looks like
+// coming out of any other implementation.
+
+function rootOf(path) {
+  if (!path) throw new Error('usage: node sst-kernel.mjs root <json-file>');
+  const items = JSON.parse(readFileSync(path, 'utf8'));
+  if (!Array.isArray(items)) throw new Error('expected a JSON array of hashes, blocks, or placements');
+  const leaves = items.map((it, i) => {
+    if (typeof it === 'string') {
+      if (!/^[0-9a-f]{64}$/.test(it)) throw new Error(`item ${i}: not a 64-character hex hash`);
+      return it;
+    }
+    if (it && typeof it.hash === 'string') return it.hash;          // a manifest block
+    if (it && typeof it.block === 'string' && typeof it.section === 'string' && typeof it.name === 'string')
+      return placementLeaf(it.block, it.section, it.name);          // a placement
+    throw new Error(`item ${i}: neither a hash, a block entry, nor a placement`);
+  });
+  console.log(merkleRoot(leaves));
+  return true;
+}
+
 // ───────────────────────── CLI ─────────────────────────
 
 const cmd = process.argv[2] ?? 'build';
@@ -999,4 +1348,5 @@ else if (cmd === 'verify') process.exit(verify(process.argv[3]) ? 0 : 1);
 else if (cmd === 'tamper') tamper();
 else if (cmd === 'seal') process.exit(seal() ? 0 : 1);
 else if (cmd === 'vectors') process.exit(vectors() ? 0 : 1);
-else console.log('usage: node sst-kernel.mjs [build|verify <file>|tamper|seal|vectors]');
+else if (cmd === 'root') rootOf(process.argv[3]);
+else console.log('usage: node sst-kernel.mjs [build|verify <file>|tamper|seal|vectors|root <json-file>]');
