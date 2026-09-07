@@ -1234,7 +1234,14 @@ function seal() {
 //                    this set is a freeze, not an agreement: it pins the dedupe
 //                    rule, the provenance labels, and the geometry census against
 //                    accidental drift. It becomes a cross-implementation check
-//                    the day a second implementation reproduces it.
+//                    the day a second implementation reproduces it. It is also a
+//                    PROMISE: the older shape is still emitted on demand, so an
+//                    artefact built to it keeps verifying exactly as before.
+//
+//   v1.3-manifest  — the v1.3 shape on the same terms, plus something the other
+//                    two sets do not have: a REFUSAL set. Each file is the frozen
+//                    page with one edit, and each names the check that must catch
+//                    it. A gate nobody has watched refuse is a comment.
 
 function vectors() {
   let ok = true;
@@ -1300,14 +1307,44 @@ function vectors() {
   // A dedupe that stopped deduping, a label that started guessing, or a version
   // that slipped back to 1.1 each move these bytes.
   const frozen = JSON.parse(readFileSync(new URL('vectors/v1.2-manifest/expected.json', import.meta.url), 'utf8'));
-  const built = compileArtefact();
+  const built = compileArtefact('1.2');
   if (JSON.stringify(built.manifest) !== JSON.stringify(frozen.page_manifest)) fail('v1.2 page manifest drift — the built manifest is not the frozen one');
   else console.log(`  ✓ the v1.2 page manifest reproduces byte-for-byte (${frozen.page_manifest.block_count} identities, ${frozen.page_manifest.atom_count} atoms, version ${frozen.page_manifest.version})`);
   if (JSON.stringify(built.geometry) !== JSON.stringify(frozen.geometry)) fail('v1.2 geometry manifest drift');
   else console.log(`  ✓ the v1.2 geometry spine reproduces (${frozen.geometry.site_count} sites, ${frozen.geometry.block_count} blocks)`);
 
+  // ── v1.3-manifest: composition, the page's geometry slice, the charter ──
+  // Same provenance as v1.2 — a freeze by this kernel over its own substrate. The
+  // frozen PAGE is pinned beside the manifest, because the refusal set below is a
+  // set of one-character-scale edits to exactly those bytes: a drifted page would
+  // quietly make every refusal a test of nothing.
+  const f13 = JSON.parse(readFileSync(new URL('vectors/v1.3-manifest/expected.json', import.meta.url), 'utf8'));
+  const b13 = compileArtefact('1.3');
+  if (JSON.stringify(b13.manifest) !== JSON.stringify(f13.page_manifest)) fail('v1.3 page manifest drift — the built manifest is not the frozen one');
+  else console.log(`  ✓ the v1.3 page manifest reproduces byte-for-byte (${f13.page_manifest.block_count} identities, ${f13.page_manifest.placements.length} placements, ${f13.page_manifest.geometry.sites.length} sites, version ${f13.page_manifest.version})`);
+  if (JSON.stringify(b13.charter) !== JSON.stringify(f13.charter)) fail('v1.3 charter drift — the attestation is not the frozen one');
+  else console.log('  ✓ the v1.3 charter reproduces, naming the atom and the block that attest its terms');
+
+  const frozenPage = readFileSync(new URL('vectors/v1.3-manifest/page.html', import.meta.url), 'utf8');
+  if (renderPage(b13) !== frozenPage) fail('v1.3 page drift — the built page is not the one the refusal set mutates');
+  else if (runGates(frozenPage, () => {}).length) fail('the frozen v1.3 page does not pass its own gates');
+  else console.log('  ✓ the frozen v1.3 page rebuilds byte-for-byte and passes all nine gates + the DOM-text rule');
+
+  // The REFUSAL set. Every case but the control passed all six gates of the
+  // previous version untouched; each must now fail EXACTLY the check it names —
+  // a gate that stops refusing, refuses something else, or refuses two things at
+  // once all move these values.
+  const refusals = JSON.parse(readFileSync(new URL('vectors/v1.3-manifest/refusals/expected.json', import.meta.url), 'utf8'));
+  let refused = 0;
+  for (const c of refusals.cases) {
+    const got = runGates(readFileSync(new URL(`vectors/v1.3-manifest/refusals/${c.file}`, import.meta.url), 'utf8'), () => {});
+    if (JSON.stringify(got) !== JSON.stringify(c.refuses)) fail(`refusal drift: ${c.file} failed [${got.join(', ')}], expected [${c.refuses.join(', ')}]`);
+    else refused++;
+  }
+  if (refused === refusals.cases.length) console.log(`  ✓ ${refused} refusal vectors each fail exactly the check they name`);
+
   console.log(ok
-    ? `\n✓ sst-kernel reproduces the v1-fixture identity vectors (${expected.format}) and its own ${frozen.format} manifest vectors.`
+    ? `\n✓ sst-kernel reproduces the v1-fixture identity vectors (${expected.format}) and its own ${frozen.format} and ${f13.format} manifest vectors.`
     : '\n✗ sst-kernel DIVERGES from the conformance vectors — a primitive or a rule drifted.');
   return ok;
 }

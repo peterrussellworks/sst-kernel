@@ -1,0 +1,49 @@
+{
+  "@type": "SstRefusalVectors",
+  "format": "SST Dual-Native v1.3",
+  "fixture": "vectors/v1.3-manifest/page.html",
+  "frozen_by": "sst-kernel.mjs in this repository. A freeze, not a cross-implementation agreement — see vectors/README.md.",
+  "note": "A gate nobody has watched refuse is a comment. Each file below is page.html with ONE edit, and each names the check that must catch it; `refuses` is the exact list `verify` reports, so a gate that stops refusing, starts refusing something else, or starts refusing two things at once moves these values. Every one of the first seven passed all six gates of the previous format version unchanged — that is why they exist. The eighth is the control: an edit the previous version already caught, which must still be caught in the same place.",
+  "cases": [
+    {
+      "file": "reordered-blocks.html",
+      "mutation": "the first two rendered blocks swapped in the DOM",
+      "refuses": [7]
+    },
+    {
+      "file": "duplicated-block.html",
+      "mutation": "one block rendered a second time",
+      "refuses": [7]
+    },
+    {
+      "file": "dropped-superposed-placement.html",
+      "mutation": "one of the two placements of a superposed identity deleted — the identity still renders once, so the two faces still agree as sets",
+      "refuses": [7]
+    },
+    {
+      "file": "edited-block-order.html",
+      "mutation": "a block's declared order label changed to a value the rendered sequence contradicts",
+      "refuses": [7]
+    },
+    {
+      "file": "edited-atom-role.html",
+      "mutation": "an atom's declared role changed in the block list, leaving the geometry site that declares the same role untouched",
+      "refuses": [8]
+    },
+    {
+      "file": "flipped-charter-permission.html",
+      "mutation": "one permission flipped in the served charter, leaving the attested copy untouched",
+      "refuses": [9]
+    },
+    {
+      "file": "deleted-charter.html",
+      "mutation": "the charter declaration deleted outright",
+      "refuses": [9]
+    },
+    {
+      "file": "edited-visible-text.html",
+      "mutation": "the control — one letter of visible text, which the previous format version already refused",
+      "refuses": [6, "DOM-text"]
+    }
+  ]
+}
