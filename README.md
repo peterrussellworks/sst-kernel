@@ -2,8 +2,8 @@
 
 **SST — Single Source of Truth: a self-verifying content format for sovereign operators: the operator holds the substrate, the public face is read-only by construction, and the charter travels as data.**
 This repository is its kernel: the whole idea in one dependency-free file you
-can read top to bottom in a sitting — about fourteen hundred lines, more than a
-third of them commentary — plus the frozen vectors that hold it to account.
+can read top to bottom in a sitting — about twenty-three hundred lines, nearly
+half of them commentary — plus the frozen vectors that hold it to account.
 
 > **This is not sst.dev.** sst.dev is a serverless-infrastructure framework that
 > happens to share the acronym; nothing here is related to it, and nothing on the
@@ -99,7 +99,7 @@ Three Merkle roots over the same lattice, answering three different questions:
 | spine | attests | leaf | moves when |
 |---|---|---|---|
 | **content** | WHAT IS PRESENT — atoms → blocks → page root | an atom's hashed content | any character of any atom changes |
-| **composition** | WHERE, HOW MANY TIMES, AND HOW — the page's placements, in order | a placement-coordinate: the identity placed, the coordinate it was placed at, and a root over the atoms it carried with the mode each was carried in | a block is moved, repeated or dropped, or a placement changes what it prints or how — **never** on a content edit |
+| **composition** | WHERE, HOW MANY TIMES, AND HOW — the page's placements, in order, and the page's own furniture | a placement-coordinate: the identity placed, the coordinate it was placed at, and a root over the atoms it carried with the mode each was carried in; then one final leaf over the page's furniture root | a block is moved, repeated or dropped, a placement changes what it prints or how, or a word of the page's own furniture changes — **never** on a content edit |
 | **geometry** | THE SHAPE, incl. negative space | a site-coordinate valued by occupancy state | a site is added/removed, or a hole is filled/sealed — **never** on a content edit |
 
 The geometry spine is *matter-invariant*: editing an atom leaves the coordinate
@@ -131,9 +131,9 @@ one.
 | 3 | parity, both directions — the same identity SET on both faces |
 | 4 | the declared page root recomputes from the block list |
 | 5 | the **manifest** re-hashes — every manifest atom's content reproduces its id, every block root recomputes from its atoms |
-| 6 | **block completeness** — every atom a placement declares is found on the surface it declares, in the order it declares, and once every declared element is accounted for the wrapper holds *no visible text besides* |
+| 6 | **completeness** — every atom a placement declares is found on the surface it declares, in the order it declares, and once every declared element is accounted for the wrapper holds *no visible text besides*; and, on a v1.3 page, the same question of the whole page — the furniture it carries is the furniture the manifest declares, the declared furniture root is the root over what the page shows, and nothing visible is left over |
 | — | **the §6.2 DOM-text rule** — gate 5's DOM-side counterpart: every *visible* atom's text re-hashes to its id (or, for a projected atom, the named projection recomputes) |
-| 7 | **composition** — the page renders exactly the declared placements, in document order, and the composition root recomputes from them |
+| 7 | **composition** — the page renders exactly the declared placements, in document order; the declared furniture root recomputes from the declared furniture list; and the composition root recomputes from the placement leaves plus a final furniture leaf |
 | 8 | **geometry** — the page's geometry root recomputes from the sites it publishes; at every coordinate it places, the roles the block published there and the present sites declared there are the same set, *both ways*; and no site names a coordinate the page does not place |
 | 9 | **the charter** — the page serves *exactly one* charter object, and its served terms hash to the atom that charter names, inside a block the manifest carries, and therefore under the page root |
 
@@ -155,7 +155,9 @@ for them to check, and every one of them passes while the page says something it
 author never wrote. Gate 6 asks the other question: does this block reconstruct
 from its atoms and nothing else? Any residue is reported verbatim. It was found
 by adversarial injection, not by design review, which is the honest provenance of
-most good checks.
+most good checks. On a v1.3 page it asks the same question of the whole body, not
+only of each wrapper — see **the furniture**, below, which is what made "the page
+contains nothing else" a true sentence rather than a nearly true one.
 
 **Placement render mode — how gate 6 reads a page that is not all prose.** An
 artefact of any size renders most of its atoms somewhere other than as a
@@ -192,16 +194,69 @@ Four consequences worth stating plainly.
   proper subset of its block's atoms is a **partial** placement: it printed some
   of them, and the block still holds all of them. Nothing announces this, so
   there is no field to forge — the two lists say it.
-- **Chrome.** Markup outside every block wrapper is invisible to gate 6 already;
-  a wrapper's own markup runs from where it opens to where it closes. Where the
-  page's furniture must sit *inside* a wrapper, `data-sst-chrome` on the element
-  excludes its span from the residue and buys nothing else: an element carrying
-  both a chrome marker and an atom stamp is refused, since admitting the pair
-  would make the marker a way to hide an atom from its own check.
+- **Chrome.** Where the page's furniture must sit *inside* a wrapper,
+  `data-sst-chrome` on the element excludes its span from that wrapper's residue
+  and buys nothing else: an element carrying both a chrome marker and an atom
+  stamp is refused, since admitting the pair would make the marker a way to hide
+  an atom from its own check. The marker does not make the text disappear — it
+  moves it into the furniture list, below, where it is declared and hashed.
 - **Whitespace is not evidence.** Every text comparison in gate 6 is made with
   all whitespace removed on both sides. A page that sets two atoms with no space
   between them, or lays a label across three lines of source, differs from its
   atoms by typesetting; a page that changes one letter still fails.
+
+**The furniture — the page's own text, declared.** A page is not only its
+blocks. It carries a plate number, a footer line, a breadcrumb: text that is the
+page's rather than the operator's content, that no atom attests, and that until
+v1.3 entered no root at all. Two holes followed, and both were live on this
+kernel's own page:
+
+- a `data-sst-chrome` element had its span cut from its wrapper's residue and
+  **nothing bounded its text**, so an added chrome-marked paragraph of prose
+  passed all nine gates and matched the origin's roots;
+- text between two block wrappers lay outside every wrapper's own markup, so a
+  **visible paragraph nobody wrote** was invisible to every gate — while this
+  document said the page contains nothing else.
+
+So the furniture is *declared*, exactly as a render mode is, and for the same
+reason: a verifier that inferred which text was furniture would accept any text
+as furniture. **The page's FURNITURE is**, in document order:
+
+- every `data-sst-chrome` element's normalized visible text, inside or outside a
+  wrapper;
+- every run of visible text in the body that lies outside every block wrapper and
+  outside every chrome-marked element.
+
+A span showing no text declares nothing and enters no list — a spacer, a rule, an
+icon — because hashing an empty string once per decorative element would put
+typography inside a published root. `<script>`, `<style>` and `<template>` are
+not visible text and are read as none.
+
+The manifest publishes that list as `furniture` and its Merkle root over
+`sha256(text)` per span as `furniture_root`; an empty list has the defined root
+`merkleRoot([])`, which is SHA-256 of the empty string,
+`e3b0c442…`. **The binding:** the composition root is now the root over the
+placement leaves **plus one final leaf**, `sha256('furniture' ␟ furniture_root)`,
+appended unconditionally so a page cannot drop its claim about its own furniture
+by having none. The placement leaves themselves are byte-identical to what they
+were, which is why this was the cheapest binding available.
+
+Gate 6 checks the list against the page in both directions and checks the
+declared root against what the page shows; gate 7 recomputes the root from the
+declared list and folds it into the composition root. An injected sentence
+therefore has to move a published value. A page that rewrites its own furniture
+list *consistently* still passes every gate — and is caught the moment its roots
+are compared with the origin's. That is the claim ladder's second rung and no
+higher, and `refusals/consistent-furniture-rewrite.html` freezes it: a page that
+passes all nine with a composition root that is not the frozen page's.
+
+**Which registry, named.** A render descriptor names a transform symbolically, so
+a verifier that cannot tell *which* registry a page's descriptors refer to
+recomputes a label with whatever table it happens to carry and calls the result an
+agreement. A v1.3 manifest therefore carries `registry_hash` — the SHA-256 of the
+registry's own source region, the same value the conformance vectors freeze. It
+enters no root: it is a claim about the emitter's table, and gate 6 compares it
+with the table the verifier actually holds rather than hashing it.
 
 **Where the mode is attested, and where it is not.** Not in the atom id, not in
 the block root, not in the page root, and not in the geometry leaf. Renaming an
@@ -292,8 +347,8 @@ catch, so this project holds its own language to account first.
 **The boundary, stated once, plainly.** On a **v1.3** artefact, `verify`
 establishes content identity from the page alone — every atom's text re-hashes to
 its declared id, every block root and the page root recompute from that content,
-and no block carries text its atoms do not attest — and then three things that
-used to be declared and unchecked: the *sequence and multiplicity* of the page's
+and the page carries no visible text besides its atoms and its declared furniture
+— and then three things that used to be declared and unchecked: the *sequence and multiplicity* of the page's
 placements, against a transcript whose own root recomputes; the *descriptive
 fields* `role`, `section`, `name` and `block_type`, against the geometry sites
 that hash all four; and the *charter*, whose served terms hash to an atom inside
@@ -370,6 +425,84 @@ What remains outside, and it is worth naming precisely:
 carries no operator signature. If you find such a claim anywhere in this
 repository, it is a defect; please report it.
 
+## Trust model
+
+The gates are one layer of a stack, and saying which layer keeps the rest of this
+document honest.
+
+**Level 1 — internal integrity.** The nine gates and the DOM-text rule, run
+against the published HTML alone. They establish that the artefact is consistent
+with itself: the visible text re-hashes, the roots recompute, the placements and
+the geometry and the charter agree with the page and with each other, and the page
+shows nothing besides its atoms and its declared furniture. This is what
+`node sst-kernel.mjs verify` proves and the whole of what it proves.
+
+**Level 2 — source correspondence.** The page's roots compared with the roots the
+declared origin publishes. Internal integrity cannot distinguish an artefact from
+a consistent rewrite of it: relabel a coordinate everywhere, or inject a sentence
+and declare it as furniture, and every root recomputes. What refuses those is that
+the recomputed root is not the published one. The reference artefact already does
+this in public: its machine itinerary walks a reader from the kernel to a live
+page to the verification face, to `curator_root`, to the crystal state, so the
+roots on the page can be checked against the roots the origin stands behind.
+
+Above and outside this kernel, three further layers, none of them shipped and none
+of them claimed here:
+
+- **Origin authentication** — binding an artefact to an operator rather than to a
+  domain: signatures, DNS, transparency logs. The signature extension is designed
+  and parked; until it ships, verification is relative to the canonical origin,
+  authenticated by DNS and TLS.
+- **Historical provenance** — what the artefact said *before*. Roots are a
+  fingerprint of now; snapshots are what make "this paragraph was here last year"
+  checkable.
+- **Projection attestation** — which crystal material a published face withholds.
+  A page's geometry slice says what that page publishes; nothing yet attests the
+  relationship between a face and the material behind it, so a reader cannot tell
+  a narrow face from a complete one. This is research, and it is the question the
+  author most wants attacked.
+
+## Known limitations and open research questions
+
+Stated as a list because a limitation buried in a paragraph is a limitation
+hidden.
+
+- **Authenticated origin.** Nothing binds an artefact to a person or a company.
+  A faithful copy is exactly as consistent as the original. See level 2 above.
+- **Parser equivalence.** This verifier is a structural scanner over HTML source,
+  not an implementation of the HTML parsing algorithm. Malformed markup, exotic
+  nesting, or a document a browser recovers from differently could be read by the
+  scanner as one shape and by a browser as another. A future conformance rule may
+  restrict the verifiable face to well-formed markup, which is the honest fix; a
+  scanner that grew special cases until it was a parser would be the dishonest
+  one.
+- **Element type and attribute semantics.** The render descriptor names a surface
+  and a transform. It does not name the element type, and no gate reads it: an
+  atom printed in an `<h1>` and the same atom printed in a `<span>` are the same
+  placement to every root here. Nor do attributes other than the one an
+  attribute-mode atom is declared in enter anything — `href`, `lang`, `hidden` and
+  the rest are outside the attested face.
+- **CSS visibility and runtime mutation.** The gates read source. A block whose
+  markup is intact but which CSS hides, whose text is substituted via
+  `::before`/`::after`, or which JavaScript rewrites after load, passes. The
+  attested publication face is the served markup, and it will not become the
+  rendered pixel.
+- **The transform registry is pinned by hash, and named symbolically.** A
+  descriptor says `rating-label`; what that means lives in the registry. v1.3's
+  `registry_hash` closes the naming half — a verifier can now tell whether the
+  page's registry is its own — but the descriptors still refer to entries by name,
+  and a registry that added an entry without moving the hash would be a different
+  table wearing the same badge. The hash is what makes that impossible; the
+  symbolic reference is what makes the hash necessary.
+- **Projection attestation.** Nothing attests what a face withholds. See level 2
+  above.
+- **`order` is declared and never verified**, at every version, for the reason
+  given above: it is a section-local label and nothing the page shows can
+  contradict it.
+
+This repository is a demonstrator of a proposed architecture and an invitation to
+attack, extend and falsify it, not a claim of completeness.
+
 ## Conformance
 
 That this kernel *is* SST rather than a sketch of it is a measurement, not a
@@ -394,14 +527,18 @@ blurred:
   day a second implementation reproduces it. It is also a promise kept: the kernel
   still emits the v1.2 shape on demand, and this set is what proves it.
 - **`vectors/v1.3-manifest/`** — the v1.3 shape on the same terms, plus the
-  frozen page itself and something neither other set has: a **refusal set**. Each
-  file under `refusals/` is a frozen page with one edit, and each names the single
-  check that must catch it. Twelve of the thirteen passed all six of the previous
-  version's gates untouched; the last is a control the previous version already
-  caught, and must still be caught in the same place. Beside them sits a second
-  frozen page serving the same terms in the other charter shape, which must pass
-  all nine — a refusal alone cannot tell you a shape was *read* rather than
-  skipped. A gate nobody has watched refuse is a comment.
+  frozen page itself and something neither other set has: a **refusal set**.
+  Twenty-six files under `refusals/`, each the frozen page with one edit, each
+  naming the exact list of checks `verify` must report. Twenty-five are refusals;
+  every one but the control passed all six of the previous version's gates
+  untouched, and the control is an edit the previous version already caught and
+  must still catch in the same place. The twenty-sixth must **pass**: the same
+  injected paragraph as the refusal beside it, *declared*, with both roots
+  recomputed — a page with internal integrity and a composition root that is not
+  the origin's, which is the claim ladder's second rung frozen as a vector. Beside
+  them sits a second frozen page serving the same terms in the other charter
+  shape, which must pass all nine — a refusal alone cannot tell you a shape was
+  *read* rather than skipped. A gate nobody has watched refuse is a comment.
 
 A further set, `vectors/genesis-face/`, freezes the machine records a genesis face
 emits (`kit/AGENT-GENESIS.md` §7) rather than the format itself; the kernel does

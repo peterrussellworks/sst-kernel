@@ -11,7 +11,12 @@ bureaucracy but the format's own logic applied to itself.
 A bug, an unclear paragraph, a cold run of `kit/AGENT-GENESIS.md` that didn't go
 the way the document predicted, a vector that doesn't reproduce on your machine,
 a claim in `README.md` or `WHITEPAPER.md` that overstates what the gates actually
-prove — these are wanted reports, not tolerated ones. Open an issue and say
+prove — these are wanted reports, not tolerated ones. An edit to a page that all
+nine gates accept and that a reader would call tampering is the most valuable
+report of all: the two furniture holes were found that way, by a stranger running
+edits against the built page rather than reading about it. `README.md`'s **Known
+limitations and open research questions** is the list to attack first, and its
+being a list is an invitation. Open an issue and say
 exactly what you ran and what you observed, the same discipline this repository
 asks of its own agents (`AGENT-GENESIS.md` §10: "a run that reports a pass it did
 not observe has broken the only thing this document is for"). A report that says
@@ -21,8 +26,12 @@ over the symptom.
 ## Format changes: not by pull request
 
 `vectors/` is frozen, and `sst-kernel.mjs`'s identity primitives — atom hashing,
-Merkle composition, the gate set, the geometry and composition spines — are what
-the vectors hold to account. So is the shared transform registry, the closed table
+Merkle composition, the gate set, the geometry and composition spines, and the
+furniture root the composition spine now carries as its final leaf — are what the
+vectors hold to account. The gate set is the nine gates plus the DOM-text rule,
+and what each one covers is stated in `README.md`; a change to what any of them
+accepts or refuses is a format change, including the page-level residue rule gate
+6 gained with the furniture root. So is the shared transform registry, the closed table
 of content→display transforms between the two marker comments in
 `sst-kernel.mjs`: its bytes are hashed as a vector precisely so that a second
 implementation can vendor them and prove the copy equal, which an edit here would

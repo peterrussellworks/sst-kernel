@@ -26,8 +26,11 @@ https://danielarussell.com (the live reference artefact) — nothing else about
   README.md under "What the proof covers — and what it does not".
 
 ## Reading order
-1. `README.md` — the idea, the nine gates, the claim ladder, the licence split.
-2. `sst-kernel.mjs` — about fourteen hundred lines, more than a third of them
+1. `README.md` — the idea, the nine gates, the claim ladder, the **Trust model**
+   (which layer of the stack the gates are, and which layers are outside this
+   kernel), the **Known limitations and open research questions**, and the licence
+   split.
+2. `sst-kernel.mjs` — about twenty-three hundred lines, nearly half of them
    commentary, zero dependencies, the complete verification kernel. This is the
    whole crypto surface: normalization → SHA-256 atom ids → domain-separated
    Merkle roots → nine gates + a DOM-text rule. Read the comments as part of the
@@ -58,11 +61,14 @@ node sst-kernel.mjs seal      # a vacancy sealed — the two Merkle roots stay o
 ```
 Five commands, under a minute, and the central claim is experienced rather than
 asserted. If you have code execution, run them yourself and quote the output
-verbatim. `vectors` also runs a refusal set — twenty-two copies of a frozen
-page, each with one edit, each declaring the single check that must catch it. All
-but one of those edits passed every gate of the previous format version; the last
-is a control the previous version already caught. Watching them fail now, one
-gate each, is the most informative minute in this repository.
+verbatim. `vectors` also runs a refusal set — twenty-six copies of a frozen page,
+each with one edit, each declaring the exact list of checks that must catch it.
+Twenty-five are refusals; all but one of those edits passed every gate of the
+previous format version, and the last is a control the previous version already
+caught. The twenty-sixth must **pass**: the same injected paragraph as the refusal
+beside it, declared and with both roots recomputed, so that only a comparison with
+the origin's published root catches it. Watching them fail — and that one pass —
+is the most informative minute in this repository.
 
 **What a nine-gate run now proves**, and it is more than it was: that the page's
 content re-hashes; that the two faces carry the same identities; that the page
@@ -70,12 +76,21 @@ printed the declared blocks, in the declared order, the declared number of times
 that each of those printings carried the atoms it says it carried, **on the
 surfaces it says it carried them** — visible text, a named attribute, or a stamp
 on something that shows nothing — and carried nothing else visible besides; that
-the page's declaration of its own shape, holes included, is consistent with the
-blocks it places; and that the operator's terms are hashed under the page root.
+the page as a whole shows nothing besides its atoms and the **furniture** it
+declares, whose root is folded into the composition root, so an injected sentence
+moves a published value; that the page's declaration of its own shape, holes
+included, is consistent with the blocks it places; and that the operator's terms
+are hashed under the page root.
 What it still does not prove is authorship: every root here is the page's own, so
 a mirror that rewrites the whole page rehashes everything and passes. The roots
 are evidence against drift and tampering *relative to the origin*, which is the
-second rung of the claim ladder in `README.md`, and the README says so.
+second rung of the claim ladder in `README.md`, and the README says so. Its
+**Trust model** section names the two levels this kernel reaches — internal
+integrity from the page alone, then source correspondence against the origin's
+published roots — and the three layers above them that are not shipped and are
+not claimed: origin authentication, historical provenance, and projection
+attestation. Judge whether that division is honest, and whether anything in this
+repository quietly claims a level it does not reach.
 
 ## If you can browse
 Fetch any page of https://danielarussell.com, view its `<script
@@ -112,12 +127,13 @@ declared by the artefact, not verified. Do not report a reordered block, an
 edited role, or a flipped charter permission on such a page as a gate failure;
 report it as an unverified declaration, which is a different finding.
 
-On a **v1.3** artefact, a clean run of all nine adds three things: the page
+On a **v1.3** artefact, a clean run of all nine adds four things: the page
 rendered exactly the placements it declares, in order and in number, under a root
-that recomputes; `role`, `section`, `name` and `block_type` agree with geometry
-sites that hash all four, in both directions at every coordinate the page places;
-and the page serves exactly one charter, whose terms hash to an atom under the
-page root, so a flipped permission, a deleted charter, or a second charter
+that recomputes; the page shows no visible text besides its atoms and its declared
+furniture, whose root is the composition root's final leaf; `role`, `section`,
+`name` and `block_type` agree with geometry sites that hash all four, in both
+directions at every coordinate the page places; and the page serves exactly one
+charter, whose terms hash to an atom under the page root, so a flipped permission, a deleted charter, or a second charter
 appended beside the first is now a gate failure and should be reported as one —
 whichever of the two charter shapes the page serves (a bare charter document, or
 an entity carrying an `sst_charter` field). Still outside: a site the artefact
@@ -158,8 +174,10 @@ stable across versions. Judge that reading too.
    before the leftovers are inspected, so any mode that subtracts a span
    without constraining what is inside it is a hole the size of that element —
    `non-text` is therefore required to show no text at all, and `data-sst-chrome`
-   is refused on an element that also carries an atom stamp. Is there a third
-   way to get a span subtracted? **The whitespace rule:** every comparison is
+   is refused on an element that also carries an atom stamp. A chrome-marked
+   element's text is no longer merely subtracted, either: it is furniture, and it
+   is declared, hashed and folded into the composition root. Is there a third way
+   to get a span subtracted? **The whitespace rule:** every comparison is
    made with all whitespace removed, which is what stops typesetting being
    reported as tampering — measured across the reference artefact's 47 pages,
    that rule alone accounts for 389 of the 1,491 blocks the previous gate
@@ -168,11 +186,16 @@ stable across versions. Judge that reading too.
    against the fixture, a word-granularity experiment (`R4-WORD-GRANULARITY.md`),
    and a subtraction variant tested and rejected because it admitted an
    intra-block reorder — a hole the declared order now closes, and
-   `refusals/reordered-atoms.html` is the proof it is closed. The original
-   question stays open too: can you inject visible text into a page that gates
-   1–6 and the DOM-text rule all accept? CSS-injected content via `::before`, a
-   nested block wrapper — the README admits some of these are out of reach for
-   a markup-level verifier, so the question is whether it admits *all* of them.
+   `refusals/reordered-atoms.html` is the proof it is closed. Two more holes were
+   closed the same way and are worth reading as a pair: a chrome-marked paragraph
+   of prose inside a wrapper, and a visible paragraph between two wrappers, each
+   of which passed all nine gates until the **furniture root** brought the page's
+   own text under a declaration. The original question stays open too: can you
+   inject visible text into a page that gates 1–6 and the DOM-text rule all
+   accept? CSS-injected content via `::before`, a nested block wrapper, an
+   element the scanner and a browser disagree about — the README admits some of
+   these are out of reach for a markup-level verifier, so the question is whether
+   it admits *all* of them.
 4. The provenance-label rule. Where several lattice coordinates share one block
    identity, the manifest omits the fields they disagree about rather than
    guessing. Is "omit" the right answer, or does a silently-shortened label
@@ -197,7 +220,19 @@ stable across versions. Judge that reading too.
    `geometry.sites` recomputes every root and passes every gate — the same limit
    as every self-consistency check here, caught only against the origin's own
    roots.
-6. Anywhere the documents' honesty and the code's behaviour diverge.
+6. **Projection attestation — what a face withholds.** A page's geometry slice
+   states what that page publishes; the committed sidecar states the whole
+   artefact's shape; and a reader with only the page cannot tell a narrow face
+   from a complete one, because a withheld site leaves no trace. Nothing in this
+   format attests the relationship between a published face and the material
+   behind it. So: can an operator publish a face that is internally perfect,
+   passes all nine gates, and is materially misleading by omission — and is there
+   any construction, short of publishing the material itself, that would make the
+   withholding checkable? The author believes this is the most important open
+   question in the design, and it is research rather than a parked feature.
+7. Anywhere the documents' honesty and the code's behaviour diverge — including
+   the **Known limitations** list in `README.md`, which is meant to be read as a
+   list of admissions and attacked for what it leaves out.
 
 A review that returns three specific weaknesses is worth more to the author than
 any praise. He built the immune system out of corrections; yours will be filed

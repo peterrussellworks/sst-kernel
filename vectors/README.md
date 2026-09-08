@@ -123,19 +123,30 @@ the version axis is broken, not the vector.
 **Provenance: computed by THIS kernel. A freeze, not an agreement**, on the same
 terms as `v1.2-manifest/`, over the same substrate.
 
-**The composition root moved, and the version did not.** The placement leaf was
-`sha256(block ␟ section ␟ name)` when this set was first frozen; it is now
-`sha256(block ␟ section ␟ name ␟ R)`, where `R` is a Merkle root over
-`sha256(atom-hash ␟ render descriptor)` in the order the placement printed them.
-Folding the render declaration into the leaf is what makes a forged or swapped
-mode move a root instead of moving nothing. That is a redefinition of a published
-value, and it is being made **without a version bump on purpose**: no
-implementation has shipped v1.3 publicly — the reference artefact emits v1.3
-fields but has not been released under that name — so v1.3 is still pre-release
-and this is a change to a draft, not a break of a promise. Every atom, block and
-page root is byte-identical across the change; only `composition_root` and the
-placement entries moved. The moment v1.3 ships, this is the last time that leaf
-can change without a new version.
+**The composition root has moved twice, and the version has not.** Both times
+because v1.3 is still pre-release, and both are recorded here rather than left in
+a commit message.
+
+1. The placement leaf was `sha256(block ␟ section ␟ name)` when this set was first
+   frozen; it became `sha256(block ␟ section ␟ name ␟ R)`, where `R` is a Merkle
+   root over `sha256(atom-hash ␟ render descriptor)` in the order the placement
+   printed them. Folding the render declaration into the leaf is what makes a
+   forged or swapped mode move a root instead of moving nothing.
+2. The composition root is now the root over the placement leaves **plus one final
+   leaf**, `sha256('furniture' ␟ furniture_root)` — the page's own text, the text
+   no atom attests. Before it, a chrome-marked paragraph and a paragraph between
+   two wrappers each entered no root at all, and a page carrying either passed all
+   nine gates and matched the origin's roots. The leaf is appended
+   unconditionally, so a page cannot drop the claim by having no furniture; the
+   placement leaves are byte-identical across the change, which is why this was
+   the cheapest binding available.
+
+No implementation has shipped v1.3 publicly — the reference artefact emits v1.3
+fields but has not been released under that name — so both are changes to a draft,
+not breaks of a promise. Every atom, block and page root is byte-identical across
+both; only `composition_root` and, the second time, the new `furniture`,
+`furniture_root` and `registry_hash` fields moved these bytes. The moment v1.3
+ships, that leaf list is as frozen as any other value here.
 
 The kernel's own fixture also grew — four blocks and eleven atoms — so that every
 render mode is exercised by something the kernel actually builds rather than
@@ -144,18 +155,33 @@ nothing, an `alt` carried on the `<img>` nested inside it, a rating whose atom i
 `5` and whose rendered form is the label a screen reader announces, three
 taxonomy atoms composed into one label by a registry transform, a placement that
 prints two of its block's three atoms and prints them backwards, and a
-chrome-marked element inside a wrapper. `v1-fixture/` and `v1.2-manifest/` are
-untouched by that growth, which is what the pinned v1.2 substrate above is for.
+chrome-marked element inside a wrapper. It has since gained a **footer line
+outside every wrapper**, so the fixture exercises both halves of the furniture
+rule — chrome inside a wrapper, free text outside them all — with something the
+kernel actually builds rather than described in prose. `v1-fixture/` and
+`v1.2-manifest/` are untouched by that growth, which is what the pinned v1.2
+substrate above is for; the footer is emitted only at v1.3, because furniture is
+a v1.3 declaration and a page that cannot declare its own furniture should not be
+made to carry any.
 
 What it pins, in `expected.json`:
 
 - the **page manifest** — 12 block identities (the 7 the v1.2 set pins, the 4 new
   mode-bearing blocks, and the synthesized charter attestation block), 11
-  placements, 20 geometry sites, `version: "1.3"`, and three roots rather than
-  one: the page root, the **composition root** over the placement transcript, and
-  this page's own **geometry root** over the sites its placements define. The
-  whole-artefact geometry sidecar is unchanged by v1.3 and stays frozen in
-  `v1.2-manifest/`.
+  placements, 20 geometry sites, `version: "1.3"`, and four roots rather than
+  one: the page root, the **composition root** over the placement transcript and
+  the furniture leaf, this page's **furniture root**, and this page's own
+  **geometry root** over the sites its placements define. The whole-artefact
+  geometry sidecar is unchanged by v1.3 and stays frozen in `v1.2-manifest/`.
+- the **furniture** — the two spans this page carries that no atom attests: the
+  plate number, marked `data-sst-chrome` inside a wrapper, and the footer line
+  outside them all. Both are in the list, in document order, and the root over
+  them is the composition root's final leaf. Add a word to either and these bytes
+  move, which is the whole point of the leaf.
+- the **registry the descriptors refer to** — `registry_hash`, the SHA-256 of the
+  registry's own source region, published in the manifest as well as frozen below.
+  A descriptor names a transform symbolically; without this a foreign verifier
+  recomputes a label with whatever table it happens to carry.
 - the **placement render modes** — four of the eleven placements carry an
   `atoms` list; the other seven omit it, which is the default and means "all of
   this block's atoms, canonical order, verbatim". Both paths are frozen here on
@@ -194,13 +220,13 @@ it serves. Reinstate either reading and this freeze moves, which is the point of
 freezing it.
 
 And, beside them, `page.html` — the exact bytes the kernel builds. That is not
-decoration: twelve of the thirteen files in `refusals/` are that page with one
-edit, so a page that drifted would turn the refusal set into a test of nothing. `vectors`
-rebuilds it byte-for-byte, and checks it passes all nine gates, before it trusts
-a single refusal.
+decoration: twenty-five of the twenty-six files in `refusals/` are that page with
+one edit, so a page that drifted would turn the refusal set into a test of nothing.
+`vectors` rebuilds it byte-for-byte, and checks it passes all nine gates, before
+it trusts a single refusal.
 
-`page-sst-charter-field.html` is the thirteenth file's subject and a vector in its
-own right: the same terms served in the OTHER charter shape — an entity document
+`page-sst-charter-field.html` is the twenty-sixth file's subject and a vector in
+its own right: the same terms served in the OTHER charter shape — an entity document
 carrying an `sst_charter` field, which is what the reference implementation serves
 — with its attestation block re-derived by the same canonical rule. The kernel
 does not emit that shape, so this page is cut by hand rather than rebuilt; what it
@@ -215,10 +241,14 @@ verifier must reject, which is the half a passing vector cannot reach: a gate ca
 be deleted, weakened, or accidentally short-circuited without a single frozen
 hash moving.
 
-Twenty-two files, each a frozen page with ONE edit, each declaring in
-`expected.json` the exact list of checks `verify` must report as failed — so a gate that stops
-refusing, starts refusing something else, or starts refusing two things at once
-all show up as drift rather than as a quiet pass.
+Twenty-six files, each a frozen page with ONE edit, each declaring in
+`expected.json` the exact list of checks `verify` must report — so a gate that
+stops refusing, starts refusing something else, or starts refusing two things at
+once all show up as drift rather than as a quiet pass.
+
+Twenty-five of them are refusals. The twenty-sixth,
+`consistent-furniture-rewrite.html`, must **pass**, and it is in this set because
+what it pins is the set's own boundary — see the note below the table.
 
 | file | edit | must fail |
 |---|---|---|
@@ -244,6 +274,10 @@ all show up as drift rather than as a quiet pass.
 | `chrome-marked-atom.html` | an element marked as chrome while carrying an atom stamp | gate 6 |
 | `placement-claims-foreign-atom.html` | a placement naming an atom its block does not hold, root recomputed | gate 6 |
 | `render-descriptor-tampered.html` | a render descriptor edited with the composition root left alone | gate 7 |
+| `undeclared-chrome-furniture.html` | a chrome-marked paragraph of prose added inside a wrapper, roots left alone | gate 6 |
+| `undeclared-free-text.html` | a visible paragraph added between two wrappers, roots left alone | gate 6 |
+| `edited-furniture-text.html` | a declared furniture span edited in both faces, both roots left alone | gate 6 + gate 7 |
+| `consistent-furniture-rewrite.html` | the chrome paragraph again, DECLARED — furniture list extended, both roots recomputed | *nothing — it must pass, with a composition root that is not the frozen page's* |
 
 The four geometry cases are matched pairs on purpose. Removing a site with the
 root left alone is caught by the root; adding one with the root *recomputed* can
@@ -279,8 +313,33 @@ neither place would do on its own. `chrome-marked-atom.html` closes the marker
 itself: chrome has its span cut from the residue, so an element allowed to be
 chrome *and* carry an atom would be a way to hide an atom from its own check.
 
+**The four furniture cases are a set, and the fourth is the interesting one.**
+`undeclared-chrome-furniture.html` and `undeclared-free-text.html` are the two
+holes the furniture root closed, frozen as they were found: a chrome-marked
+paragraph of prose inside a wrapper, whose span was cut from the residue while
+nothing bounded its text, and a visible paragraph between two wrappers, which sat
+inside no wrapper's own markup and so inside no check. Both passed all nine gates
+and matched the origin's roots. `edited-furniture-text.html` is the third way to
+move furniture — edit a declared span in the page *and* in the list, so the two
+faces agree and only the roots disagree — and it is the one case in this set that
+must fail two gates rather than one, because two checks are what bind the page to
+the root and the root to the list.
+
+`consistent-furniture-rewrite.html` is not a refusal, and that is the point. It
+carries the same injected paragraph as the first of them, *declared*: the
+furniture list extended, `furniture_root` and `composition_root` recomputed. The
+page is internally consistent, and every gate says so. What refuses it is that its
+composition root is not the one the origin published — so the vector asserts
+exactly that: all nine gates pass AND the composition root has moved. It is the
+claim ladder's second rung frozen as bytes. If the furniture ever fell back out of
+the composition root, this page would become indistinguishable from the original
+and this vector would be the only thing left to say so.
+
 **The provenance of all but the control is worth stating.** They are not
-hypotheticals written to make new gates look useful. A static read of
+hypotheticals written to make new gates look useful. Two of them come from a
+second stranger red team of this branch, which found the two furniture holes by
+running edits against the branch's own built page and watching all nine gates
+pass. The rest come from the first: a static read of
 `sst-kernel.mjs` by a stranger's model produced seven claims about what `verify`
 did not check; every one was executed against the kernel's own built page, and
 every one passed all six gates of the previous version and the DOM-text rule, exit
@@ -339,9 +398,10 @@ substrate frozen inside it, which is another way of saying it is not regenerated
 growing the live fixture must not move it, and if it ever does, the version axis
 is broken and not the vector. `v1.3-manifest/` is regenerated from a build of
 `substrate/`; if you regenerate it, read the diff first and say why in the commit
-message. Its composition root has been redefined once, while v1.3 is still
-pre-release and no artefact has shipped under that name; after v1.3 ships, that
-value is as frozen as any other and a change to it is a new version. `v1.3-manifest/refusals/` is stricter
+message. Its composition root has been redefined twice — the render declaration
+folded into the placement leaf, then the furniture leaf appended — while v1.3 is
+still pre-release and no artefact has shipped under that name; after v1.3 ships,
+that value is as frozen as any other and a change to it is a new version. `v1.3-manifest/refusals/` is stricter
 again: regenerating a refusal file means regenerating the page it edits, and a
 gate that has stopped refusing what it is frozen to refuse is a format change to
 be argued for, never a vector to be re-cut — and if the argument is won, as it was
@@ -362,8 +422,9 @@ than settled; the alternative is a separate version number for the gate set.
 v1.1 and v1.2 are shipped and their vectors are promises. **v1.3 is not shipped**
 — it is the version this kernel emits and the version the reference artefact's
 build now writes, but nothing has been released under that name — so its shape is
-still being settled, and one value in it has already been redefined: the
-composition root now folds each placement's render declaration into its leaf. That
-is stated here rather than buried in a commit, because the same edit after v1.3
-ships would be a format break rather than a draft revision, and the difference is
-the release, not the arithmetic.
+still being settled, and one value in it has already been redefined twice: the
+composition root folds each placement's render declaration into its leaf, and now
+also carries a final leaf over the page's furniture. That is stated here rather
+than buried in a commit, because the same edit after v1.3 ships would be a format
+break rather than a draft revision, and the difference is the release, not the
+arithmetic.
