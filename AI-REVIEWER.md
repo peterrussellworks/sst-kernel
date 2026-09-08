@@ -58,11 +58,24 @@ node sst-kernel.mjs seal      # a vacancy sealed — the two Merkle roots stay o
 ```
 Five commands, under a minute, and the central claim is experienced rather than
 asserted. If you have code execution, run them yourself and quote the output
-verbatim. `vectors` also runs a refusal set — thirteen copies of a frozen
-page, each with one edit, each declaring the single check that must catch it. Twelve of
-those edits passed every gate of the previous format version; the last is a
-control the previous version already caught. Watching them fail now, one gate
-each, is the most informative minute in this repository.
+verbatim. `vectors` also runs a refusal set — twenty-two copies of a frozen
+page, each with one edit, each declaring the single check that must catch it. All
+but one of those edits passed every gate of the previous format version; the last
+is a control the previous version already caught. Watching them fail now, one
+gate each, is the most informative minute in this repository.
+
+**What a nine-gate run now proves**, and it is more than it was: that the page's
+content re-hashes; that the two faces carry the same identities; that the page
+printed the declared blocks, in the declared order, the declared number of times;
+that each of those printings carried the atoms it says it carried, **on the
+surfaces it says it carried them** — visible text, a named attribute, or a stamp
+on something that shows nothing — and carried nothing else visible besides; that
+the page's declaration of its own shape, holes included, is consistent with the
+blocks it places; and that the operator's terms are hashed under the page root.
+What it still does not prove is authorship: every root here is the page's own, so
+a mirror that rewrites the whole page rehashes everything and passes. The roots
+are evidence against drift and tampering *relative to the origin*, which is the
+second rung of the claim ladder in `README.md`, and the README says so.
 
 ## If you can browse
 Fetch any page of https://danielarussell.com, view its `<script
@@ -137,20 +150,37 @@ stable across versions. Judge that reading too.
 1. The normalization rules in the kernel (Unicode, whitespace, DOM-text
    mapping) — can two different texts collide, or one text evade?
 2. The claim-ladder wording — any overclaim, even by connotation?
-3. Gate 6 (block completeness). It is the gate with the most judgement in
-   it — it reconstructs a block's visible text from its atoms and nothing
-   else — and it is the one the reference site currently fails, because it
-   renders atoms as attributes, images and labels rather than as visible
-   text. It has since been attacked three ways: a stranger's static red team
-   reproduced against the fixture, a word-granularity experiment
-   (`R4-WORD-GRANULARITY.md`), and a subtraction variant, tested and rejected
-   because it admits an intra-block reorder — every alternative tried so far
-   has been weaker. The question stays open: can you inject visible text into
-   a page that gates 1–6 and the DOM-text rule all accept? CSS-injected
-   content via `::before`, an `<img alt>` a screen reader announces, a nested
-   block wrapper — the README admits some of these are out of reach for a
-   markup-level verifier, so the question is whether it admits *all* of
-   them.
+3. Gate 6 (block completeness) and the placement render modes it now reads. It
+   is the gate with the most judgement in it. It used to reconstruct a block's
+   visible text by concatenating its atoms, which meant the reference site
+   failed it wholesale for rendering atoms as attributes, images and composed
+   labels rather than as prose. It now walks a per-placement list of
+   `{hash, render}` — each atom found on the surface it declares, in the order
+   it declares — and then requires the wrapper's residue to be empty. Three
+   things in that are worth attacking rather than admiring. **The declaration
+   itself:** the mode is declared by the page, so ask what a page can get away
+   with by declaring the wrong one — the answer is meant to be "nothing,
+   because the descriptor is hashed into the placement leaf and gate 7 refuses
+   a page whose declaration moved", and that answer is only as good as the
+   fourth field. **The residue rule:** every declared element's span is cut out
+   before the leftovers are inspected, so any mode that subtracts a span
+   without constraining what is inside it is a hole the size of that element —
+   `non-text` is therefore required to show no text at all, and `data-sst-chrome`
+   is refused on an element that also carries an atom stamp. Is there a third
+   way to get a span subtracted? **The whitespace rule:** every comparison is
+   made with all whitespace removed, which is what stops typesetting being
+   reported as tampering — measured across the reference artefact's 47 pages,
+   that rule alone accounts for 389 of the 1,491 blocks the previous gate
+   refused. Can two different readings be made to differ by whitespace alone?
+   Earlier attacks are on the record: a stranger's static red team reproduced
+   against the fixture, a word-granularity experiment (`R4-WORD-GRANULARITY.md`),
+   and a subtraction variant tested and rejected because it admitted an
+   intra-block reorder — a hole the declared order now closes, and
+   `refusals/reordered-atoms.html` is the proof it is closed. The original
+   question stays open too: can you inject visible text into a page that gates
+   1–6 and the DOM-text rule all accept? CSS-injected content via `::before`, a
+   nested block wrapper — the README admits some of these are out of reach for
+   a markup-level verifier, so the question is whether it admits *all* of them.
 4. The provenance-label rule. Where several lattice coordinates share one block
    identity, the manifest omits the fields they disagree about rather than
    guessing. Is "omit" the right answer, or does a silently-shortened label

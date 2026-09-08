@@ -87,7 +87,16 @@ all — so a dedupe that stops deduping, a label that starts guessing, or a
 version string that slips back to 1.1 each move these bytes and each fail
 loudly.
 
-What it pins, over `substrate/`:
+**Built over the substrate frozen beside it**, `atoms.csv` and `lattice.csv` in
+this directory — not over the live `substrate/`. That is a change of inputs, not
+of values: every byte of `expected.json` is what it always was. The reason is that
+the live fixture grows whenever a new rule needs exercising, and a v1.2 set built
+from a moving substrate would have to be re-cut each time — which would quietly
+turn "the older shape is still emitted byte-for-byte" from a promise anyone can
+check into a sentence nobody can. Pinned, the promise is testable for good. The
+copy here is the substrate these bytes were frozen over.
+
+What it pins:
 
 - the **page manifest** — 7 block identities, 14 atoms, `version: "1.2"`,
   and the three superposition twins' labels: one entry keeping `page` + `name`,
@@ -114,14 +123,53 @@ the version axis is broken, not the vector.
 **Provenance: computed by THIS kernel. A freeze, not an agreement**, on the same
 terms as `v1.2-manifest/`, over the same substrate.
 
+**The composition root moved, and the version did not.** The placement leaf was
+`sha256(block ␟ section ␟ name)` when this set was first frozen; it is now
+`sha256(block ␟ section ␟ name ␟ R)`, where `R` is a Merkle root over
+`sha256(atom-hash ␟ render descriptor)` in the order the placement printed them.
+Folding the render declaration into the leaf is what makes a forged or swapped
+mode move a root instead of moving nothing. That is a redefinition of a published
+value, and it is being made **without a version bump on purpose**: no
+implementation has shipped v1.3 publicly — the reference artefact emits v1.3
+fields but has not been released under that name — so v1.3 is still pre-release
+and this is a change to a draft, not a break of a promise. Every atom, block and
+page root is byte-identical across the change; only `composition_root` and the
+placement entries moved. The moment v1.3 ships, this is the last time that leaf
+can change without a new version.
+
+The kernel's own fixture also grew — four blocks and eleven atoms — so that every
+render mode is exercised by something the kernel actually builds rather than
+described in prose: a matter-hash atom stamped on a `<picture>` and showing
+nothing, an `alt` carried on the `<img>` nested inside it, a rating whose atom is
+`5` and whose rendered form is the label a screen reader announces, three
+taxonomy atoms composed into one label by a registry transform, a placement that
+prints two of its block's three atoms and prints them backwards, and a
+chrome-marked element inside a wrapper. `v1-fixture/` and `v1.2-manifest/` are
+untouched by that growth, which is what the pinned v1.2 substrate above is for.
+
 What it pins, in `expected.json`:
 
-- the **page manifest** — 8 block identities (the 7 the v1.2 set pins, plus the
-  synthesized charter attestation block), 7 placements, 9 geometry sites,
-  `version: "1.3"`, and three roots rather than one: the page root, the
-  **composition root** over the placement transcript, and this page's own
-  **geometry root** over the sites its placements define. The whole-artefact
-  geometry sidecar is unchanged by v1.3 and stays frozen in `v1.2-manifest/`.
+- the **page manifest** — 12 block identities (the 7 the v1.2 set pins, the 4 new
+  mode-bearing blocks, and the synthesized charter attestation block), 11
+  placements, 20 geometry sites, `version: "1.3"`, and three roots rather than
+  one: the page root, the **composition root** over the placement transcript, and
+  this page's own **geometry root** over the sites its placements define. The
+  whole-artefact geometry sidecar is unchanged by v1.3 and stays frozen in
+  `v1.2-manifest/`.
+- the **placement render modes** — four of the eleven placements carry an
+  `atoms` list; the other seven omit it, which is the default and means "all of
+  this block's atoms, canonical order, verbatim". Both paths are frozen here on
+  purpose: the omitted list is what every page written before the field existed
+  says, and a change that made it mean anything else would move these bytes.
+- the **shared transform registry** — the input→output pairs for every entry, and
+  the SHA-256 of the registry's own source region in `sst-kernel.mjs` (between the
+  two `SHARED TRANSFORM REGISTRY` markers, the marker lines themselves excluded).
+  The pairs answer "does this implementation compute what the registry says"; the
+  hash answers "is this the same registry at all", which the pairs cannot — a
+  table with one extra entry, or one differently worded that happens to agree on
+  the frozen cases, reproduces every pair and is still a different table. An
+  implementation vendoring the region proves its copy equal by reproducing the
+  hash. An entry in one and not the other is drift in either direction.
 - the **charter** — including the attestation that names the atom and the block
   under which its terms are hashed. Flip a permission and this file moves.
 
@@ -167,7 +215,7 @@ verifier must reject, which is the half a passing vector cannot reach: a gate ca
 be deleted, weakened, or accidentally short-circuited without a single frozen
 hash moving.
 
-Thirteen files, each a frozen page with ONE edit, each declaring in
+Twenty-two files, each a frozen page with ONE edit, each declaring in
 `expected.json` the exact list of checks `verify` must report as failed — so a gate that stops
 refusing, starts refusing something else, or starts refusing two things at once
 all show up as drift rather than as a quiet pass.
@@ -187,6 +235,15 @@ all show up as drift rather than as a quiet pass.
 | `second-charter.html` | a second charter object appended after the first, granting everything the first withholds | gate 9 |
 | `sst-charter-field-flipped.html` | one permission flipped in a charter served in the other shape (on `page-sst-charter-field.html`) | gate 9 |
 | `edited-visible-text.html` | the control — one letter of visible text | gate 6 + the DOM-text rule |
+| `injected-visible-text.html` | a sentence injected inside a wrapper, carrying no hash | gate 6 |
+| `missing-non-text-stamp.html` | the stamp removed from the element bearing a non-text atom | gate 6 |
+| `attribute-value-changed.html` | one letter changed inside the attribute an atom is carried in | gate 6 |
+| `transform-label-changed.html` | a composed label edited away from what the registry transform makes of its atoms | gate 6 |
+| `partial-placement-overclaims.html` | a partial placement claiming an atom the wrapper does not show, root recomputed | gate 6 |
+| `reordered-atoms.html` | two atoms swapped *inside* one wrapper, each still re-hashing | gate 6 |
+| `chrome-marked-atom.html` | an element marked as chrome while carrying an atom stamp | gate 6 |
+| `placement-claims-foreign-atom.html` | a placement naming an atom its block does not hold, root recomputed | gate 6 |
+| `render-descriptor-tampered.html` | a render descriptor edited with the composition root left alone | gate 7 |
 
 The four geometry cases are matched pairs on purpose. Removing a site with the
 root left alone is caught by the root; adding one with the root *recomputed* can
@@ -203,6 +260,24 @@ clean page while the terms a reader is shown are ambiguous. The flipped charter
 in the second shape is a pair with `page-sst-charter-field.html` for the same
 reason: the refusal names a hash mismatch, not a missing charter, and that is what
 shows the shape was read.
+
+**The nine render-mode cases are chosen the same way, one per thing that could
+quietly stop being checked.** Each surface gets the failure that is invisible to
+every other gate: the stamp gone from a non-text atom, a letter changed inside an
+attribute nobody reads as text, a composed label that no longer follows from the
+atoms it names. Two of them recompute the composition root before they are
+frozen, so the placement transcript agrees with itself and only the wrapper can
+refuse them — the same discipline as the geometry pairs above. Two more are
+matched: `reordered-atoms.html` swaps two atoms inside one wrapper, which is the
+exact hole a subtraction-based gate 6 was measured to admit and the reason that
+variant was rejected — every hash is still correct, gate 7 still sees the declared
+blocks in the declared order, and only the declared atom order refuses it;
+`render-descriptor-tampered.html` is its mirror, an edit that changes nothing a
+reader sees and that the surface check is indifferent to, caught by the root
+alone. Between them they say why the declaration is checked in two places and why
+neither place would do on its own. `chrome-marked-atom.html` closes the marker
+itself: chrome has its span cut from the residue, so an element allowed to be
+chrome *and* carry an atom would be a way to hide an atom from its own check.
 
 **The provenance of all but the control is worth stating.** They are not
 hypotheticals written to make new gates look useful. A static read of
@@ -259,9 +334,14 @@ illustrative, and the one value that structurally cannot recompute.
 
 All four sets are frozen deliberately and never as a side effect. `v1-fixture/` is
 production's to re-pin, not this repository's — the whole value of the set is
-that the kernel did not compute it. `v1.2-manifest/` and `v1.3-manifest/` are
-regenerated from a build of `substrate/`; if you regenerate either, read the diff
-first and say why in the commit message. `v1.3-manifest/refusals/` is stricter
+that the kernel did not compute it. `v1.2-manifest/` is regenerated from the
+substrate frozen inside it, which is another way of saying it is not regenerated:
+growing the live fixture must not move it, and if it ever does, the version axis
+is broken and not the vector. `v1.3-manifest/` is regenerated from a build of
+`substrate/`; if you regenerate it, read the diff first and say why in the commit
+message. Its composition root has been redefined once, while v1.3 is still
+pre-release and no artefact has shipped under that name; after v1.3 ships, that
+value is as frozen as any other and a change to it is a new version. `v1.3-manifest/refusals/` is stricter
 again: regenerating a refusal file means regenerating the page it edits, and a
 gate that has stopped refusing what it is frozen to refuse is a format change to
 be argued for, never a vector to be re-cut — and if the argument is won, as it was
@@ -278,3 +358,12 @@ the gate set together, while identities stay stable across versions — which is
 why `v1-fixture/`'s v1.1 identities reproduce unchanged under a v1.3 kernel, and
 why `v1.2-manifest/` must keep reproducing too. That reading is proposed rather
 than settled; the alternative is a separate version number for the gate set.
+
+v1.1 and v1.2 are shipped and their vectors are promises. **v1.3 is not shipped**
+— it is the version this kernel emits and the version the reference artefact's
+build now writes, but nothing has been released under that name — so its shape is
+still being settled, and one value in it has already been redefined: the
+composition root now folds each placement's render declaration into its leaf. That
+is stated here rather than buried in a commit, because the same edit after v1.3
+ships would be a format break rather than a draft revision, and the difference is
+the release, not the arithmetic.

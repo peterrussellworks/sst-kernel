@@ -99,7 +99,7 @@ Three Merkle roots over the same lattice, answering three different questions:
 | spine | attests | leaf | moves when |
 |---|---|---|---|
 | **content** | WHAT IS PRESENT — atoms → blocks → page root | an atom's hashed content | any character of any atom changes |
-| **composition** | WHERE, AND HOW MANY TIMES — the page's placements, in order | a placement-coordinate: the identity placed, and the coordinate it was placed at | a block is moved, repeated or dropped — **never** on a content edit |
+| **composition** | WHERE, HOW MANY TIMES, AND HOW — the page's placements, in order | a placement-coordinate: the identity placed, the coordinate it was placed at, and a root over the atoms it carried with the mode each was carried in | a block is moved, repeated or dropped, or a placement changes what it prints or how — **never** on a content edit |
 | **geometry** | THE SHAPE, incl. negative space | a site-coordinate valued by occupancy state | a site is added/removed, or a hole is filled/sealed — **never** on a content edit |
 
 The geometry spine is *matter-invariant*: editing an atom leaves the coordinate
@@ -131,7 +131,7 @@ one.
 | 3 | parity, both directions — the same identity SET on both faces |
 | 4 | the declared page root recomputes from the block list |
 | 5 | the **manifest** re-hashes — every manifest atom's content reproduces its id, every block root recomputes from its atoms |
-| 6 | **block completeness** — every block wrapper reconstructs from its atoms *and nothing else* |
+| 6 | **block completeness** — every atom a placement declares is found on the surface it declares, in the order it declares, and once every declared element is accounted for the wrapper holds *no visible text besides* |
 | — | **the §6.2 DOM-text rule** — gate 5's DOM-side counterpart: every *visible* atom's text re-hashes to its id (or, for a projected atom, the named projection recomputes) |
 | 7 | **composition** — the page renders exactly the declared placements, in document order, and the composition root recomputes from them |
 | 8 | **geometry** — the page's geometry root recomputes from the sites it publishes; at every coordinate it places, the roles the block published there and the present sites declared there are the same set, *both ways*; and no site names a coordinate the page does not place |
@@ -156,6 +156,78 @@ author never wrote. Gate 6 asks the other question: does this block reconstruct
 from its atoms and nothing else? Any residue is reported verbatim. It was found
 by adversarial injection, not by design review, which is the honest provenance of
 most good checks.
+
+**Placement render mode — how gate 6 reads a page that is not all prose.** An
+artefact of any size renders most of its atoms somewhere other than as a
+paragraph: an image's alternative text sits in an `alt` attribute, a rating of
+`5` is announced as "5 out of 5 stars", three taxonomy atoms are set as one
+label, and the bytes of a photograph are attested but never written down. A gate
+that assumed every atom is visible text would report all of that as tampering,
+and a verifier that guessed from the markup which was which would accept any
+markup. So the mode is **declared**, per atom, per placement:
+
+```jsonc
+{ "block": "<hash>", "section": "plate", "name": "figure",
+  "atoms": [ { "hash": "<matter>",  "render": "non-text" },
+             { "hash": "<alt text>", "render": "attribute:alt" },
+             { "hash": "<caption>",  "render": "verbatim" } ] }
+```
+
+A descriptor is a **surface** and an optional **transform**: `verbatim` (the
+default), `attribute:<name>`, or `non-text`, any of them optionally through a
+named entry of the shared transform registry — `attribute:aria-label:rating-label`
+carries the atom `5` into the label a screen reader reads. Gate 6 walks the list:
+every atom must be found on the surface it declares, on an element carrying its
+`data-atom-hash`, in the order declared; then the residue rule takes over, and
+what remains of the wrapper once every declared element and every chrome-marked
+element is cut out must hold no visible text at all.
+
+Four consequences worth stating plainly.
+
+- **Omitting the list means what it always meant.** No `atoms` list is "all of
+  this block's atoms, canonical order, verbatim" — so every page written before
+  the field existed says exactly what it said, and the v1.1 fixture in
+  `vectors/` passes gate 6 without a byte changing.
+- **Complete or partial is derived, never declared.** A placement whose list is a
+  proper subset of its block's atoms is a **partial** placement: it printed some
+  of them, and the block still holds all of them. Nothing announces this, so
+  there is no field to forge — the two lists say it.
+- **Chrome.** Markup outside every block wrapper is invisible to gate 6 already;
+  a wrapper's own markup runs from where it opens to where it closes. Where the
+  page's furniture must sit *inside* a wrapper, `data-sst-chrome` on the element
+  excludes its span from the residue and buys nothing else: an element carrying
+  both a chrome marker and an atom stamp is refused, since admitting the pair
+  would make the marker a way to hide an atom from its own check.
+- **Whitespace is not evidence.** Every text comparison in gate 6 is made with
+  all whitespace removed on both sides. A page that sets two atoms with no space
+  between them, or lays a label across three lines of source, differs from its
+  atoms by typesetting; a page that changes one letter still fails.
+
+**Where the mode is attested, and where it is not.** Not in the atom id, not in
+the block root, not in the page root, and not in the geometry leaf. Renaming an
+attribute would fork an atom's claim if it were inside the atom; one block
+rendered verbatim on one page and as an attribute on another would be *two
+blocks* if it were inside the block root. What a page did with an identity is the
+placement's fact, so the placement leaf carries it as a fourth field — a Merkle
+root over `sha256(atom-hash ␟ descriptor)` in rendered order. A forged, swapped
+or deleted mode therefore moves the composition root and gate 7 refuses the page,
+while every atom, block and page root stays byte-identical.
+
+**The transform registry is shared, not local.** A transform that meant one thing
+in the emitter and another in the verifier would forge every label it touched, so
+there is one closed table, vendored byte-for-byte wherever it is needed. This
+kernel stays one file, so the table is not a module: it sits between two markers
+in `sst-kernel.mjs`, and the conformance vectors pin both its input→output pairs
+*and* the SHA-256 of the region's own bytes. An implementation proves its copy
+equal by reproducing that hash — and an entry present in one table and absent
+from the other is drift in either direction.
+
+**What none of this reaches, stated once.** `non-text` proves that the page
+claims this matter at this site and nothing more: matter is never served, so no
+reader re-hashes an image back to its hash. An attribute is markup a verifier
+reads, not text a reader is shown — an `alt` on an image nobody is shown still
+passes. And a composed label is trustworthy only because its free parameters
+*are* the atoms the placement names.
 
 **Gates 7, 8 and 9 close a whole class at once, and they were found the same
 way.** A static read of this file by a stranger's model, checked by running every
@@ -245,6 +317,16 @@ What remains outside, and it is worth naming precisely:
   carries the whole artefact's shape, where the withheld site is still present.
   A slice showing fewer present sites than the sidecar is **projection, not
   loss**, and gate 8 reads the page's.
+- **A declared render mode is checked, but the surfaces are not equal.** Gate 6
+  proves that every atom a placement declares is present in the form it declares
+  and that nothing else visible is in the wrapper. It does not make an attribute
+  into something a reader sees: an `alt` that re-hashes correctly on an image
+  nobody is shown passes, and that is the same markup-fidelity boundary this
+  format has always had. `non-text` is weaker still — it attests that the page
+  *claims* this matter here, and matter is not served, so nothing re-hashes the
+  bytes. What the modes buy is that these surfaces are now inside the composition
+  root instead of outside every root: a swapped or forged one is refused, where
+  before it was invisible.
 - **`order` is declared, never verified — at every version.** A block's `order`
   is a *section-local* label: the row's position inside its own section, not its
   position on the page. Nothing the page shows can contradict it, so no gate reads

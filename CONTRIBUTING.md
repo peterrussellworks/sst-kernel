@@ -22,7 +22,12 @@ over the symptom.
 
 `vectors/` is frozen, and `sst-kernel.mjs`'s identity primitives — atom hashing,
 Merkle composition, the gate set, the geometry and composition spines — are what
-the vectors hold to account. That includes the refusal vectors: a change that
+the vectors hold to account. So is the shared transform registry, the closed table
+of content→display transforms between the two marker comments in
+`sst-kernel.mjs`: its bytes are hashed as a vector precisely so that a second
+implementation can vendor them and prove the copy equal, which an edit here would
+silently break for everyone who already has. Adding a transform is a format
+change like any other, and it happens the way the rest of them do, below. That includes the refusal vectors: a change that
 makes a gate stop refusing what it is frozen to refuse is a format change, not a
 fix. A pull request that changes anything under `vectors/`, or changes what
 those primitives compute, will be declined on principle, not on quality. It does
