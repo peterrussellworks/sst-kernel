@@ -61,11 +61,12 @@ node sst-kernel.mjs seal      # a vacancy sealed — the two Merkle roots stay o
 ```
 Five commands, under a minute, and the central claim is experienced rather than
 asserted. If you have code execution, run them yourself and quote the output
-verbatim. `vectors` also runs a refusal set — twenty-six copies of a frozen page,
-each with one edit, each declaring the exact list of checks that must catch it.
-Twenty-five are refusals; all but one of those edits passed every gate of the
-previous format version, and the last is a control the previous version already
-caught. The twenty-sixth must **pass**: the same injected paragraph as the refusal
+verbatim. `vectors` also runs a refusal set — twenty-eight copies of a frozen
+page, each with one edit, each declaring the exact list of checks that must catch
+it. Twenty-seven are refusals; most of those edits passed every gate of the
+previous format version, one is a control the previous version already caught, and
+two came in with the newest bindings. The twenty-eighth must **pass**: the same
+injected paragraph as the refusal
 beside it, declared and with both roots recomputed, so that only a comparison with
 the origin's published root catches it. Watching them fail — and that one pass —
 is the most informative minute in this repository.
@@ -78,7 +79,9 @@ surfaces it says it carried them** — visible text, a named attribute, or a sta
 on something that shows nothing — and carried nothing else visible besides; that
 the page as a whole shows nothing besides its atoms and the **furniture** it
 declares, whose root is folded into the composition root, so an injected sentence
-moves a published value; that the page's declaration of its own shape, holes
+moves a published value; that the registry its render descriptors name is both the
+one this verifier carries and the one folded into that same root; that the page's
+declaration of its own shape, holes
 included, is consistent with the blocks it places; and that the operator's terms
 are hashed under the page root.
 What it still does not prove is authorship: every root here is the page's own, so
@@ -130,7 +133,11 @@ report it as an unverified declaration, which is a different finding.
 On a **v1.3** artefact, a clean run of all nine adds four things: the page
 rendered exactly the placements it declares, in order and in number, under a root
 that recomputes; the page shows no visible text besides its atoms and its declared
-furniture, whose root is the composition root's final leaf; `role`, `section`,
+furniture, whose root is one of the composition root's two trailing leaves — the
+other being the `registry_hash` the page names for the table its render
+descriptors refer to, so a swapped registry moves a published root rather than
+resting on a declaration the verifier checks against its own table; `role`,
+`section`,
 `name` and `block_type` agree with geometry sites that hash all four, in both
 directions at every coordinate the page places; and the page serves exactly one
 charter, whose terms hash to an atom under the page root, so a flipped permission, a deleted charter, or a second charter

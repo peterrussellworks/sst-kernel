@@ -3,7 +3,7 @@
   "format": "SST Dual-Native v1.3",
   "fixture": "vectors/v1.3-manifest/page.html",
   "frozen_by": "sst-kernel.mjs in this repository. A freeze, not a cross-implementation agreement — see vectors/README.md.",
-  "note": "A gate nobody has watched refuse is a comment. Each file below is the frozen page with ONE edit, and each names the check that must catch it; `refuses` is the exact list `verify` reports, so a gate that stops refusing, starts refusing something else, or starts refusing two things at once moves these values. Twenty-five of the twenty-six are refusals; the last, consistent-furniture-rewrite.html, must PASS every gate, and what it pins is the set's own boundary — the same injected paragraph as the refusal beside it, declared, with both roots recomputed, so only a comparison with the origin's published root catches it. All but the control passed every gate of the previous format version unchanged — that is why they exist. The control is an edit the previous version already caught, which must still be caught in the same place. Twenty-four of the twenty-six edit page.html; sst-charter-field-flipped.html edits page-sst-charter-field.html, which serves the same terms in the second charter shape and must itself pass all nine. The nine render-mode cases each take one surface or one rule: the stamp gone from a non-text atom, a letter changed inside an attribute, a composed label that no longer follows from its atoms, a partial placement claiming what the wrapper does not show, two atoms swapped inside one wrapper, a chrome marker on a stamped element, a placement naming an atom its block does not hold, and — the mirror of that last pair — a render descriptor edited with the composition root left alone, which changes nothing a reader sees and is refused by the root rather than by the wrapper. The three furniture cases take the two holes the furniture root closed and the one way to move a declared span: an undeclared chrome-marked paragraph inside a wrapper, an undeclared free paragraph between two wrappers, and a declared span edited in both faces with the roots left as they were. Where a case would otherwise fail two checks at once, the root it disturbs is recomputed before freezing, so each still fails exactly the checks it names.",
+  "note": "A gate nobody has watched refuse is a comment. Each file below is the frozen page with ONE edit, and each names the check that must catch it; `refuses` is the exact list `verify` reports, so a gate that stops refusing, starts refusing something else, or starts refusing two things at once moves these values. Twenty-seven of the twenty-eight are refusals; the last, consistent-furniture-rewrite.html, must PASS every gate, and what it pins is the set's own boundary — the same injected paragraph as the refusal beside it, declared, with both roots recomputed, so only a comparison with the origin's published root catches it. All but the control and the two later additions passed every gate of the previous format version unchanged — that is why they exist. The control is an edit the previous version already caught, which must still be caught in the same place. Twenty-seven of the twenty-eight edit page.html; sst-charter-field-flipped.html edits page-sst-charter-field.html, which serves the same terms in the second charter shape and must itself pass all nine. The nine render-mode cases each take one surface or one rule: the stamp gone from a non-text atom, a letter changed inside an attribute, a composed label that no longer follows from its atoms, a partial placement claiming what the wrapper does not show, two atoms swapped inside one wrapper, a chrome marker on a stamped element, a placement naming an atom its block does not hold, and — the mirror of that last pair — a render descriptor edited with the composition root left alone, which changes nothing a reader sees and is refused by the root rather than by the wrapper. The three furniture cases take the two holes the furniture root closed and the one way to move a declared span: an undeclared chrome-marked paragraph inside a wrapper, an undeclared free paragraph between two wrappers, and a declared span edited in both faces with the roots left as they were. registry-hash-edited.html takes the composition root's second trailing leaf, and script-inside-wrapper.html takes the per-wrapper residue rule's strictness, which is a conformance rule rather than a limitation: the page-level rule reads inert elements as showing nothing, and the per-wrapper rule still refuses one. Where a case would otherwise fail two checks at once, the root it disturbs is recomputed before freezing, so each still fails exactly the checks it names.",
   "cases": [
     {
       "file": "reordered-blocks.html",
@@ -98,6 +98,13 @@
       ]
     },
     {
+      "file": "script-inside-wrapper.html",
+      "mutation": "an inline <script> added inside a block wrapper, carrying no atom stamp. The page-level rule reads inert elements as showing nothing, so the script declares no furniture and moves no root; the per-wrapper rule is strict by design and refuses it as text the block holds besides its atoms. A block wrapper carries content and nothing else — scripts and styles belong outside one",
+      "refuses": [
+        6
+      ]
+    },
+    {
       "file": "missing-non-text-stamp.html",
       "mutation": "the stamp removed from the element bearing a non-text atom, so the placement’s claim that this matter is carried here has no evidence left",
       "refuses": [
@@ -177,6 +184,14 @@
     {
       "file": "edited-furniture-text.html",
       "mutation": "a declared furniture span edited in both faces at once — the page and the furniture list agree, and the furniture root and the composition root are left as they were. Gate 6 refuses the page against the declared root, gate 7 refuses the declared list against it",
+      "refuses": [
+        6,
+        7
+      ]
+    },
+    {
+      "file": "registry-hash-edited.html",
+      "mutation": "the registry the render descriptors name edited in its LAST character, the composition root left alone. Both bindings fire and neither is redundant: gate 6 compares the named table with the one this verifier carries, gate 7 recomputes the root over the trailing registry leaf. Gate 6 reports first",
       "refuses": [
         6,
         7

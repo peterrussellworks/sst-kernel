@@ -801,6 +801,26 @@ const furnitureRoot = (texts) => merkleRoot(texts.map(atomId));
 const furnitureLeaf = (root) =>
   createHash('sha256').update(['furniture', root].join(US)).digest('hex');
 
+/** The registry's single leaf in the composition root, built exactly like the
+ *  furniture leaf above: the tag, then the value, under the same separator — so
+ *  the two trailing leaves are the same construction and neither can be read as
+ *  the other or as a placement.
+ *
+ *  WHY THE REGISTRY IS BOUND AT ALL. `registry_hash` is a declaration, and until
+ *  it entered a root the only thing checking it was gate 6, comparing it with the
+ *  table THIS verifier happens to carry. That catches a page whose registry the
+ *  verifier does not share; it cannot catch a page whose registry name was
+ *  changed after the origin published it, because nothing tied the name to
+ *  anything the origin signed. Bound here, a swapped registry moves a published
+ *  root and is tamper-evident against the ORIGIN's roots rather than only against
+ *  the verifier's own table — which is the difference between "your table and
+ *  mine differ" and "this is not the page that was published".
+ *
+ *  Appended unconditionally, like the furniture leaf: a page that omits the
+ *  declaration does not thereby drop the claim, it fails the root. */
+const registryLeaf = (hash) =>
+  createHash('sha256').update(['registry', hash].join(US)).digest('hex');
+
 /** The BODY's markup. Everything the furniture rule is about happens between the
  *  body tags; the head carries the two JSON-LD documents and the stylesheet, and
  *  reading those as page text would report every artefact as furniture-bearing.
@@ -970,26 +990,31 @@ function buildManifest(renderedBody, blocks, { page, publishedPages, version, re
   // out of the markup, not typed into a table beside it.
   const furniture = pageFurniture(renderedBody).furniture.map((f) => f.text);
   const furniture_root = furnitureRoot(furniture);
+  // WHICH REGISTRY the render descriptors below refer to. The descriptors name
+  // transforms symbolically, so without this a foreign verifier recomputes a
+  // label with whatever table it happens to carry and calls the result an
+  // agreement. Gate 6 checks it against the verifier's own table; it is ALSO a
+  // leaf of the composition root, so the name a page gives its registry is bound
+  // to the origin's published roots rather than resting on the declaration alone.
+  const registry_hash = registryHash();
 
   return {
     '@context': 'https://danielarussell.com/contexts/sst-manifest-v1',
     '@type': 'SstPageManifest',
     page,
     version,
-    // WHICH REGISTRY the render descriptors below refer to. The descriptors name
-    // transforms symbolically, so without this a foreign verifier recomputes a
-    // label with whatever table it happens to carry and calls the result an
-    // agreement. It enters no root: it is a claim about the emitter's table, and
-    // gate 6 checks it against the verifier's own rather than hashing it.
-    registry_hash: registryHash(),
+    registry_hash,
     page_merkle_root: merkleRoot(entries.map((e) => e.hash)),
-    // The composition root is over the placement leaves AND a final furniture
-    // leaf, so the page's own text — the plate number, the footer line — moves a
-    // published value when it changes. See `furnitureLeaf` for why the leaf is
-    // appended unconditionally.
+    // The composition root is over the placement leaves AND two trailing leaves:
+    // the page's furniture, so the page's own text — the plate number, the footer
+    // line — moves a published value when it changes, and the registry the
+    // descriptors name, so a swapped table moves one too. Order is fixed:
+    // placements, then furniture, then registry. See `furnitureLeaf` and
+    // `registryLeaf` for why each is appended unconditionally.
     composition_root: merkleRoot([
       ...placements.map((p) => placementLeaf(p.block, p.section, p.name, placementAtomList(p, entryFor.get(p.block)))),
       furnitureLeaf(furniture_root),
+      registryLeaf(registry_hash),
     ]),
     furniture_root,
     block_count: entries.length,
@@ -1614,8 +1639,14 @@ function blockCompleteness(html, manifest, evidence) {
     // The transforms this gate has just applied were applied with THIS verifier's
     // registry. If the page names another, every label checked above was checked
     // against a table the page never used.
+    // Both hashes in FULL, unlike every other message here. The others compare a
+    // recomputed value with a declared one, where any difference is a difference
+    // in the content and an eight-character prefix names it. This one compares two
+    // TABLES, and the adversarial case is a hash edited to look right at a glance —
+    // measured on the vector for it, the prefixes were identical and the message
+    // read as if the two values agreed.
     if (typeof manifest.registry_hash === 'string' && manifest.registry_hash !== registryHash())
-      errors.push(`the page names transform registry ${manifest.registry_hash.slice(0, 8)}…, and this verifier carries ${registryHash().slice(0, 8)}…`);
+      errors.push(`the page names transform registry ${manifest.registry_hash}, and this verifier carries ${registryHash()}`);
   }
   return { ok: errors.length === 0, errors };
 }
@@ -1793,14 +1824,25 @@ function runGates(html, log = console.log) {
   // gate 6 reads, from the same function, so the root and the check cannot come
   // to different conclusions about what "omitted" means.
   //
-  // The FINAL leaf is the page's furniture — the text the page carries that no
-  // atom attests. Its root is recomputed from the declared list here, and checked
-  // against the declared root, so the two ways the manifest states the same thing
-  // cannot disagree; gate 6 has separately checked that list against the page. An
+  // The TWO TRAILING leaves are the page's furniture and the page's registry.
+  //
+  // The furniture leaf is over the text the page carries that no atom attests.
+  // Its root is recomputed from the declared list here, and checked against the
+  // declared root, so the two ways the manifest states the same thing cannot
+  // disagree; gate 6 has separately checked that list against the page. An
   // injected sentence therefore has to move a published root, which is the whole
   // reason this leaf exists: a page that rewrites its own furniture consistently
   // still verifies, and is caught the moment its roots are compared with the
   // origin's — the claim ladder's second rung, and no higher.
+  //
+  // The registry leaf is over the hash the page names for the table its render
+  // descriptors refer to. Gate 6 asks whether that table is the one THIS verifier
+  // carries; this asks the other question, which no table of the verifier's can
+  // answer — is this the registry the ORIGIN published against. Both fire on an
+  // edited `registry_hash`, and that is not redundancy: gate 6's check is silent
+  // where the verifier is the one that is out of date, and this one is silent
+  // where verifier and page agree on a table the origin never used. A page that
+  // declares no registry at all fails here rather than skipping the claim.
   const declaredFurniture = Array.isArray(manifest.furniture) ? manifest.furniture : [];
   const recomputed = furnitureRoot(declaredFurniture);
   if (recomputed !== manifest.furniture_root)
@@ -1808,6 +1850,7 @@ function runGates(html, log = console.log) {
   const compositionRoot = merkleRoot([
     ...claimed.map((c) => placementLeaf(c.block, c.section, c.name, placementAtomList(c, entryByHash.get(c.block)))),
     furnitureLeaf(String(manifest.furniture_root)),
+    registryLeaf(String(manifest.registry_hash)),
   ]);
   if (compositionRoot !== manifest.composition_root)
     why.push(`gate 7: composition root recomputes to ${compositionRoot.slice(0, 8)}… ≠ declared ${String(manifest.composition_root).slice(0, 8)}…`);
@@ -2233,7 +2276,8 @@ function vectors() {
 // Both composed roots the manifest declares are `merkleRoot` over a list the
 // manifest also publishes, so a sceptic should not have to write code to check
 // one. Hand this verb the manifest's `blocks` array and it prints the page root;
-// hand it the `placements` array and it prints the composition root. A bare JSON
+// hand it the WHOLE manifest and it prints the composition root, trailing leaves
+// and all — which is why the whole manifest is what it asks for. A bare JSON
 // array of 64-character hashes works too — that is what a leaf list looks like
 // coming out of any other implementation.
 
@@ -2249,11 +2293,13 @@ function rootOf(path) {
   const blocks = new Map((Array.isArray(doc?.blocks) ? doc.blocks : []).map((b) => [b.hash, b]));
   const items = Array.isArray(doc) ? doc : Array.isArray(doc?.placements) ? doc.placements : null;
   if (!items) throw new Error('expected a JSON array of hashes, blocks or placements, or a page manifest');
-  // A v1.3 composition root is over the placements AND the page's furniture, so a
-  // manifest gets its furniture leaf appended; a bare list is taken as the list it
-  // is, which is how a page root is recomputed from `blocks`.
+  // A v1.3 composition root is over the placements AND two trailing leaves — the
+  // page's furniture and the registry its descriptors name — so a manifest gets
+  // both appended, in that order; a bare list is taken as the list it is, which is
+  // how a page root is recomputed from `blocks`.
   const tail = !Array.isArray(doc) && Array.isArray(doc.placements)
-    ? [furnitureLeaf(String(doc.furniture_root ?? furnitureRoot(doc.furniture ?? [])))]
+    ? [furnitureLeaf(String(doc.furniture_root ?? furnitureRoot(doc.furniture ?? []))),
+       registryLeaf(String(doc.registry_hash ?? registryHash()))]
     : [];
 
   const leaves = items.map((it, i) => {

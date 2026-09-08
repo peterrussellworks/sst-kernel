@@ -26,8 +26,9 @@ over the symptom.
 ## Format changes: not by pull request
 
 `vectors/` is frozen, and `sst-kernel.mjs`'s identity primitives — atom hashing,
-Merkle composition, the gate set, the geometry and composition spines, and the
-furniture root the composition spine now carries as its final leaf — are what the
+Merkle composition, the gate set, the geometry and composition spines, and the two
+trailing leaves the composition spine now carries — the page's furniture root, and
+the `registry_hash` naming the table its render descriptors refer to — are what the
 vectors hold to account. The gate set is the nine gates plus the DOM-text rule,
 and what each one covers is stated in `README.md`; a change to what any of them
 accepts or refuses is a format change, including the page-level residue rule gate
@@ -38,7 +39,19 @@ implementation can vendor them and prove the copy equal, which an edit here woul
 silently break for everyone who already has. Adding a transform is a format
 change like any other, and it happens the way the rest of them do, below. That includes the refusal vectors: a change that
 makes a gate stop refusing what it is frozen to refuse is a format change, not a
-fix. A pull request that changes anything under `vectors/`, or changes what
+fix.
+
+One rule is worth naming here, because it is the one most likely to arrive as a
+patch. **Gate 6's per-wrapper residue rule is strict about inert elements on
+purpose**: the page-level rule reads `<script>`, `<style>` and `<template>` as
+showing nothing, and the per-wrapper rule does not. An inline script or style
+inside a block wrapper is residue, and the page is refused. That is a conformance
+rule for emitters — a block wrapper carries content and nothing else, and scripts
+and styles belong outside one — not a gap in the check, and
+`refusals/script-inside-wrapper.html` freezes it. Relaxing the wrapper to admit
+them widens the single span in which the format asks an emitter to keep a
+completeness claim clean, so it is a format change to be argued for as an issue,
+never a one-line fix. A pull request that changes anything under `vectors/`, or changes what
 those primitives compute, will be declined on principle, not on quality. It does
 not matter how correct, well-tested, or well-argued the change is.
 

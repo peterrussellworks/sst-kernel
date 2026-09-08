@@ -99,7 +99,7 @@ Three Merkle roots over the same lattice, answering three different questions:
 | spine | attests | leaf | moves when |
 |---|---|---|---|
 | **content** | WHAT IS PRESENT — atoms → blocks → page root | an atom's hashed content | any character of any atom changes |
-| **composition** | WHERE, HOW MANY TIMES, AND HOW — the page's placements, in order, and the page's own furniture | a placement-coordinate: the identity placed, the coordinate it was placed at, and a root over the atoms it carried with the mode each was carried in; then one final leaf over the page's furniture root | a block is moved, repeated or dropped, a placement changes what it prints or how, or a word of the page's own furniture changes — **never** on a content edit |
+| **composition** | WHERE, HOW MANY TIMES, AND HOW — the page's placements, in order, the page's own furniture, and the registry its descriptors name | a placement-coordinate: the identity placed, the coordinate it was placed at, and a root over the atoms it carried with the mode each was carried in; then two trailing leaves, one over the page's furniture root and one over its `registry_hash` | a block is moved, repeated or dropped, a placement changes what it prints or how, a word of the page's own furniture changes, or the registry the page names is swapped — **never** on a content edit |
 | **geometry** | THE SHAPE, incl. negative space | a site-coordinate valued by occupancy state | a site is added/removed, or a hole is filled/sealed — **never** on a content edit |
 
 The geometry spine is *matter-invariant*: editing an atom leaves the coordinate
@@ -133,7 +133,7 @@ one.
 | 5 | the **manifest** re-hashes — every manifest atom's content reproduces its id, every block root recomputes from its atoms |
 | 6 | **completeness** — every atom a placement declares is found on the surface it declares, in the order it declares, and once every declared element is accounted for the wrapper holds *no visible text besides*; and, on a v1.3 page, the same question of the whole page — the furniture it carries is the furniture the manifest declares, the declared furniture root is the root over what the page shows, and nothing visible is left over |
 | — | **the §6.2 DOM-text rule** — gate 5's DOM-side counterpart: every *visible* atom's text re-hashes to its id (or, for a projected atom, the named projection recomputes) |
-| 7 | **composition** — the page renders exactly the declared placements, in document order; the declared furniture root recomputes from the declared furniture list; and the composition root recomputes from the placement leaves plus a final furniture leaf |
+| 7 | **composition** — the page renders exactly the declared placements, in document order; the declared furniture root recomputes from the declared furniture list; and the composition root recomputes from the placement leaves plus two trailing leaves, one over the page's furniture root and one over the registry its descriptors name |
 | 8 | **geometry** — the page's geometry root recomputes from the sites it publishes; at every coordinate it places, the roles the block published there and the present sites declared there are the same set, *both ways*; and no site names a coordinate the page does not place |
 | 9 | **the charter** — the page serves *exactly one* charter object, and its served terms hash to the atom that charter names, inside a block the manifest carries, and therefore under the page root |
 
@@ -205,6 +205,23 @@ Four consequences worth stating plainly.
   between them, or lays a label across three lines of source, differs from its
   atoms by typesetting; a page that changes one letter still fails.
 
+**A block wrapper carries content and nothing else.** The page-level rule below
+reads `<script>`, `<style>` and `<template>` as showing nothing, because a
+minified stylesheet in the body is not a sentence the page shows and a page-wide
+rule that counted one would report every ordinary artefact as carrying unattested
+text. **The per-wrapper rule is deliberately not relaxed the same way**: an inline
+script or style *inside* a block wrapper is residue, and gate 6 refuses the page.
+
+That is a conformance rule, not a limitation of the check. A wrapper is the span
+in which "this block reconstructs from its atoms and nothing else" is asserted;
+whatever sits inside it is being asserted about. Scripts and styles belong outside
+wrappers — in the head, or in the body between them, where the furniture rule
+already reads them as showing nothing — and an emitter has no reason to put one
+inside a block it is making a completeness claim about. Relaxing the wrapper to
+admit them would widen the one span the format asks an emitter to keep clean, and
+that is a format change to be argued for rather than a convenience.
+`refusals/script-inside-wrapper.html` freezes it.
+
 **The furniture — the page's own text, declared.** A page is not only its
 blocks. It carries a plate number, a footer line, a breadcrumb: text that is the
 page's rather than the operator's content, that no atom attests, and that until
@@ -230,16 +247,19 @@ as furniture. **The page's FURNITURE is**, in document order:
 A span showing no text declares nothing and enters no list — a spacer, a rule, an
 icon — because hashing an empty string once per decorative element would put
 typography inside a published root. `<script>`, `<style>` and `<template>` are
-not visible text and are read as none.
+not visible text and are read as none — **here**, at the page level. Inside a
+block wrapper they are still residue and gate 6 still refuses them, for the
+reason given above: a wrapper carries content and nothing else.
 
 The manifest publishes that list as `furniture` and its Merkle root over
 `sha256(text)` per span as `furniture_root`; an empty list has the defined root
 `merkleRoot([])`, which is SHA-256 of the empty string,
-`e3b0c442…`. **The binding:** the composition root is now the root over the
-placement leaves **plus one final leaf**, `sha256('furniture' ␟ furniture_root)`,
-appended unconditionally so a page cannot drop its claim about its own furniture
-by having none. The placement leaves themselves are byte-identical to what they
-were, which is why this was the cheapest binding available.
+`e3b0c442…`. **The binding:** the composition root is the root over the placement
+leaves **plus two trailing leaves**, `sha256('furniture' ␟ furniture_root)` and
+then `sha256('registry' ␟ registry_hash)`, each appended unconditionally so a page
+cannot drop a claim by declining to make it. The placement leaves themselves are
+byte-identical to what they were, which is why this was the cheapest binding
+available.
 
 Gate 6 checks the list against the page in both directions and checks the
 declared root against what the page shows; gate 7 recomputes the root from the
@@ -254,9 +274,21 @@ passes all nine with a composition root that is not the frozen page's.
 a verifier that cannot tell *which* registry a page's descriptors refer to
 recomputes a label with whatever table it happens to carry and calls the result an
 agreement. A v1.3 manifest therefore carries `registry_hash` — the SHA-256 of the
-registry's own source region, the same value the conformance vectors freeze. It
-enters no root: it is a claim about the emitter's table, and gate 6 compares it
-with the table the verifier actually holds rather than hashing it.
+registry's own source region, the same value the conformance vectors freeze. Gate
+6 compares it with the table the verifier actually holds.
+
+**And the name is bound, not merely declared.** That comparison catches a page
+whose registry the verifier does not share; on its own it cannot catch a page
+whose registry name was changed *after* the origin published it, because nothing
+tied the name to anything the origin signed — the verifier could only say "your
+table and mine differ", never "this is not the page that was published". So
+`registry_hash` is also the composition root's second trailing leaf, built exactly
+as the furniture leaf is. A registry swap now moves a published root, and is
+tamper-evident against the origin's roots rather than only against whatever table
+the verifier happens to carry. Both checks fire on an edited `registry_hash`, and
+neither is redundant: gate 6 is silent where the *verifier* is the one that is out
+of date, and gate 7 is silent where verifier and page agree on a table the origin
+never used. `refusals/registry-hash-edited.html` freezes both.
 
 **Where the mode is attested, and where it is not.** Not in the atom id, not in
 the block root, not in the page root, and not in the geometry leaf. Renaming an
@@ -434,14 +466,20 @@ document honest.
 against the published HTML alone. They establish that the artefact is consistent
 with itself: the visible text re-hashes, the roots recompute, the placements and
 the geometry and the charter agree with the page and with each other, and the page
-shows nothing besides its atoms and its declared furniture. This is what
+shows nothing besides its atoms and its declared furniture. The composition root
+is where three kinds of leaf meet — the page's placements, the page's own
+furniture, and the registry its render descriptors name — so all three are one
+recomputation rather than three separate promises. This is what
 `node sst-kernel.mjs verify` proves and the whole of what it proves.
 
 **Level 2 — source correspondence.** The page's roots compared with the roots the
 declared origin publishes. Internal integrity cannot distinguish an artefact from
-a consistent rewrite of it: relabel a coordinate everywhere, or inject a sentence
-and declare it as furniture, and every root recomputes. What refuses those is that
-the recomputed root is not the published one. The reference artefact already does
+a consistent rewrite of it: relabel a coordinate everywhere, inject a sentence and
+declare it as furniture, or point the descriptors at another registry and swap the
+verifier's table to match, and every root recomputes. What refuses those is that
+the recomputed root is not the published one — which is the reason the registry's
+name is a leaf and not only a declaration checked against the verifier's own
+table. The reference artefact already does
 this in public: its machine itinerary walks a reader from the kernel to a live
 page to the verification face, to `curator_root`, to the crystal state, so the
 roots on the page can be checked against the roots the origin stands behind.
@@ -490,7 +528,9 @@ hidden.
 - **The transform registry is pinned by hash, and named symbolically.** A
   descriptor says `rating-label`; what that means lives in the registry. v1.3's
   `registry_hash` closes the naming half — a verifier can now tell whether the
-  page's registry is its own — but the descriptors still refer to entries by name,
+  page's registry is its own, and, since the hash is a leaf of the composition
+  root, whether it is the one the origin published — but the descriptors still
+  refer to entries by name,
   and a registry that added an entry without moving the hash would be a different
   table wearing the same badge. The hash is what makes that impossible; the
   symbolic reference is what makes the hash necessary.
@@ -528,11 +568,13 @@ blurred:
   still emits the v1.2 shape on demand, and this set is what proves it.
 - **`vectors/v1.3-manifest/`** — the v1.3 shape on the same terms, plus the
   frozen page itself and something neither other set has: a **refusal set**.
-  Twenty-six files under `refusals/`, each the frozen page with one edit, each
-  naming the exact list of checks `verify` must report. Twenty-five are refusals;
-  every one but the control passed all six of the previous version's gates
-  untouched, and the control is an edit the previous version already caught and
-  must still catch in the same place. The twenty-sixth must **pass**: the same
+  Twenty-eight files under `refusals/`, each the frozen page with one edit, each
+  naming the exact list of checks `verify` must report. Twenty-seven are refusals.
+  Most of them passed all six of the previous version's gates untouched, which is
+  why they exist; the control is an edit the previous version already caught and
+  must still catch in the same place; and two of them are the cases the newest
+  bindings brought with them — a swapped registry name, and an inline script
+  inside a block wrapper. The twenty-eighth must **pass**: the same
   injected paragraph as the refusal beside it, *declared*, with both roots
   recomputed — a page with internal integrity and a composition root that is not
   the origin's, which is the claim ladder's second rung frozen as a vector. Beside
