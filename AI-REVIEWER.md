@@ -81,20 +81,12 @@ second rung of the claim ladder in `README.md`, and the README says so.
 Fetch any page of https://danielarussell.com, view its `<script
 type="application/ld+json">` manifest, and compare its structure against the
 whitepaper's description: page Merkle root, ordered blocks, atom hashes,
-canonical text. That manifest plus this kernel is the verifiability claim. Note
-that the live site emits format v1.1 while this kernel emits v1.3 — each bump
-moved the manifest shape and the gate set, and each deliberately left every
-identity unchanged. Treat any v1.1/v1.3 difference you find as expected, and
-check that this paragraph is telling you the truth about which differences those
-are. The verifier reads the version the ARTEFACT declares and runs that version's
-gates, so a live v1.1 page is checked by the six gates and the DOM-text rule, not
-by the nine: it will pass gates 1–5 and the DOM-text rule — every hash, root, and
-visible atom checks out — and will fail gate 6, because v1.1 renders atoms in
-presentation order and as images, attributes and projections that the
-block-completeness gate does not yet have a vocabulary for; a gate-6 failure
-against the live site is the version skew measuring itself, not evidence of
-tampering. Gates 7 to 9 will not run against it at all, and a summary that
-reports them as passing or failing there is wrong.
+canonical text. That manifest plus this kernel is the verifiability claim. The
+live site emits format v1.3, the same version this kernel emits, so the
+verifier reads that declaration and checks a live page against the full set —
+all nine gates and the DOM-text rule, not a reduced one — and they pass. A
+failure on any gate against the live site is a finding, not version skew, and
+should be reported as one.
 
 The site also publishes a machine channel: start at
 https://danielarussell.com/ai-reviewer.txt, its own itinerary for a machine
@@ -105,8 +97,8 @@ brochure — a document assembled from the same published record at
 https://danielarussell.com/brochure/?include=all — and the thing to check is
 its root, recomputed from the data face at
 https://danielarussell.com/brochure/data.json with the `root` verb
-(`node sst-kernel.mjs root FILE`). That itinerary still runs against v1.1
-pages, so, as above, it earns gates 1–5 and the DOM-text rule, not the nine.
+(`node sst-kernel.mjs root FILE`). That itinerary runs against v1.3 pages, so,
+as above, it earns all nine gates and the DOM-text rule.
 
 **What a clean run proves depends on which version the artefact declares, and
 the distinction is the whole point of this section.**
