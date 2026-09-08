@@ -1386,6 +1386,15 @@ function domTextRule(html, manifest) {
  *  Nothing else is relaxed: a single changed letter still fails. */
 const squeeze = (s) => normalize(s).replace(/\s/g, '');
 
+/** The HEAD of a quoted string, cut at a word boundary so a refusal never
+ *  fabricates a broken word. A refusal names enough of what it found for a
+ *  reader to recognise the sentence; it is not a place to reprint the page. */
+const headOf = (s, n = 60) => {
+  if (s.length <= n) return s;
+  const cut = s.lastIndexOf(' ', n);
+  return `${s.slice(0, cut > 0 ? cut : n)}…`;
+};
+
 /** One attribute's value, decoded. Matched from the start of the attribute name
  *  so that `alt` does not match inside `data-alt`. */
 function attrValue(attrs, name) {
@@ -1494,6 +1503,7 @@ function blockCompleteness(html, manifest, evidence) {
     const elements = scanElements(markup);
     const held = new Map((entry.atoms ?? []).map((a) => [a.hash, a.content]));
     const spans = [];
+    const borne = [];
     const used = new Set();
 
     // CHROME INSIDE THE WRAPPER. Markup outside every wrapper is invisible to this
@@ -1528,7 +1538,23 @@ function blockCompleteness(html, manifest, evidence) {
       const el = elements[at];
       if (at < cursor) why(`renders atom …${item.hash.slice(0, 8)} out of the order its placement declares`);
       cursor = at;
-      spans.push([el.start, el.end]);
+      // WHAT A PLACEMENT REMOVES from the wrapper's visible text is the render
+      // mode's to decide, and it is not the same span in all three. A verbatim or
+      // non-text atom accounts for its element WHOLE: the text inside is the
+      // atom's, or the mode requires there to be none. An attribute-mode atom
+      // accounts for NO VISIBLE TEXT AT ALL — its content is the attribute's
+      // value, markup a verifier reads — so only the element's TAGS are cut, and
+      // whatever it shows between them stays in the residue to be judged like any
+      // other text on the page. Cutting the whole element here instead was a hole
+      // the exact size of that element (found 2026-09-08): visible text placed as
+      // a child of an attribute-mode element passed all nine gates, with no
+      // manifest edit and the composition root unmoved. Cutting the tags rather
+      // than nothing keeps the attribute's own value out of the text stream,
+      // where an unescaped `>` in it would otherwise read as prose.
+      if (surface === 'attribute') {
+        spans.push([el.start, el.innerStart], [el.innerEnd, el.end]);
+        borne.push({ hash: item.hash, attribute, from: el.innerStart, to: el.innerEnd });
+      } else spans.push([el.start, el.end]);
 
       // The effective transform: the one the placement declares, or — for an
       // artefact that declares no atom list at all — the marker the DOM carries,
@@ -1577,13 +1603,33 @@ function blockCompleteness(html, manifest, evidence) {
       }
     }
 
+    // Read the attribute-mode elements' own residue FIRST, and name it where it
+    // sits. The general rule below would catch this text anyway — it is in the
+    // residue precisely because nothing cut it — but reported as a loose sentence
+    // it says nothing about which element carries it, and the element is the whole
+    // point: the atom is in the attribute, the prose is in the children. Nesting
+    // needs no special case. A verbatim atom placed INSIDE an attribute-mode
+    // element has its own span cut by its own placement, so what is left inside is
+    // exactly what no atom attests.
+    const holes = gaps(markup.length, spans);
+    const strayIn = (from, to) => holes
+      .filter(([at, to2]) => to2 > from && at < to)
+      .map(([at, to2]) => markup.slice(Math.max(at, from), Math.min(to2, to)))
+      .join('');
+    for (const bearer of borne) {
+      const stray = normalize(domTextPlain(strayIn(bearer.from, bearer.to)));
+      if (squeeze(stray) === '') continue;
+      why(`carries atom …${bearer.hash.slice(0, 8)} in attribute "${bearer.attribute}" and shows ${JSON.stringify(headOf(stray))} beside it`);
+    }
+
     // THE RESIDUE RULE. Everything the placement accounts for has had its span cut
     // out; whatever visible text is left is text no atom attests, and is reported
     // as itself. This is the half of gate 6 that gates 1–5 and the DOM-text rule
     // cannot reach: an injected sentence carries no hash, so there is nothing for
     // them to check, and every one of them passes while the page says something
-    // its author never wrote.
-    const residue = normalize(domTextPlain(markupOutside(markup, spans)));
+    // its author never wrote. The attribute-borne spans just read are cut here so
+    // that text is reported once, by the rule that can name its element.
+    const residue = normalize(domTextPlain(markupOutside(markup, [...spans, ...borne.map((n) => [n.from, n.to])])));
     if (squeeze(residue) !== '') why(`carries visible text no atom attests: ${JSON.stringify(residue)}`);
   });
 

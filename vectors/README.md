@@ -233,12 +233,12 @@ it serves. Reinstate either reading and this freeze moves, which is the point of
 freezing it.
 
 And, beside them, `page.html` — the exact bytes the kernel builds. That is not
-decoration: twenty-seven of the twenty-eight files in `refusals/` are that page
+decoration: twenty-nine of the thirty files in `refusals/` are that page
 with one edit, so a page that drifted would turn the refusal set into a test of nothing.
 `vectors` rebuilds it byte-for-byte, and checks it passes all nine gates, before
 it trusts a single refusal.
 
-`page-sst-charter-field.html` is the twenty-eighth file's subject and a vector in
+`page-sst-charter-field.html` is the thirtieth file's subject and a vector in
 its own right: the same terms served in the OTHER charter shape — an entity document
 carrying an `sst_charter` field, which is what the reference implementation serves
 — with its attestation block re-derived by the same canonical rule. The kernel
@@ -254,12 +254,12 @@ verifier must reject, which is the half a passing vector cannot reach: a gate ca
 be deleted, weakened, or accidentally short-circuited without a single frozen
 hash moving.
 
-Twenty-eight files, each a frozen page with ONE edit, each declaring in
+Thirty files, each a frozen page with ONE edit, each declaring in
 `expected.json` the exact list of checks `verify` must report — so a gate that
 stops refusing, starts refusing something else, or starts refusing two things at
 once all show up as drift rather than as a quiet pass.
 
-Twenty-seven of them are refusals. The twenty-eighth,
+Twenty-nine of them are refusals. The thirtieth,
 `consistent-furniture-rewrite.html`, must **pass**, and it is in this set because
 what it pins is the set's own boundary — see the note below the table.
 
@@ -282,6 +282,8 @@ what it pins is the set's own boundary — see the note below the table.
 | `script-inside-wrapper.html` | an inline `<script>` added inside a wrapper — inert at the page level, residue inside a wrapper | gate 6 |
 | `missing-non-text-stamp.html` | the stamp removed from the element bearing a non-text atom | gate 6 |
 | `attribute-value-changed.html` | one letter changed inside the attribute an atom is carried in | gate 6 |
+| `attribute-mode-child-text.html` | a sentence added as a child text node of an attribute-mode element — stamp, attribute, manifest and roots all untouched | gate 6 |
+| `attribute-mode-svg-text.html` | the same sentence drawn instead as an `<svg><text>` child of that element | gate 6 |
 | `transform-label-changed.html` | a composed label edited away from what the registry transform makes of its atoms | gate 6 |
 | `partial-placement-overclaims.html` | a partial placement claiming an atom the wrapper does not show, root recomputed | gate 6 |
 | `reordered-atoms.html` | two atoms swapped *inside* one wrapper, each still re-hashing | gate 6 |
