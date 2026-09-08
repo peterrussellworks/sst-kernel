@@ -3,7 +3,7 @@
   "format": "SST Dual-Native v1.3",
   "fixture": "vectors/v1.3-manifest/page.html",
   "frozen_by": "sst-kernel.mjs in this repository. A freeze, not a cross-implementation agreement — see vectors/README.md.",
-  "note": "A gate nobody has watched refuse is a comment. Each file below is a frozen page with ONE edit, and each names the check that must catch it; `refuses` is the exact list `verify` reports, so a gate that stops refusing, starts refusing something else, or starts refusing two things at once moves these values. All but the last edit passed all six gates of the previous format version unchanged — that is why they exist. The last is the control: an edit the previous version already caught, which must still be caught in the same place. Nine of the ten edit page.html; sst-charter-field-flipped.html edits page-sst-charter-field.html, which serves the same terms in the second charter shape and must itself pass all nine.",
+  "note": "A gate nobody has watched refuse is a comment. Each file below is a frozen page with ONE edit, and each names the check that must catch it; `refuses` is the exact list `verify` reports, so a gate that stops refusing, starts refusing something else, or starts refusing two things at once moves these values. All but the last edit passed all six gates of the previous format version unchanged — that is why they exist. The last is the control: an edit the previous version already caught, which must still be caught in the same place. Twelve of the thirteen edit page.html; sst-charter-field-flipped.html edits page-sst-charter-field.html, which serves the same terms in the second charter shape and must itself pass all nine.",
   "cases": [
     {
       "file": "reordered-blocks.html",
@@ -36,6 +36,16 @@
       "refuses": [8]
     },
     {
+      "file": "dropped-published-role.html",
+      "mutation": "a present site deleted from the site list for a role the block placed there does publish — with the declared geometry root recomputed over the shorter list, so the reverse direction of the cross-check is the only thing left to catch it",
+      "refuses": [8]
+    },
+    {
+      "file": "withheld-site-claimed-present.html",
+      "mutation": "the withheld site of the page's one projected block claimed present in the slice — the value the committed sidecar holds for that coordinate, which is exactly what a page's slice may not import. The geometry root is recomputed, so only the cross-check against the placed block refuses it",
+      "refuses": [8]
+    },
+    {
       "file": "flipped-charter-permission.html",
       "mutation": "one permission flipped in the served charter, leaving the attested copy untouched",
       "refuses": [9]
@@ -43,6 +53,11 @@
     {
       "file": "deleted-charter.html",
       "mutation": "the charter declaration deleted outright",
+      "refuses": [9]
+    },
+    {
+      "file": "second-charter.html",
+      "mutation": "a second charter object appended after the first, granting everything the first withholds. The first still hashes to the atom it names, so a verifier that stopped at the first charter it found would report a clean page while the terms a reader is shown are ambiguous",
       "refuses": [9]
     },
     {

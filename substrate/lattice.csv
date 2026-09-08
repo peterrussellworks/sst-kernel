@@ -15,6 +15,7 @@ paper,geometry,body,body,geometry_1
 paper,geometry,body,detail,_PENDING_
 paper,superposition,note,body,superposition_1
 paper,colophon,note,body,superposition_1
+paper,colophon,note,phone,phone_1
 notes,meta,seo,title,seo_title
 notes,meta,seo,description,seo_description
 notes,appendix,body,body,claim_1

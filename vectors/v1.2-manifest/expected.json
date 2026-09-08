@@ -187,11 +187,11 @@
   "geometry": {
     "@type": "SstGeometrySpine",
     "version": "1.0",
-    "geometry_root": "5df790a6d172d709f193c7b87aee46d0ac431fc373778fe024e024881f28be56",
-    "site_count": 14,
+    "geometry_root": "2e0ab434a3078557f1d5a9581c195feb13077d8813ec8ff265a246a9fd9dc454",
+    "site_count": 15,
     "block_count": 10,
     "states": {
-      "present": 13,
+      "present": 14,
       "pending": 1,
       "na-omitted": 0,
       "na-impossible": 0

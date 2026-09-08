@@ -218,6 +218,32 @@ function compileBlocks(atoms, rows) {
   return blocks;
 }
 
+/** SITES THE PAGE WITHHOLDS — placed in the substrate, absent from the published
+ *  faces. The operator's lattice carries a telephone number at the colophon; the
+ *  page does not print it and the manifest does not carry it. In the reference
+ *  implementation the decision is per block in the render path; here it is a small
+ *  table, so this fixture exercises the rule the way a real artefact does — two of
+ *  the reference artefact's chrome blocks are projected on every page it serves.
+ *
+ *  What the page then publishes is a PROJECTION of the substrate block (§2.5 P3):
+ *  its identity is the Merkle root over exactly the atoms published, which is what
+ *  gate 5 already checks. The optional `projected_from` pointer is deliberately
+ *  NOT emitted — on an incomplete projection it names a block this page does not
+ *  carry, so it is a claim the page cannot prove, and nothing is published here
+ *  that a reader cannot recompute. */
+const WITHHELD = [{ page: PAGE, section: 'colophon', block: 'note', role: 'phone' }];
+
+/** A block as the page publishes it: the substrate's atoms less the withheld ones,
+ *  with identity following the publication rather than the substrate. Order and
+ *  content are untouched, so a block that withholds nothing is returned as it is —
+ *  and its identity therefore cannot move. */
+const projectBlock = (b) => {
+  const atoms = b.atoms.filter(
+    (a) => !WITHHELD.some((w) => w.page === b.page && w.section === b.section && w.block === b.name && w.role === a.role)
+  );
+  return atoms.length === b.atoms.length ? b : { ...b, atoms, hash: merkleRoot(atoms.map((a) => a.hash)) };
+};
+
 // ─────────── THE GEOMETRY SPINE — the shape, incl. the negative space ───────────
 // A SECOND Merkle root, peer to the content root (SPEC §4.7.2). Where content
 // attests WHAT IS PRESENT, geometry attests the full bill of materials — every
@@ -306,12 +332,28 @@ function coordinateSites(rows, page, section, block) {
   return roles.map((ro) => ({ section, block, block_type: blockType, role: ro.role, state: roleState(ro.refs) }));
 }
 
-/** The GEOMETRY SLICE a page publishes in its v1.3 manifest, DEFINED BY ITS
- *  PLACEMENTS: for every coordinate the page places, that coordinate's sites — the
- *  roles it renders AND the vacancies it declares — in placement order, with the
- *  root over exactly that list.
+/** The GEOMETRY SLICE a page publishes in its v1.3 manifest. THE PAGE'S GEOMETRY
+ *  IS THE PAGE'S OWN SHAPE: for every coordinate the page places, the roles the
+ *  page PUBLISHES there plus the vacancies that coordinate declares, in placement
+ *  order, with the root over exactly that list.
  *
- *  Not the lattice page's slice, and the difference is measured rather than
+ *  The roles PUBLISHED, not the substrate's present sites, because a block may be
+ *  projected: the substrate places an atom at a site the page withholds. A slice
+ *  built from the substrate's occupancy would declare a present site the page does
+ *  not carry, and gate 8's cross-check against the block placed there would then
+ *  refuse every page that withholds anything — which, measured on the reference
+ *  artefact, is every page it serves.
+ *
+ *  A withheld site is not lost. It stays `present` in the committed sidecar, which
+ *  attests the whole artefact's shape; a page's slice may therefore show fewer
+ *  present sites than the sidecar for a projected block. That difference is
+ *  PROJECTION, not loss.
+ *
+ *  Vacancies are never projected. A declared hole is the page's own statement
+ *  about its shape, and withholding one would be the silent seal this spine exists
+ *  to make impossible.
+ *
+ *  Not the lattice page's slice either, and the difference is measured rather than
  *  aesthetic: on a real artefact one rendered page draws its blocks from many
  *  lattice pages, and a lattice page declares sites (a section still in draft)
  *  that no page renders. A slice keyed on the lattice page would publish sites
@@ -321,13 +363,15 @@ function coordinateSites(rows, page, section, block) {
  *
  *  The whole-artefact sidecar stays where it is — it carries the cross-page root,
  *  which no single page can. */
-const geometrySlice = (rows, page, placements) => {
+const geometrySlice = (rows, page, placements, publishedRoles) => {
   const sites = []; const seen = new Set();
   for (const p of placements) {
     const key = `${p.section}${US}${p.name}`;
     if (seen.has(key)) continue; // a coordinate placed twice declares its sites once
     seen.add(key);
-    sites.push(...coordinateSites(rows, page, p.section, p.name));
+    const published = publishedRoles.get(p.block) ?? new Set();
+    for (const site of coordinateSites(rows, page, p.section, p.name))
+      if (site.state !== 'present' || published.has(site.role)) sites.push(site);
   }
   return { root: pageGeometryRoot(page, sites), sites };
 };
@@ -623,7 +667,11 @@ function buildManifest(renderedBody, blocks, { page, publishedPages, version, re
     atom_count: entries.reduce((n, e) => n + e.atoms.length, 0),
     blocks: entries,
     placements,
-    geometry: geometrySlice(rows, page, placements),
+    // The slice reads the roles the BILL declares for each identity, not the roles
+    // the rendered object happens to hold: gate 8 checks the slice against the bill
+    // entry, and where several coordinates share one identity the bill carries one
+    // entry for all of them. One source, so the two cannot disagree.
+    geometry: geometrySlice(rows, page, placements, new Map(entries.map((e) => [e.hash, new Set(e.atoms.map((a) => a.role))]))),
   };
 }
 
@@ -719,7 +767,10 @@ const FORMAT_VERSION = '1.3';
  *  keeps: the older shape is still emitted on demand, byte-for-byte. */
 function compileArtefact(version = FORMAT_VERSION) {
   const { atoms, rows } = readSubstrate();
-  const blocks = compileBlocks(atoms, rows);
+  // Project BEFORE anything reads a block id: the page's identities are the ones
+  // it publishes, so a withheld atom must be gone before the faces, the labels and
+  // the slice are derived from them.
+  const blocks = compileBlocks(atoms, rows).map(projectBlock);
   const mine = blocks.filter((b) => b.page === PAGE);
   const rendered = mine.filter((b) => !isHeadBlock(b));
   const body = renderBody(rendered);
@@ -1112,8 +1163,23 @@ function runGates(html, log = console.log) {
   // The geometry spine hashes section, block, block_type, role and occupancy
   // state; the manifest declares the same fields and hashed none of them, so an
   // edited role or a silently dropped vacancy cost nothing. Publishing the page's
-  // slice binds the two: the root recomputes from the published sites, and the
-  // sites and the PLACEMENTS must describe the same page.
+  // slice binds the two. THREE CHECKS, and no more:
+  //
+  //   · the declared geometry root recomputes from the published sites;
+  //   · at every coordinate the page places, the roles the block published there
+  //     and the present sites declared there are the same set, BOTH WAYS — so an
+  //     invented present site and a published role missing from the slice are each
+  //     refused;
+  //   · no site names a coordinate the page does not place.
+  //
+  // THE PAGE'S GEOMETRY IS THE PAGE'S OWN SHAPE, not the substrate's. A projected
+  // block publishes fewer roles than the substrate places at its coordinate, and
+  // the slice says exactly that; the whole artefact's shape stays in the committed
+  // sidecar, where the withheld site is still present. The difference between the
+  // two is PROJECTION, not loss. A gate that demanded the substrate's present
+  // sites instead would refuse every page that withholds anything — measured on
+  // the reference artefact, two of its chrome blocks are projected on every page
+  // it serves, so that gate would refuse the artefact this format was written for.
   const geo = manifest.geometry ?? {};
   const sites = Array.isArray(geo.sites) ? geo.sites : [];
   const why8 = [];
@@ -1185,11 +1251,22 @@ function runGates(html, log = console.log) {
   // object. A verifier that knew only the first shape would report "no charter" on
   // a page that plainly publishes one, so either is a charter. The manifest is
   // neither, and is not a candidate.
-  const charter = ld.find(
+  //
+  // AND EXACTLY ONE. A page serving two charter objects serves none: a reader
+  // cannot tell which terms govern, and an agent choosing between them chooses the
+  // permissive one. Ambiguity about the terms is itself the finding, so the count
+  // is checked before the hash — otherwise appending a second, permissive charter
+  // after a strict one would pass, because the first still hashes correctly. The
+  // reference implementation's own validator already refuses this at build; this
+  // refuses it at the published page, which is where a stranger meets it.
+  const charters = ld.filter(
     (d) => d && typeof d === 'object' && (d['@type'] === 'SstCharter' || 'sst_charter' in d)
   );
+  const charter = charters[0];
   let why9 = null;
   if (!charter) why9 = 'no charter in <head>';
+  else if (charters.length > 1)
+    why9 = `the page serves ${charters.length} charter objects; a page declares the terms of exactly one`;
   else {
     const declared = charter.attestation;
     const atom = atomId(charterAtomContent(charter));
