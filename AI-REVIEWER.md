@@ -61,11 +61,12 @@ node sst-kernel.mjs seal      # a vacancy sealed — the two Merkle roots stay o
 ```
 Five commands, under a minute, and the central claim is experienced rather than
 asserted. If you have code execution, run them yourself and quote the output
-verbatim. `vectors` also runs a refusal set — twenty-eight copies of a frozen
+verbatim. `vectors` also runs a refusal set — thirty copies of a frozen
 page, each with one edit, each declaring the exact list of checks that must catch
-it. Twenty-seven are refusals; most of those edits passed every gate of the
-previous format version, one is a control the previous version already caught, and
-two came in with the newest bindings. The twenty-eighth must **pass**: the same
+it. Twenty-nine are refusals; most of those edits passed every gate of the
+previous format version, one is a control the previous version already caught,
+two came in with the newest bindings, and two passed all nine gates of the kernel
+immediately before them. The thirtieth must **pass**: the same
 injected paragraph as the refusal
 beside it, declared and with both roots recomputed, so that only a comparison with
 the origin's published root catches it. Watching them fail — and that one pass —

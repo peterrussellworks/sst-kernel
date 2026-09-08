@@ -131,7 +131,7 @@ one.
 | 3 | parity, both directions — the same identity SET on both faces |
 | 4 | the declared page root recomputes from the block list |
 | 5 | the **manifest** re-hashes — every manifest atom's content reproduces its id, every block root recomputes from its atoms |
-| 6 | **completeness** — every atom a placement declares is found on the surface it declares, in the order it declares, and once every declared element is accounted for the wrapper holds *no visible text besides*; and, on a v1.3 page, the same question of the whole page — the furniture it carries is the furniture the manifest declares, the declared furniture root is the root over what the page shows, and nothing visible is left over |
+| 6 | **completeness** — every atom a placement declares is found on the surface it declares, in the order it declares, and once every declared element is accounted for — an attribute-mode element accounting for its attribute and never for what it shows — the wrapper holds *no visible text besides*; and, on a v1.3 page, the same question of the whole page — the furniture it carries is the furniture the manifest declares, the declared furniture root is the root over what the page shows, and nothing visible is left over |
 | — | **the §6.2 DOM-text rule** — gate 5's DOM-side counterpart: every *visible* atom's text re-hashes to its id (or, for a projected atom, the named projection recomputes) |
 | 7 | **composition** — the page renders exactly the declared placements, in document order; the declared furniture root recomputes from the declared furniture list; and the composition root recomputes from the placement leaves plus two trailing leaves, one over the page's furniture root and one over the registry its descriptors name |
 | 8 | **geometry** — the page's geometry root recomputes from the sites it publishes; at every coordinate it places, the roles the block published there and the present sites declared there are the same set, *both ways*; and no site names a coordinate the page does not place |
@@ -181,8 +181,14 @@ named entry of the shared transform registry — `attribute:aria-label:rating-la
 carries the atom `5` into the label a screen reader reads. Gate 6 walks the list:
 every atom must be found on the surface it declares, on an element carrying its
 `data-atom-hash`, in the order declared; then the residue rule takes over, and
-what remains of the wrapper once every declared element and every chrome-marked
-element is cut out must hold no visible text at all.
+what remains of the wrapper, once every chrome-marked element is cut out, must
+hold no visible text at all. What a *placement* removes from that residue is the
+**mode's** to decide, and it is not the same span in all three. A `verbatim` or
+`non-text` atom accounts for its element whole: what the element shows is the
+atom's text, or the mode requires it to show none. An `attribute` atom accounts
+for its attribute and for **nothing a reader sees** — its element's own children
+stay in the residue and are read like any other text on the page, so a sentence
+parked inside a rating's wrapper is refused, and refused by name.
 
 Four consequences worth stating plainly.
 
@@ -517,9 +523,15 @@ hidden.
 - **Element type and attribute semantics.** The render descriptor names a surface
   and a transform. It does not name the element type, and no gate reads it: an
   atom printed in an `<h1>` and the same atom printed in a `<span>` are the same
-  placement to every root here. Nor do attributes other than the one an
-  attribute-mode atom is declared in enter anything — `href`, `lang`, `hidden` and
-  the rest are outside the attested face.
+  placement to every root here. What is unchecked is now exactly one thing: the
+  **values of attributes no placement declares**. `href`, `lang`, `hidden`,
+  `title` and the rest are outside the attested face, and no root moves when one
+  changes. An attribute value is markup a verifier reads rather than a sentence
+  the document sets, so it is not prose smuggled past the residue rule; the edge
+  worth knowing is that a browser may surface one of its own accord (a `title`
+  tooltip), and that surfacing is outside every gate here. What this bullet no
+  longer covers is the bearing element's own child text: gate 6 reads what an
+  attribute-mode element SHOWS, and refuses it.
 - **CSS visibility and runtime mutation.** The gates read source. A block whose
   markup is intact but which CSS hides, whose text is substituted via
   `::before`/`::after`, or which JavaScript rewrites after load, passes. The
@@ -568,13 +580,15 @@ blurred:
   still emits the v1.2 shape on demand, and this set is what proves it.
 - **`vectors/v1.3-manifest/`** — the v1.3 shape on the same terms, plus the
   frozen page itself and something neither other set has: a **refusal set**.
-  Twenty-eight files under `refusals/`, each the frozen page with one edit, each
-  naming the exact list of checks `verify` must report. Twenty-seven are refusals.
+  Thirty files under `refusals/`, each the frozen page with one edit, each
+  naming the exact list of checks `verify` must report. Twenty-nine are refusals.
   Most of them passed all six of the previous version's gates untouched, which is
   why they exist; the control is an edit the previous version already caught and
-  must still catch in the same place; and two of them are the cases the newest
+  must still catch in the same place; two of them are the cases the newest
   bindings brought with them — a swapped registry name, and an inline script
-  inside a block wrapper. The twenty-eighth must **pass**: the same
+  inside a block wrapper; and two are nearer still, a sentence hidden in an
+  attribute-mode element's own children, which passed all nine gates until gate 6
+  stopped cutting that element's whole span. The thirtieth must **pass**: the same
   injected paragraph as the refusal beside it, *declared*, with both roots
   recomputed — a page with internal integrity and a composition root that is not
   the origin's, which is the claim ladder's second rung frozen as a vector. Beside
