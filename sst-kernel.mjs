@@ -49,8 +49,10 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 // identity in every SST artefact re-baselines; that is a format-version bump,
 // never a casual edit. v1.1 → v1.2 moved the MANIFEST SHAPE and the GATE SET,
 // and deliberately left this section untouched: every v1.1 identity survives.
-// v1.2 → v1.3 does exactly the same again — three declarations added to the
-// manifest, three gates added to the set, not one primitive touched.
+// v1.2 → v1.3 does exactly the same again — five declarations added to the
+// manifest (the placement transcript, the composition root, the page's geometry
+// slice, the page's furniture and its root, and the registry the descriptors
+// refer to), three gates added to the set, not one primitive touched.
 //
 // v1.3 proceeds on the reading that a format version names the manifest schema
 // and the gate set together while identities stay stable across versions; that
@@ -506,6 +508,14 @@ const escAttr = (s) => esc(s).replace(/"/g, '&quot;');
  *  chrome-marked element carrying an atom hash is refused. */
 const CHROME = { 'plate/figure': '    <p data-sst-chrome>Plate I</p>' };
 
+/** FURNITURE OUTSIDE EVERY WRAPPER — the page's own closing line. It carries no
+ *  atom and sits inside no block, which is exactly where nothing used to reach
+ *  it; it is here so the fixture exercises both halves of the furniture rule with
+ *  something the kernel actually builds. Emitted only at v1.3: furniture is a
+ *  v1.3 declaration, and a page that cannot declare its own furniture should not
+ *  be made to carry any. */
+const FOOTER = '  <footer>sst-kernel · the whole format in one file</footer>';
+
 /** An atom's RENDERED form on a visible or attribute surface: its content, put
  *  through the declared transform when there is one. */
 const renderedValue = (a) => {
@@ -720,7 +730,8 @@ function ownMarkup(html, blocks, i) {
 // it was placed at — under the same unit separator the geometry leaf uses. The
 // root is the same `merkleRoot`, so the leaves are domain-separated by the
 // existing tags and a single-placement page still has a root distinct from its
-// leaf.
+// leaf. A FINAL leaf, after every placement, carries the page's furniture: the
+// text the page shows that no atom attests. See "THE FURNITURE" below.
 // ── THE PLACEMENT LEAF ────────────────────────────────────────────────────
 // The identity placed, the coordinate it was placed at, and the RENDER ROOT —
 // a Merkle root over one leaf per atom carried, each leaf the atom's id joined to
@@ -748,6 +759,96 @@ const placementAtomList = (placement, entry) =>
 
 const placementLeaf = (block, section, name, atoms) =>
   createHash('sha256').update([block, section, name, renderRoot(atoms)].join(US)).digest('hex');
+
+// ── THE FURNITURE (v1.3) ──────────────────────────────────────────────────
+// A page is not only its blocks. It carries a plate number, a footer line, a
+// breadcrumb — text that is the page's own rather than the operator's content,
+// which no atom attests and which, until this leaf existed, entered no root at
+// all. Two holes, both measured on this kernel's own page before it was closed:
+// a `data-sst-chrome` element had its span cut from gate 6's residue and nothing
+// bounded its text, and text between two block wrappers was outside every
+// wrapper's own markup and so outside every check. A page with an added
+// chrome-marked paragraph, and a page with an added free paragraph, each passed
+// all nine gates and matched the origin's roots.
+//
+// So the furniture is DECLARED, exactly like a render mode, and for the same
+// reason: a verifier that inferred which text was furniture would accept any
+// text as furniture. THE PAGE'S FURNITURE IS, in document order:
+//
+//   · every `data-sst-chrome` element's normalized visible text, inside or
+//     outside a block wrapper;
+//   · every run of visible text in the body that lies outside every block
+//     wrapper and outside every chrome-marked element.
+//
+// The manifest publishes that list and its root; gate 6 checks the list against
+// the page; the root enters the composition root as a final leaf, so an injected
+// sentence moves a published value and is caught against the origin's roots even
+// when the page rewrites its own declarations to agree with itself.
+
+/** A furniture leaf: the span's normalized text, hashed by the same content rule
+ *  an atom's text gets. The texts in the published list are already normalized,
+ *  and `normalize` is idempotent, so the list and the root cannot disagree. */
+const furnitureRoot = (texts) => merkleRoot(texts.map(atomId));
+
+/** The furniture's single leaf in the composition root: the tag, then the root,
+ *  under the same unit separator every other composed leaf here uses. Tagged
+ *  because a furniture root and a placement leaf must never be interchangeable —
+ *  a page with one placement and no furniture would otherwise be able to present
+ *  its furniture leaf as a placement. The leaf is ALWAYS appended, even where the
+ *  list is empty: a page cannot drop its claim about its own furniture by having
+ *  none, and an empty list has a defined root (`merkleRoot([])`, SHA-256 of the
+ *  empty string, e3b0c442…). */
+const furnitureLeaf = (root) =>
+  createHash('sha256').update(['furniture', root].join(US)).digest('hex');
+
+/** The BODY's markup. Everything the furniture rule is about happens between the
+ *  body tags; the head carries the two JSON-LD documents and the stylesheet, and
+ *  reading those as page text would report every artefact as furniture-bearing.
+ *  A document with no body element is read whole, less its head. */
+function bodyOf(html) {
+  const open = /<body\b[^>]*>/i.exec(html);
+  if (!open) return html.replace(/<head\b[^>]*>[\s\S]*?<\/head\s*>/i, '');
+  const start = open.index + open[0].length;
+  const close = html.slice(start).search(/<\/body\s*>/i);
+  return close === -1 ? html.slice(start) : html.slice(start, start + close);
+}
+
+/** THE PAGE'S FURNITURE, read from the markup. ONE function, read by the emitter
+ *  and by gate 6, so the list a page publishes and the list a verifier scans for
+ *  cannot come to different conclusions about what furniture is.
+ *
+ *  Returns the spans in document order, and the spans gate 6 subtracts before it
+ *  asks what visible text the page has left: every attested element, every
+ *  chrome-marked element, every free-text run.
+ *
+ *  A furniture span showing NO text declares nothing and enters no list — a
+ *  spacer, a rule, an icon. Hashing an empty string once per decorative element
+ *  would put a page's typography inside a published root, where a restyle would
+ *  read as tampering. */
+function pageFurniture(body) {
+  const wrappers = readEvidence(body).blocks;
+  const elements = scanElements(body);
+  const chrome = elements.filter((e) => e.chrome);
+  // Chrome inside chrome is ONE piece of furniture: the outer element's text
+  // already contains the inner one's, so counting both would hash it twice.
+  const items = chrome
+    .filter((e) => !chrome.some((o) => o !== e && o.start <= e.start && e.end <= o.end))
+    .map((e) => ({ start: e.start, end: e.end, text: normalize(shownText(body.slice(e.innerStart, e.innerEnd))) }));
+  const enclosed = [...wrappers.map((b) => [b.outerStart, b.outerEnd]), ...chrome.map((e) => [e.start, e.end])];
+  for (const [start, end] of gaps(body.length, enclosed)) {
+    const text = normalize(shownText(body.slice(start, end)));
+    if (text) items.push({ start, end, text });
+  }
+  const furniture = items.filter((i) => i.text).sort((a, b) => a.start - b.start);
+  return {
+    furniture,
+    cut: [
+      ...elements.filter((e) => e.hash).map((e) => [e.start, e.end]),
+      ...chrome.map((e) => [e.start, e.end]),
+      ...furniture.map((i) => [i.start, i.end]),
+    ],
+  };
+}
 
 // §2.5 provenance labels (P2, ruled 2026-08-24). The four coordinate fields are
 // OPTIONAL, and each is a CLAIM about where this page rendered the identity.
@@ -863,19 +964,39 @@ function buildManifest(renderedBody, blocks, { page, publishedPages, version, re
   });
   const entryFor = new Map(entries.map((e) => [e.hash, e]));
 
+  // THE FURNITURE, read from the rendered body exactly as gate 6 will read it
+  // from the served page. Derived, never maintained — the same discipline as the
+  // rest of the machine face: what the page shows besides its atoms is scanned
+  // out of the markup, not typed into a table beside it.
+  const furniture = pageFurniture(renderedBody).furniture.map((f) => f.text);
+  const furniture_root = furnitureRoot(furniture);
+
   return {
     '@context': 'https://danielarussell.com/contexts/sst-manifest-v1',
     '@type': 'SstPageManifest',
     page,
     version,
+    // WHICH REGISTRY the render descriptors below refer to. The descriptors name
+    // transforms symbolically, so without this a foreign verifier recomputes a
+    // label with whatever table it happens to carry and calls the result an
+    // agreement. It enters no root: it is a claim about the emitter's table, and
+    // gate 6 checks it against the verifier's own rather than hashing it.
+    registry_hash: registryHash(),
     page_merkle_root: merkleRoot(entries.map((e) => e.hash)),
-    composition_root: merkleRoot(
-      placements.map((p) => placementLeaf(p.block, p.section, p.name, placementAtomList(p, entryFor.get(p.block))))
-    ),
+    // The composition root is over the placement leaves AND a final furniture
+    // leaf, so the page's own text — the plate number, the footer line — moves a
+    // published value when it changes. See `furnitureLeaf` for why the leaf is
+    // appended unconditionally.
+    composition_root: merkleRoot([
+      ...placements.map((p) => placementLeaf(p.block, p.section, p.name, placementAtomList(p, entryFor.get(p.block)))),
+      furnitureLeaf(furniture_root),
+    ]),
+    furniture_root,
     block_count: entries.length,
     atom_count: entries.reduce((n, e) => n + e.atoms.length, 0),
     blocks: entries,
     placements,
+    furniture,
     // The slice reads the roles the BILL declares for each identity, not the roles
     // the rendered object happens to hold: gate 8 checks the slice against the bill
     // entry, and where several coordinates share one identity the bill carries one
@@ -982,7 +1103,7 @@ function compileArtefact(version = FORMAT_VERSION, dir = SUBSTRATE) {
   const blocks = compileBlocks(atoms, rows).map(projectBlock);
   const mine = blocks.filter((b) => b.page === PAGE);
   const rendered = mine.filter((b) => !isHeadBlock(b));
-  const body = renderBody(rendered);
+  const body = renderBody(rendered) + (version === '1.3' ? `\n${FOOTER}` : '');
   const head = renderHeadBlocks(mine.filter((b) => isHeadBlock(b)));
   const attestation = charterAttestationBlock(CHARTER);
   const manifest = buildManifest(body, blocks, {
@@ -1030,6 +1151,7 @@ function build() {
   console.log(`built dist/index.html — format v${manifest.version}, ${manifest.block_count} block identities from ${blocks.length} lattice coordinates`);
   console.log(`      ${manifest.placements.length} rendered placements, page root ${manifest.page_merkle_root.slice(0, 16)}…`);
   console.log(`      composition root ${manifest.composition_root.slice(0, 16)}…   page geometry root ${manifest.geometry.root.slice(0, 16)}…`);
+  console.log(`      ${manifest.furniture.length} declared furniture spans, furniture root ${manifest.furniture_root.slice(0, 16)}…`);
   console.log(`      dist/geometry-manifest.json — geometry root ${geometry.geometry_root.slice(0, 16)}…  ${JSON.stringify(geometry.states)}`);
 }
 
@@ -1072,6 +1194,21 @@ function domTextToContent(inner) {
 /** Decoded plain text (strip all tags, decode entities) — the projected-atom
  *  path, which carries no inline vocabulary in v1.2. */
 const domTextPlain = (inner) => decodeEntities(inner.replace(/<[^>]+>/g, ''));
+
+/** Elements whose content is not visible text at all: a script body, a
+ *  stylesheet, an inert template. A rule about what a READER SEES must not read
+ *  them — a minified stylesheet in the body is not a sentence the page shows, and
+ *  a page-wide residue rule that counted one would report every ordinary artefact
+ *  as carrying unattested text. */
+const INERT = /<(script|style|template)\b[^>]*>[\s\S]*?<\/\1\s*>/gi;
+
+/** The VISIBLE text of a stretch of markup: inert elements removed whole, then
+ *  the plain-text reduction above. Read by the page-level residue rule and by the
+ *  furniture scan, which are the two places that ask what the page shows BESIDES
+ *  its atoms. Gate 6's per-wrapper rule is deliberately not changed to use it:
+ *  inside a block wrapper an inert element is not ordinary, and relaxing a rule
+ *  that already refuses one is a format change, not a side effect of this one. */
+const shownText = (markup) => domTextPlain(markup.replace(INERT, ''));
 
 // ── THE SHARED TRANSFORM REGISTRY ────────────────────────────────────────────
 // The closed registry of deterministic content→display transforms (SPEC §6.2).
@@ -1138,6 +1275,14 @@ function registrySource(path = new URL(import.meta.url)) {
   if (from === -1 || to === -1) throw new Error('the transform registry markers are missing from this file');
   return src.slice(from + REGISTRY_MARKERS[0].length, to);
 }
+
+/** The registry region's SHA-256 — the value a v1.3 manifest publishes as
+ *  `registry_hash`, and the value the conformance vector freezes. A descriptor
+ *  naming `rating-label` means whatever the registry says it means, so a foreign
+ *  verifier that cannot tell WHICH registry a page's descriptors refer to is
+ *  recomputing labels with a table the page never used. The page names it; gate 6
+ *  compares it with the table this verifier actually carries. */
+const registryHash = () => createHash('sha256').update(registrySource(), 'utf8').digest('hex');
 
 /** Run the §6.2 DOM-text rule over a rendered page against its manifest. For each
  *  element carrying data-atom-hash: a VERBATIM atom's reconstructed visible text
@@ -1273,21 +1418,28 @@ function scanElements(markup) {
   return found;
 }
 
-/** What is left of `markup` once every span in `spans` is cut out. Spans may
- *  nest and may overlap — a declared element inside another declared element is
- *  ordinary on a real page — so they are merged before the complement is taken. */
-function markupOutside(markup, spans) {
+/** The COMPLEMENT of a set of spans over `[0, length)`, as spans. Spans may nest
+ *  and may overlap — a declared element inside another declared element is
+ *  ordinary on a real page — so they are merged before the complement is taken.
+ *  ONE definition: the residue rules take the text of these gaps, and the
+ *  furniture rule takes the free-text runs from exactly the same list. */
+function gaps(length, spans) {
   const merged = [...spans].sort((a, b) => a[0] - b[0]).reduce((acc, s) => {
     const last = acc[acc.length - 1];
     if (last && s[0] <= last[1]) last[1] = Math.max(last[1], s[1]);
     else acc.push([...s]);
     return acc;
   }, []);
-  let out = '';
+  const out = [];
   let cursor = 0;
-  for (const [from, to] of merged) { out += markup.slice(cursor, from); cursor = Math.max(cursor, to); }
-  return out + markup.slice(cursor);
+  for (const [from, to] of merged) { if (from > cursor) out.push([cursor, from]); cursor = Math.max(cursor, to); }
+  if (cursor < length) out.push([cursor, length]);
+  return out;
 }
+
+/** What is left of `markup` once every span in `spans` is cut out. */
+const markupOutside = (markup, spans) =>
+  gaps(markup.length, spans).map(([from, to]) => markup.slice(from, to)).join('');
 
 function blockCompleteness(html, manifest, evidence) {
   const errors = [];
@@ -1409,6 +1561,62 @@ function blockCompleteness(html, manifest, evidence) {
     const residue = normalize(domTextPlain(markupOutside(markup, spans)));
     if (squeeze(residue) !== '') why(`carries visible text no atom attests: ${JSON.stringify(residue)}`);
   });
+
+  // ─── THE PAGE-LEVEL RESIDUE RULE (v1.3) ───────────────────────────────────
+  // The per-wrapper rule above proves each BLOCK holds nothing besides its atoms.
+  // It cannot prove the PAGE does, and the difference was two live holes: a
+  // chrome-marked element had its span cut and nothing bounded its text, and text
+  // between two wrappers lay outside every wrapper's own markup. Both passed all
+  // nine gates while the README said the page contains nothing else.
+  //
+  // So the page states its furniture, and this rule closes the page:
+  //   · the furniture the page CARRIES, in document order, is the furniture the
+  //     manifest DECLARES — an undeclared chrome-marked element or an undeclared
+  //     free paragraph is refused here, by name;
+  //   · the declared furniture root is the root over what the page carries;
+  //   · and once every attested element's span and every furniture span is cut
+  //     out, the body holds no visible text at all.
+  //
+  // v1.3 only. A v1.1 or v1.2 page never declared furniture and is checked by the
+  // gate it was built to meet — the artefact chooses the gate set, and an older
+  // artefact keeps the older boundary.
+  if (manifest.version === '1.3') {
+    const body = bodyOf(html);
+    const { furniture, cut } = pageFurniture(body);
+    const carried = furniture.map((f) => f.text);
+    const declared = Array.isArray(manifest.furniture) ? manifest.furniture : [];
+    // MEMBERSHIP FIRST, ORDER SECOND. An injected span shifts every span after it,
+    // and a positional comparison would report the whole tail as wrong rather than
+    // naming the sentence somebody added. So each carried span is matched off
+    // against the declared list, what is left over on either side is named as
+    // itself, and only a page whose spans all match is asked about their order.
+    const unmatched = [...declared];
+    let membership = 0;
+    for (const text of carried) {
+      const at = unmatched.indexOf(text);
+      if (at === -1) { errors.push(`the page carries furniture the manifest does not declare: ${JSON.stringify(text)}`); membership++; }
+      else unmatched.splice(at, 1);
+    }
+    for (const text of unmatched) { errors.push(`the manifest declares furniture the page does not carry: ${JSON.stringify(text)}`); membership++; }
+    if (!membership && carried.join(US) !== declared.join(US))
+      errors.push(`the page carries its declared furniture in another order: ${JSON.stringify(carried)}`);
+    // The root over what the PAGE carries, against the declared value — so an
+    // edit that moves the text in both faces at once is still refused here, and
+    // gate 7 is not the only thing standing between the reader and a rewrite.
+    const root = furnitureRoot(carried);
+    if (root !== manifest.furniture_root)
+      errors.push(`the furniture root over what the page carries recomputes to ${root.slice(0, 8)}… ≠ the declared ${String(manifest.furniture_root).slice(0, 8)}…`);
+    // An undeclared furniture span has already been named above, and its span is
+    // cut here too, so it is reported once rather than twice in two vocabularies.
+    const rest = normalize(shownText(markupOutside(body, cut)));
+    if (squeeze(rest) !== '')
+      errors.push(`the page carries visible text no atom attests and no furniture declares: ${JSON.stringify(rest)}`);
+    // The transforms this gate has just applied were applied with THIS verifier's
+    // registry. If the page names another, every label checked above was checked
+    // against a table the page never used.
+    if (typeof manifest.registry_hash === 'string' && manifest.registry_hash !== registryHash())
+      errors.push(`the page names transform registry ${manifest.registry_hash.slice(0, 8)}…, and this verifier carries ${registryHash().slice(0, 8)}…`);
+  }
   return { ok: errors.length === 0, errors };
 }
 
@@ -1546,7 +1754,7 @@ function runGates(html, log = console.log) {
   // silently skipping the gates that check them would let an attacker downgrade a
   // page by editing five characters. So an older version carrying newer fields is
   // itself the refusal.
-  const V13_FIELDS = ['placements', 'composition_root', 'geometry'];
+  const V13_FIELDS = ['placements', 'composition_root', 'geometry', 'furniture', 'furniture_root', 'registry_hash'];
   const carried = V13_FIELDS.filter((f) => manifest[f] !== undefined);
   if (manifest.version === '1.1' || manifest.version === '1.2') {
     if (carried.length) {
@@ -1584,9 +1792,23 @@ function runGates(html, log = console.log) {
   // declares no list resolves to its block's atoms, verbatim — the same default
   // gate 6 reads, from the same function, so the root and the check cannot come
   // to different conclusions about what "omitted" means.
-  const compositionRoot = merkleRoot(
-    claimed.map((c) => placementLeaf(c.block, c.section, c.name, placementAtomList(c, entryByHash.get(c.block))))
-  );
+  //
+  // The FINAL leaf is the page's furniture — the text the page carries that no
+  // atom attests. Its root is recomputed from the declared list here, and checked
+  // against the declared root, so the two ways the manifest states the same thing
+  // cannot disagree; gate 6 has separately checked that list against the page. An
+  // injected sentence therefore has to move a published root, which is the whole
+  // reason this leaf exists: a page that rewrites its own furniture consistently
+  // still verifies, and is caught the moment its roots are compared with the
+  // origin's — the claim ladder's second rung, and no higher.
+  const declaredFurniture = Array.isArray(manifest.furniture) ? manifest.furniture : [];
+  const recomputed = furnitureRoot(declaredFurniture);
+  if (recomputed !== manifest.furniture_root)
+    why.push(`gate 7: the furniture root recomputes to ${recomputed.slice(0, 8)}… ≠ declared ${String(manifest.furniture_root).slice(0, 8)}…`);
+  const compositionRoot = merkleRoot([
+    ...claimed.map((c) => placementLeaf(c.block, c.section, c.name, placementAtomList(c, entryByHash.get(c.block)))),
+    furnitureLeaf(String(manifest.furniture_root)),
+  ]);
   if (compositionRoot !== manifest.composition_root)
     why.push(`gate 7: composition root recomputes to ${compositionRoot.slice(0, 8)}… ≠ declared ${String(manifest.composition_root).slice(0, 8)}…`);
 
@@ -1976,13 +2198,30 @@ function vectors() {
   // untouched, which is why they exist; the control is one the previous version
   // already caught, and must still be caught in the same place.
   const refusals = JSON.parse(readFileSync(new URL('vectors/v1.3-manifest/refusals/expected.json', import.meta.url), 'utf8'));
+  const manifestIn = (html) =>
+    [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
+      .map((m) => JSON.parse(m[1])).find((d) => d['@type'] === 'SstPageManifest');
   let refused = 0;
   for (const c of refusals.cases) {
-    const got = runGates(readFileSync(new URL(`vectors/v1.3-manifest/refusals/${c.file}`, import.meta.url), 'utf8'), () => {});
-    if (JSON.stringify(got) !== JSON.stringify(c.refuses)) fail(`refusal drift: ${c.file} failed [${got.join(', ')}], expected [${c.refuses.join(', ')}]`);
-    else refused++;
+    const html = readFileSync(new URL(`vectors/v1.3-manifest/refusals/${c.file}`, import.meta.url), 'utf8');
+    const got = runGates(html, () => {});
+    if (JSON.stringify(got) !== JSON.stringify(c.refuses)) { fail(`refusal drift: ${c.file} failed [${got.join(', ')}], expected [${c.refuses.join(', ')}]`); continue; }
+    // ONE case in this set must PASS, and it is here because what it pins is the
+    // set's own boundary. It carries the same injected chrome paragraph as the
+    // refusal beside it, DECLARED — the furniture list extended and both roots
+    // recomputed — so the page is internally consistent and every gate says so.
+    // What catches it is that its composition root is not the one the origin
+    // published, and that is what this vector asserts: a passing page whose root
+    // has moved. If the injected text ever stopped moving the root, the page
+    // would be indistinguishable from the original and this vector would be the
+    // only thing to say so.
+    if (c.composition_root_moves && manifestIn(html).composition_root === f13.page_manifest.composition_root)
+      { fail(`${c.file}: every gate passes and the composition root did NOT move — the furniture is outside the root again`); continue; }
+    refused++;
   }
-  if (refused === refusals.cases.length) console.log(`  ✓ ${refused} refusal vectors each fail exactly the check they name`);
+  const mustPass = refusals.cases.filter((c) => c.refuses.length === 0).length;
+  if (refused === refusals.cases.length)
+    console.log(`  ✓ ${refused - mustPass} refusal vectors each fail exactly the check they name, and ${mustPass} consistent rewrite passes every gate with its composition root moved`);
 
   console.log(ok
     ? `\n✓ sst-kernel reproduces the v1-fixture identity vectors (${expected.format}) and its own ${frozen.format} and ${f13.format} manifest vectors.`
@@ -2010,6 +2249,12 @@ function rootOf(path) {
   const blocks = new Map((Array.isArray(doc?.blocks) ? doc.blocks : []).map((b) => [b.hash, b]));
   const items = Array.isArray(doc) ? doc : Array.isArray(doc?.placements) ? doc.placements : null;
   if (!items) throw new Error('expected a JSON array of hashes, blocks or placements, or a page manifest');
+  // A v1.3 composition root is over the placements AND the page's furniture, so a
+  // manifest gets its furniture leaf appended; a bare list is taken as the list it
+  // is, which is how a page root is recomputed from `blocks`.
+  const tail = !Array.isArray(doc) && Array.isArray(doc.placements)
+    ? [furnitureLeaf(String(doc.furniture_root ?? furnitureRoot(doc.furniture ?? [])))]
+    : [];
 
   const leaves = items.map((it, i) => {
     if (typeof it === 'string') {
@@ -2024,7 +2269,7 @@ function rootOf(path) {
     if (it && typeof it.hash === 'string') return it.hash;          // a manifest block
     throw new Error(`item ${i}: neither a hash, a block entry, nor a placement`);
   });
-  console.log(merkleRoot(leaves));
+  console.log(merkleRoot([...leaves, ...tail]));
   return true;
 }
 
