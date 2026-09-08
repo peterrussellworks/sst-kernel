@@ -184,8 +184,11 @@ catch, so this project holds its own language to account first.
   names the atom or the block.
 - **Verifiable from the published output alone, for content identity.** No
   access to the source, no API, no trust that the publisher served you
-  faithful bytes: one file and Node. The geometry attestation needs the
-  committed sidecar instead.
+  faithful bytes: one file and Node. On a **v1.3** artefact, gate 8 recomputes
+  the page's own geometry slice from the page alone; only the cross-page
+  geometry root still needs the committed sidecar. On a **v1.1 or v1.2**
+  artefact, where gate 8 does not run at all, the geometry attestation needs
+  the sidecar entirely.
 
 **The boundary, stated once, plainly.** On a **v1.3** artefact, `verify`
 establishes content identity from the page alone — every atom's text re-hashes to
@@ -206,7 +209,11 @@ What remains outside, and it is worth naming precisely:
 - **`order` is checked for consistency, not reconstructed.** A block's `order`
   label is its position among its page's blocks; the only page-side evidence that
   can contradict it is the rendered sequence, so a label the sequence contradicts
-  is refused and a label it merely permits is not.
+  is refused and a label it merely permits is not. A head-only block — one the
+  manifest carries but the page's body never renders, such as the demo's
+  `meta/seo` block — has no printed position for the sequence to contradict, so
+  its `order` label is not checked by gate 7 at all: it is declared, not
+  verified.
 - **An older artefact keeps the older boundary.** A page declaring v1.1 or v1.2
   gets the six gates and the DOM-text rule — content identity and nothing more:
   reordered or repeated blocks, edited descriptive fields, and a flipped or
@@ -251,7 +258,7 @@ slogan:
 node sst-kernel.mjs vectors
 ```
 
-runs two frozen sets, and the difference between them is stated rather than
+runs three frozen sets, and the difference between them is stated rather than
 blurred:
 
 - **`vectors/v1-fixture/`** — identity ground truth computed by the full

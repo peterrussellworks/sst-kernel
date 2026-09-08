@@ -101,8 +101,11 @@ sites that hash all four; and the served charter hashes to an atom under the pag
 root, so a flipped permission or a deleted charter is now a gate failure and
 should be reported as one. Still outside: a site the artefact never declared
 leaves no trace to find, and `order` is checked only against what the rendered
-sequence can contradict. If you find a claim in this repository that a v1.3 run
-proves more than that, it is a defect and the author wants to hear about it.
+sequence can contradict. A head-only block — one the manifest carries but the
+page's body never renders, such as the demo's `meta/seo` block — has no printed
+position at all, so its `order` label is not checked by gate 7; it is declared,
+not verified. If you find a claim in this repository that a v1.3 run proves more
+than that, it is a defect and the author wants to hear about it.
 
 The version axis itself is proposed rather than settled: v1.3 reads a format
 version as naming the manifest schema and the gate set together, with identities
