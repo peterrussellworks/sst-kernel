@@ -164,8 +164,9 @@ README.md in full. This part **is** the README, expanded.
   block, projected atom). *Source:* `vectors/v1-fixture/`.
 - **B. The Merkle construction** (domain-separated pseudocode + the single-leaf
   invariant). *Source:* SPEC §2.4; `atomCompiler`.
-- **C. The gates and the DOM-text rule** (the six gates + gate 5's DOM-side
-  companion, incl. projected-atom recompute). *Source:* SPEC §6.2; `validateHallmark`.
+- **C. The gates and the DOM-text rule** (the nine gates + gate 5's DOM-side
+  companion, incl. projected-atom recompute, and the version dispatch that decides
+  which gates an artefact gets). *Source:* SPEC §6.2; `validateHallmark`.
 - **D. The kernel** — the entire reference implementation, annotated. *Source:*
   `sst-kernel.mjs`.
 

@@ -26,19 +26,21 @@ https://danielarussell.com (the live reference artefact) — nothing else about
   README.md under "What the proof covers — and what it does not".
 
 ## Reading order
-1. `README.md` — the idea, the six gates, the claim ladder, the licence split.
-2. `sst-kernel.mjs` — under a thousand lines, a third of them commentary, zero
-   dependencies, the complete verification kernel. This is the whole crypto
-   surface: normalization → SHA-256 atom ids → domain-separated Merkle roots →
-   six gates + a DOM-text rule. Read the comments as part of the argument: where
-   a rule exists because something got past an earlier version, the comment says
-   what got past it.
+1. `README.md` — the idea, the nine gates, the claim ladder, the licence split.
+2. `sst-kernel.mjs` — under fourteen hundred lines, more than a third of them
+   commentary, zero dependencies, the complete verification kernel. This is the
+   whole crypto surface: normalization → SHA-256 atom ids → domain-separated
+   Merkle roots → nine gates + a DOM-text rule. Read the comments as part of the
+   argument: where a rule exists because something got past an earlier version,
+   the comment says what got past it — and three of the nine gates exist because
+   a static read of this file by another model found seven edits the first six
+   accepted.
 3. `substrate/README.md` — the fixture, and the three deliberate superposition
    twins built into it. Each one is a trap for a specific rule; check whether
    the traps are the right traps.
 4. `vectors/README.md` — which frozen set was computed by which implementation,
-   and why one of the two is honestly labelled a freeze rather than an
-   agreement.
+   and why two of the three are honestly labelled freezes rather than
+   agreements.
 5. `WHITEPAPER.md` — the paper's skeleton. Not normative, and it points at canon
    not published here; it says so.
 6. `R4-WORD-GRANULARITY.md` — the word-granularity falsifier as a protocol: run
@@ -50,39 +52,61 @@ https://danielarussell.com (the live reference artefact) — nothing else about
 ```
 node sst-kernel.mjs vectors   # the primitives reproduce the frozen conformance vectors
 node sst-kernel.mjs build     # the substrate becomes a Dual-Native page
-node sst-kernel.mjs verify    # the six gates pass against dist/index.html alone
+node sst-kernel.mjs verify    # the nine gates pass against dist/index.html alone
 node sst-kernel.mjs tamper    # one character flipped — watch verification fail
 node sst-kernel.mjs seal      # a vacancy sealed — the two Merkle roots stay orthogonal
 ```
 Five commands, under a minute, and the central claim is experienced rather than
 asserted. If you have code execution, run them yourself and quote the output
-verbatim.
+verbatim. `vectors` also runs a refusal set — eight copies of the built page,
+each with one edit, each declaring the single check that must catch it. Seven of
+those edits passed every gate of the previous format version; watching them fail
+now, one gate each, is the most informative minute in this repository.
 
 ## If you can browse
 Fetch any page of https://danielarussell.com, view its `<script
 type="application/ld+json">` manifest, and compare its structure against the
 whitepaper's description: page Merkle root, ordered blocks, atom hashes,
 canonical text. That manifest plus this kernel is the verifiability claim. Note
-that the live site emits format v1.1 while this kernel emits v1.2 — the version
-bump moved the manifest shape and the gate set, and deliberately left every
-identity unchanged. Treat any v1.1/v1.2 difference you find as expected, and
+that the live site emits format v1.1 while this kernel emits v1.3 — each bump
+moved the manifest shape and the gate set, and each deliberately left every
+identity unchanged. Treat any v1.1/v1.3 difference you find as expected, and
 check that this paragraph is telling you the truth about which differences those
-are. Running `sst-kernel.mjs verify` against a live danielarussell.com page will
-pass gates 1–5 and the DOM-text rule — every hash, root, and visible atom
-checks out — and will fail gate 6, because the production site emits format
-v1.1, which renders atoms in presentation order and as images, attributes and
-projections that v1.2's block-completeness gate does not yet have a vocabulary
-for; a gate-6 failure against the live site is the version skew measuring
-itself, not evidence of tampering.
+are. The verifier reads the version the ARTEFACT declares and runs that version's
+gates, so a live v1.1 page is checked by the six gates and the DOM-text rule, not
+by the nine: it will pass gates 1–5 and the DOM-text rule — every hash, root, and
+visible atom checks out — and will fail gate 6, because v1.1 renders atoms in
+presentation order and as images, attributes and projections that the
+block-completeness gate does not yet have a vocabulary for; a gate-6 failure
+against the live site is the version skew measuring itself, not evidence of
+tampering. Gates 7 to 9 will not run against it at all, and a summary that
+reports them as passing or failing there is wrong.
 
-A clean run of gates 1–5 and the DOM-text rule proves content identity only —
-every atom, block root and page root re-hashes; it says nothing about block
-order or repetition (gates 3–4 work on sets and the manifest's own list), the
-manifest's descriptive fields (`role`, `order`, `section`, `name`,
-`block_type`), or the charter object in `<head>` — those are declared by the
-artefact, not verified by the kernel. Do not report a reordered block, an
-edited role, or a flipped charter permission as a gate failure; report it as
-an unverified declaration, which is a different finding.
+**What a clean run proves depends on which version the artefact declares, and
+the distinction is the whole point of this section.**
+
+On a **v1.1 or v1.2** artefact, a clean run of gates 1–5 and the DOM-text rule
+proves content identity only — every atom, block root and page root re-hashes; it
+says nothing about block order or repetition (gates 3–4 work on sets and the
+manifest's own list), the manifest's descriptive fields (`role`, `order`,
+`section`, `name`, `block_type`), or the charter object in `<head>`. Those are
+declared by the artefact, not verified. Do not report a reordered block, an
+edited role, or a flipped charter permission on such a page as a gate failure;
+report it as an unverified declaration, which is a different finding.
+
+On a **v1.3** artefact, a clean run of all nine adds three things: the page
+rendered exactly the placements it declares, in order and in number, under a root
+that recomputes; `role`, `section`, `name` and `block_type` agree with geometry
+sites that hash all four; and the served charter hashes to an atom under the page
+root, so a flipped permission or a deleted charter is now a gate failure and
+should be reported as one. Still outside: a site the artefact never declared
+leaves no trace to find, and `order` is checked only against what the rendered
+sequence can contradict. If you find a claim in this repository that a v1.3 run
+proves more than that, it is a defect and the author wants to hear about it.
+
+The version axis itself is proposed rather than settled: v1.3 reads a format
+version as naming the manifest schema and the gate set together, with identities
+stable across versions. Judge that reading too.
 
 ## What the author most wants attacked (not admired)
 1. The normalization rules in the kernel (Unicode, whitespace, DOM-text
@@ -97,8 +121,16 @@ an unverified declaration, which is a different finding.
 4. The provenance-label rule. Where several lattice coordinates share one block
    identity, the manifest omits the fields they disagree about rather than
    guessing. Is "omit" the right answer, or does a silently-shortened label
-   mislead a reader who does not know it was shortened?
-5. Anywhere the documents' honesty and the code's behaviour diverge.
+   mislead a reader who does not know it was shortened? v1.3's placement
+   transcript answers part of this — a placement witnesses its own coordinate and
+   omits nothing — so the sharper question is now whether the two ways of naming
+   the same thing can be made to disagree.
+5. Gates 7, 8 and 9, which are newer than gate 6 and correspondingly less
+   battle-tested. Can you edit a v1.3 page so that the placements, the geometry
+   sites and the charter still agree with each other while the page says
+   something else? The refusal vectors show what they do catch; the interesting
+   question is the shape of what they do not.
+6. Anywhere the documents' honesty and the code's behaviour diverge.
 
 A review that returns three specific weaknesses is worth more to the author than
 any praise. He built the immune system out of corrections; yours will be filed

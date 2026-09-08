@@ -21,8 +21,10 @@ over the symptom.
 ## Format changes: not by pull request
 
 `vectors/` is frozen, and `sst-kernel.mjs`'s identity primitives — atom hashing,
-Merkle composition, the six gates, the geometry spine — are what the vectors hold
-to account. A pull request that changes anything under `vectors/`, or changes what
+Merkle composition, the gate set, the geometry and composition spines — are what
+the vectors hold to account. That includes the refusal vectors: a change that
+makes a gate stop refusing what it is frozen to refuse is a format change, not a
+fix. A pull request that changes anything under `vectors/`, or changes what
 those primitives compute, will be declined on principle, not on quality. It does
 not matter how correct, well-tested, or well-argued the change is.
 

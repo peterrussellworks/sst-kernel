@@ -33,7 +33,7 @@ conformance: hallmark-1.0
 
 sst_charter:
   rights: sovereign
-  format: "SST Dual-Native v1.2"
+  format: "SST Dual-Native v1.3"
   atom: block
   addressing: random_stable_id
 

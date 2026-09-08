@@ -617,12 +617,12 @@ const CHARTER = {
   },
 };
 
-/** The charter's ATTESTED CONTENT — the canonical serialisation of the charter
+/** The charter's ATTESTED CONTENT — the canonical serialization of the charter
  *  document, minus its own attestation pointer. ONE function, read twice: the
  *  emitter hashes it into the attestation atom, and gate 9 recomputes it from the
  *  served `<script>`, so the terms a reader is shown and the terms under the page
- *  root cannot drift. (Parsing and re-serialising is a fixed point for anything
- *  this serialiser emitted, so the canonical form is the served form.)
+ *  root cannot drift. (Parsing and re-serializing is a fixed point for anything
+ *  this serializer emitted, so the canonical form is the served form.)
  *
  *  The pointer is excluded because it cannot be inside what it points at: an
  *  attestation over bytes containing its own hash has no fixed point. Everything

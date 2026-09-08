@@ -2,8 +2,8 @@
 
 **SST — Single Source of Truth: a self-verifying content format for sovereign operators: the operator holds the substrate, the public face is read-only by construction, and the charter travels as data.**
 This repository is its kernel: the whole idea in one dependency-free file you
-can read top to bottom in a sitting — under a thousand lines, a third of them
-commentary — plus the frozen vectors that hold it to account.
+can read top to bottom in a sitting — under fourteen hundred lines, more than a
+third of them commentary — plus the frozen vectors that hold it to account.
 
 > **This is not sst.dev.** sst.dev is a serverless-infrastructure framework that
 > happens to share the acronym; nothing here is related to it, and nothing on the
@@ -13,10 +13,11 @@ commentary — plus the frozen vectors that hold it to account.
 
 ```
 node sst-kernel.mjs build     # substrate → dist/index.html + dist/geometry-manifest.json
-node sst-kernel.mjs verify    # run the six gates + the DOM-text rule against the HTML alone
+node sst-kernel.mjs verify    # run the nine gates + the DOM-text rule against the HTML alone
 node sst-kernel.mjs tamper    # flip one character of visible text — watch verification fail
 node sst-kernel.mjs seal      # seal a vacancy — watch the geometry root move, the content root hold
 node sst-kernel.mjs vectors   # prove the primitives reproduce the frozen conformance vectors
+node sst-kernel.mjs root FILE # recompute a published root by hand from the list it is over
 ```
 
 What `seal` just showed you: a vacancy here is not missing data — it is a
@@ -60,8 +61,8 @@ source and your screen. SST replaces the claim with a *measurement*:
 6. **The shape is provable too.** A *vacant* site — a place the artefact declares
    but has not filled — is a row whose atom points at a reserved sentinel
    (`_PENDING_`, `_NA_OMITTED_`, `_NA_IMPOSSIBLE_`). Sentinels are filtered out of
-   the content (they never enter a block id or the DOM) but feed a *second* Merkle
-   root — the **geometry spine** — over every declared site, present or vacant. So
+   the content (they never enter a block id or the DOM) but feed a *separate*
+   Merkle root — the **geometry spine** — over every declared site, present or vacant. So
    "what is missing" is a measurement, not a guess: a tamper-evident census of the
    artefact's known-unknowns.
 
@@ -91,22 +92,33 @@ implementations quietly disagree about observable in a fixture small enough to
 audit by eye. [`substrate/README.md`](substrate/README.md) says what each one
 catches.
 
-## The two spines
+## The three spines
 
-Two Merkle roots over the same lattice, answering different questions:
+Three Merkle roots over the same lattice, answering three different questions:
 
 | spine | attests | leaf | moves when |
 |---|---|---|---|
 | **content** | WHAT IS PRESENT — atoms → blocks → page root | an atom's hashed content | any character of any atom changes |
+| **composition** | WHERE, AND HOW MANY TIMES — the page's placements, in order | a placement-coordinate: the identity placed, and the coordinate it was placed at | a block is moved, repeated or dropped — **never** on a content edit |
 | **geometry** | THE SHAPE, incl. negative space | a site-coordinate valued by occupancy state | a site is added/removed, or a hole is filled/sealed — **never** on a content edit |
 
 The geometry spine is *matter-invariant*: editing an atom leaves the coordinate
-and its state untouched. That orthogonality is what `seal` demonstrates. It is a
-committed **sidecar** (`dist/geometry-manifest.json`), not a face in the page —
-unlike content, the negative space can't be recomputed from the published HTML,
-because the vacant sites are, by definition, not rendered.
+and its state untouched. So is the composition spine — moving a block changes
+neither the block nor the page root, and editing the block changes neither
+placement. That orthogonality is what `seal` demonstrates for the first pair, and
+it is why three roots are three roots rather than one.
 
-## The six gates (+ the DOM-text rule)
+The page publishes its own geometry slice — every site it declares, vacancies
+included, with the root that recomputes from them. The whole-artefact
+`dist/geometry-manifest.json` stays a committed **sidecar** because it carries the
+cross-page root, which no single page can. Note what the page-side slice does and
+does not buy you: the vacant sites are still not *rendered*, so a reader cannot
+discover a hole the artefact never declared. What they can now check is that the
+artefact's declaration of its own shape is internally consistent, hashed, and
+agrees with the blocks the page carries — a declared absence became a checkable
+one.
+
+## The nine gates (+ the DOM-text rule)
 
 | gate | property |
 |---|---|
@@ -117,12 +129,22 @@ because the vacant sites are, by definition, not rendered.
 | 5 | the **manifest** re-hashes — every manifest atom's content reproduces its id, every block root recomputes from its atoms |
 | 6 | **block completeness** — every block wrapper reconstructs from its atoms *and nothing else* |
 | — | **the §6.2 DOM-text rule** — gate 5's DOM-side counterpart: every *visible* atom's text re-hashes to its id (or, for a projected atom, the named projection recomputes) |
+| 7 | **composition** — the page renders exactly the declared placements, in document order, and the composition root recomputes from them |
+| 8 | **geometry** — the page's geometry root recomputes from the sites it publishes, and those sites and the block list describe the same page |
+| 9 | **the charter** — the served terms hash to the atom the charter names, inside a block the manifest carries, and therefore under the page root |
+
+**The artefact chooses the gate set, not the verifier.** A page declares its
+format version and gets that version's gates: an artefact built to v1.1 or v1.2
+is checked by the six gates and the DOM-text rule it was built to meet, and gets
+them unchanged. The one thing a version string must not become is a switch that
+turns checks off, so a manifest declaring an older version while carrying the
+newer declarations is itself a refusal.
 
 Gate 5 is the **manifest** re-hash; it never reads the rendered visible text, so
 a page whose visible text was mutated (attributes + manifest intact) still passes
 gate 5. The **DOM-text rule** closes that gap atom by atom.
 
-**Gate 6 closes a different one, and it is the interesting one.** Gates 1–5 and
+**Gate 6 closes a different one, and it was the interesting one.** Gates 1–5 and
 the DOM-text rule all check *hashed* elements. A sentence injected between two
 attested atoms, inside their block wrapper, carries no hash — so there is nothing
 for them to check, and every one of them passes while the page says something its
@@ -131,7 +153,19 @@ from its atoms and nothing else? Any residue is reported verbatim. It was found
 by adversarial injection, not by design review, which is the honest provenance of
 most good checks.
 
-A page passing all six **and** the DOM-text rule is **Dual-Native**. A page
+**Gates 7, 8 and 9 close a whole class at once, and they were found the same
+way.** A static read of this file by a stranger's model, checked by running every
+one of its claims, found seven edits that all six gates and the DOM-text rule
+accepted without a murmur: two blocks swapped, a block printed twice, one of a
+superposed pair of placements deleted, an atom's role edited, a block's order
+edited, a permission flipped in the charter, the charter deleted outright. None
+of them was a flaw in the arithmetic — every one was something the artefact
+*declared* and nothing *checked*. The three new gates hash those three
+declarations into the page, and the seven edits are now frozen as refusal
+vectors, each named with the check that catches it. The honest provenance of most
+good checks is that something got past the previous ones.
+
+A page passing all nine **and** the DOM-text rule is **Dual-Native**. A page
 failing any is a claim, not an artefact.
 
 ## What the proof covers — and what it does not
@@ -153,20 +187,32 @@ catch, so this project holds its own language to account first.
   faithful bytes: one file and Node. The geometry attestation needs the
   committed sidecar instead.
 
-**The boundary, stated once, plainly.** `verify` establishes content identity
-from the page alone: every atom's text re-hashes to its declared id, every
-block root and the page root recompute from that content, and no block
-carries text its atoms do not attest. It does not yet establish the order or
-number of times a block is placed — gate 3 compares the two faces as sets and
-gate 4 recomputes the page root from the manifest's own list, so a page with
-blocks reordered or repeated passes unchanged. It does not check the
-manifest's descriptive fields — `role`, `order`, `section`, `name`,
-`block_type` sit outside every hash, so an edited field passes. And it does
-not check the charter object in `<head>` — flipping a permission, or deleting
-the charter outright, passes. The geometry attestation is a separate claim
-again: it lives in the committed sidecar, `dist/geometry-manifest.json`, and
-cannot be reconstructed from the page at all. These are declared by the
-artefact, not verified by this kernel.
+**The boundary, stated once, plainly.** On a **v1.3** artefact, `verify`
+establishes content identity from the page alone — every atom's text re-hashes to
+its declared id, every block root and the page root recompute from that content,
+and no block carries text its atoms do not attest — and then three things that
+used to be declared and unchecked: the *order and multiplicity* of the page's
+placements, against a transcript whose own root recomputes; the *descriptive
+fields* `role`, `section`, `name` and `block_type`, against the geometry sites
+that hash all four; and the *charter*, whose served terms hash to an atom inside
+a block the page root covers.
+
+What remains outside, and it is worth naming precisely:
+
+- **The artefact still declares its own shape.** Gate 8 checks that the declared
+  sites are internally consistent, hashed, and agree with the blocks the page
+  carries. It cannot discover a site the artefact never declared, because a site
+  the artefact never declared leaves no trace on the page.
+- **`order` is checked for consistency, not reconstructed.** A block's `order`
+  label is its position among its page's blocks; the only page-side evidence that
+  can contradict it is the rendered sequence, so a label the sequence contradicts
+  is refused and a label it merely permits is not.
+- **An older artefact keeps the older boundary.** A page declaring v1.1 or v1.2
+  gets the six gates and the DOM-text rule — content identity and nothing more:
+  reordered or repeated blocks, edited descriptive fields, and a flipped or
+  deleted charter all pass, because that is what those versions promised. The
+  cross-page geometry root lives in the committed sidecar,
+  `dist/geometry-manifest.json`, at every version.
 
 **What the gates do NOT prove:**
 
@@ -217,13 +263,21 @@ blurred:
   kernel** over its own substrate. No production implementation emits v1.2 yet,
   so this set is a **freeze, not an agreement**, and it says so. It makes drift a
   failure rather than a surprise, and it becomes a cross-implementation check the
-  day a second implementation reproduces it.
+  day a second implementation reproduces it. It is also a promise kept: the kernel
+  still emits the v1.2 shape on demand, and this set is what proves it.
+- **`vectors/v1.3-manifest/`** — the v1.3 shape on the same terms, plus the
+  frozen page itself and something neither other set has: a **refusal set**. Each
+  file under `refusals/` is that page with one edit, and each names the single
+  check that must catch it. Seven of the eight passed all six of the previous
+  version's gates untouched; the eighth is a control the previous version already
+  caught, and must still be caught in the same place. A gate nobody has watched
+  refuse is a comment.
 
-A third set, `vectors/genesis-face/`, freezes the machine records a genesis face
+A further set, `vectors/genesis-face/`, freezes the machine records a genesis face
 emits (`kit/AGENT-GENESIS.md` §7) rather than the format itself; the kernel does
 not run it, and it carries its own checker.
 
-[`vectors/README.md`](vectors/README.md) has the full provenance of all three. If you
+[`vectors/README.md`](vectors/README.md) has the full provenance of all four. If you
 port this kernel and your bytes differ from those, one of us is wrong and the
 difference is exactly locatable — which is the entire argument for having
 vectors at all.
@@ -234,7 +288,7 @@ vectors at all.
 |---|---|
 | `sst-kernel.mjs` | the whole implementation — build, verify, tamper, seal, vectors |
 | `substrate/` | the fixture the kernel builds, and the traps built into it |
-| `vectors/` | the frozen conformance vectors — two format sets the kernel runs, plus `genesis-face/`, which freezes the kit's face records and carries its own checker |
+| `vectors/` | the frozen conformance vectors — three format sets the kernel runs, one of them a refusal set, plus `genesis-face/`, which freezes the kit's face records and carries its own checker |
 | `charter.yaml` | this repository's own terms, in the format's own instrument (PROPOSED) |
 | `WHITEPAPER.md` | the paper's skeleton — the thesis, the formal model, the conformance story |
 | `AI-REVIEWER.md` | the preface for a machine asked to review this |
@@ -268,6 +322,15 @@ walkthrough for installing it on its own.
 complete and free at individual-operator scale; the paid layer is organizational only
 (certification against the vectors, multi-operator crews, custody, canon-as-a-service), and
 that split is said here rather than left for a pricing page to reveal.
+
+## A note on versions
+
+v1.3 proceeds on the reading that a format version names the manifest schema and
+the gate set together, while identities stay stable across versions — so an
+artefact at an older version is not stale, it is older, and it is checked by what
+it promised. That reading is proposed rather than settled; the alternative is a
+separate version number for the gate set. If it changes, what changes is the
+dispatch, not a single hash.
 
 ## Licence
 

@@ -115,6 +115,7 @@ node sst-kernel.mjs vectors
 ```
 
 fails the moment the built manifest stops matching
-`vectors/v1.2-manifest/expected.json` byte for byte. Re-freezing is a deliberate
-act, never a side effect — regenerate it, read the diff, and say why in the
-commit message.
+`vectors/v1.2-manifest/expected.json` or `vectors/v1.3-manifest/expected.json`
+byte for byte — the kernel emits both shapes from this substrate, and both are
+frozen. Re-freezing is a deliberate act, never a side effect — regenerate it,
+read the diff, and say why in the commit message.
