@@ -83,6 +83,18 @@ against the live site is the version skew measuring itself, not evidence of
 tampering. Gates 7 to 9 will not run against it at all, and a summary that
 reports them as passing or failing there is wrong.
 
+The site also publishes a machine channel: start at
+https://danielarussell.com/ai-reviewer.txt, its own itinerary for a machine
+reader, which walks through fetching the kernel, verifying a live page, and
+cross-checking the verification face at
+https://danielarussell.com/verification-face.pdf. Its last step is the
+brochure — a document assembled from the same published record at
+https://danielarussell.com/brochure/?include=all — and the thing to check is
+its root, recomputed from the data face at
+https://danielarussell.com/brochure/data.json with the `root` verb
+(`node sst-kernel.mjs root FILE`). That itinerary still runs against v1.1
+pages, so, as above, it earns gates 1–5 and the DOM-text rule, not the nine.
+
 **What a clean run proves depends on which version the artefact declares, and
 the distinction is the whole point of this section.**
 
@@ -118,12 +130,20 @@ stable across versions. Judge that reading too.
 1. The normalization rules in the kernel (Unicode, whitespace, DOM-text
    mapping) — can two different texts collide, or one text evade?
 2. The claim-ladder wording — any overclaim, even by connotation?
-3. Gate 6 (block completeness). It is the newest gate and the least
-   battle-tested. Can you inject visible text into a page that gates 1–6 and
-   the DOM-text rule all accept? CSS-injected content via `::before`, an
-   `<img alt>` a screen reader announces, a nested block wrapper — the README
-   admits some of these are out of reach for a markup-level verifier, so the
-   question is whether it admits *all* of them.
+3. Gate 6 (block completeness). It is the gate with the most judgement in
+   it — it reconstructs a block's visible text from its atoms and nothing
+   else — and it is the one the reference site currently fails, because it
+   renders atoms as attributes, images and labels rather than as visible
+   text. It has since been attacked three ways: a stranger's static red team
+   reproduced against the fixture, a word-granularity experiment
+   (`R4-WORD-GRANULARITY.md`), and a subtraction variant, tested and rejected
+   because it admits an intra-block reorder — every alternative tried so far
+   has been weaker. The question stays open: can you inject visible text into
+   a page that gates 1–6 and the DOM-text rule all accept? CSS-injected
+   content via `::before`, an `<img alt>` a screen reader announces, a nested
+   block wrapper — the README admits some of these are out of reach for a
+   markup-level verifier, so the question is whether it admits *all* of
+   them.
 4. The provenance-label rule. Where several lattice coordinates share one block
    identity, the manifest omits the fields they disagree about rather than
    guessing. Is "omit" the right answer, or does a silently-shortened label
