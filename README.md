@@ -1,6 +1,6 @@
 # sst-kernel
 
-**SST — Single Source of Truth: a self-verifying, sovereign content format.**
+**SST — Single Source of Truth: a self-verifying content format for sovereign operators: the operator holds the substrate, the public face is read-only by construction, and the charter travels as data.**
 This repository is its kernel: the whole idea in one dependency-free file you
 can read top to bottom in a sitting — under a thousand lines, a third of them
 commentary — plus the frozen vectors that hold it to account.
@@ -20,8 +20,9 @@ node sst-kernel.mjs vectors   # prove the primitives reproduce the frozen confor
 ```
 
 What `seal` just showed you: a vacancy here is not missing data — it is a
-declared absence with its own identity and its own root. Most systems cannot
-tell silence from absence. This one can.
+declared absence with its own identity and its own root. The geometry spine
+records every site the artefact declares, present or vacant, so absence is
+declared rather than silent.
 
 No dependencies. Node's standard library only. Nothing is installed, downloaded,
 or sent anywhere.
@@ -147,8 +148,10 @@ catch, so this project holds its own language to account first.
 - **Tamper-evident relative to its origin.** A mangling CDN, a misquoting proxy,
   a hand-edited manifest, an injected sentence — all show up, and the failure
   names the atom or the block.
-- **Verifiable from the published output alone.** No access to the source, no
-  API, no trust that the publisher served you faithful bytes. One file and Node.
+- **Verifiable from the published output alone, for content identity.** No
+  access to the source, no API, no trust that the publisher served you
+  faithful bytes: one file and Node. The geometry attestation needs the
+  committed sidecar instead.
 
 **The boundary, stated once, plainly.** `verify` establishes content identity
 from the page alone: every atom's text re-hashes to its declared id, every
