@@ -1,0 +1,17 @@
+name,content
+seo_title,SST in miniature — the kernel
+seo_description,"A dependency-free reference kernel for the Single Source of Truth format: build an artefact, then verify it from the published HTML alone."
+title_1,SST in miniature
+tagline_1,"The same content, two faces, one identity"
+abstract_1,"Every piece of content on this page is an atom: a sentence-level unit whose identity is the SHA-256 hash of its normalized text."
+abstract_2,"Atoms compose into blocks, blocks into pages, and each level's identity is a Merkle root over its children — change one character anywhere and every fingerprint above it changes."
+claim_1,"The page you are reading is Dual-Native: the human face is this rendered HTML; the machine face is a JSON-LD manifest in the head carrying the same atoms with their hashes."
+claim_2,"The manifest is derived from the rendered page, never maintained by hand — the two faces cannot drift, because one is computed from the other at build time."
+claim_3,"Anyone can verify this page without trusting its publisher: re-hash the visible text, recompute the Merkle roots, and compare against the manifest. The artefact carries its own proof."
+claim_4,"A charter in the head declares the operator's terms: who may read, quote, ingest, or train on this content. Sovereignty is data, not a request."
+method_1,"Run the verifier against this very file to watch all six gates pass; flip a single character and watch them fail."
+method_2,"This entire implementation is one dependency-free script — the point of SST is not machinery, it is that identity, composition, and verification are simple enough to fit in it."
+geometry_1,"Beyond the content lies the geometry: a second Merkle root over every declared site — present or vacant — so the shape of what is missing is provable, not merely asserted."
+superposition_1,"This paragraph is one identity at two coordinates, printed twice on this page and listed once in the manifest: a bill of what the page carries, never a transcript of where."
+phone_1,+44 20 7946 0000
+_PENDING_,_PENDING_

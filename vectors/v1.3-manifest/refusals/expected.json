@@ -3,72 +3,162 @@
   "format": "SST Dual-Native v1.3",
   "fixture": "vectors/v1.3-manifest/page.html",
   "frozen_by": "sst-kernel.mjs in this repository. A freeze, not a cross-implementation agreement — see vectors/README.md.",
-  "note": "A gate nobody has watched refuse is a comment. Each file below is a frozen page with ONE edit, and each names the check that must catch it; `refuses` is the exact list `verify` reports, so a gate that stops refusing, starts refusing something else, or starts refusing two things at once moves these values. All but the last edit passed all six gates of the previous format version unchanged — that is why they exist. The last is the control: an edit the previous version already caught, which must still be caught in the same place. Twelve of the thirteen edit page.html; sst-charter-field-flipped.html edits page-sst-charter-field.html, which serves the same terms in the second charter shape and must itself pass all nine.",
+  "note": "A gate nobody has watched refuse is a comment. Each file below is a frozen page with ONE edit, and each names the check that must catch it; `refuses` is the exact list `verify` reports, so a gate that stops refusing, starts refusing something else, or starts refusing two things at once moves these values. All but the control passed every gate of the previous format version unchanged — that is why they exist. The control is an edit the previous version already caught, which must still be caught in the same place. Twenty-one of the twenty-two edit page.html; sst-charter-field-flipped.html edits page-sst-charter-field.html, which serves the same terms in the second charter shape and must itself pass all nine. The nine render-mode cases each take one surface or one rule: the stamp gone from a non-text atom, a letter changed inside an attribute, a composed label that no longer follows from its atoms, a partial placement claiming what the wrapper does not show, two atoms swapped inside one wrapper, a chrome marker on a stamped element, a placement naming an atom its block does not hold, and — the mirror of that last pair — a render descriptor edited with the composition root left alone, which changes nothing a reader sees and is refused by the root rather than by the wrapper. Where a case would otherwise fail two checks at once, the root it disturbs is recomputed before freezing, so each still fails exactly one.",
   "cases": [
     {
       "file": "reordered-blocks.html",
       "mutation": "the first two rendered blocks swapped in the DOM",
-      "refuses": [7]
+      "refuses": [
+        7
+      ]
     },
     {
       "file": "duplicated-block.html",
       "mutation": "one block rendered a second time",
-      "refuses": [7]
+      "refuses": [
+        7
+      ]
     },
     {
       "file": "dropped-superposed-placement.html",
       "mutation": "one of the two placements of a superposed identity deleted — the identity still renders once, so the two faces still agree as sets",
-      "refuses": [7]
+      "refuses": [
+        7
+      ]
     },
     {
       "file": "edited-atom-role.html",
       "mutation": "an atom's declared role changed in the block list, leaving the geometry site that declares the same role untouched",
-      "refuses": [8]
+      "refuses": [
+        8
+      ]
     },
     {
       "file": "added-geometry-site.html",
       "mutation": "a present site added at a coordinate the page does place, for a role the block printed there does not carry — with the declared geometry root recomputed over the longer list, so only the cross-check can catch it",
-      "refuses": [8]
+      "refuses": [
+        8
+      ]
     },
     {
       "file": "removed-geometry-site.html",
       "mutation": "the page's one declared vacancy deleted from the site list, leaving the declared geometry root as it was — the silently removed hole",
-      "refuses": [8]
+      "refuses": [
+        8
+      ]
     },
     {
       "file": "dropped-published-role.html",
       "mutation": "a present site deleted from the site list for a role the block placed there does publish — with the declared geometry root recomputed over the shorter list, so the reverse direction of the cross-check is the only thing left to catch it",
-      "refuses": [8]
+      "refuses": [
+        8
+      ]
     },
     {
       "file": "withheld-site-claimed-present.html",
       "mutation": "the withheld site of the page's one projected block claimed present in the slice — the value the committed sidecar holds for that coordinate, which is exactly what a page's slice may not import. The geometry root is recomputed, so only the cross-check against the placed block refuses it",
-      "refuses": [8]
+      "refuses": [
+        8
+      ]
     },
     {
       "file": "flipped-charter-permission.html",
       "mutation": "one permission flipped in the served charter, leaving the attested copy untouched",
-      "refuses": [9]
+      "refuses": [
+        9
+      ]
     },
     {
       "file": "deleted-charter.html",
       "mutation": "the charter declaration deleted outright",
-      "refuses": [9]
+      "refuses": [
+        9
+      ]
     },
     {
       "file": "second-charter.html",
       "mutation": "a second charter object appended after the first, granting everything the first withholds. The first still hashes to the atom it names, so a verifier that stopped at the first charter it found would report a clean page while the terms a reader is shown are ambiguous",
-      "refuses": [9]
-    },
-    {
-      "file": "sst-charter-field-flipped.html",
-      "mutation": "one permission flipped in a charter served in the second shape — an entity carrying an sst_charter field rather than a bare charter document. The refusal names the hash mismatch, not a missing charter, which is what proves the shape was read rather than skipped",
-      "refuses": [9]
+      "refuses": [
+        9
+      ]
     },
     {
       "file": "edited-visible-text.html",
       "mutation": "the control — one letter of visible text, which the previous format version already refused",
-      "refuses": [6, "DOM-text"]
+      "refuses": [
+        6,
+        "DOM-text"
+      ]
+    },
+    {
+      "file": "injected-visible-text.html",
+      "mutation": "a sentence injected inside a block wrapper, carrying no hash for gates 1-5 or the DOM-text rule to check",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "missing-non-text-stamp.html",
+      "mutation": "the stamp removed from the element bearing a non-text atom, so the placement's claim that this matter is carried here has no evidence left",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "attribute-value-changed.html",
+      "mutation": "one letter changed in the attribute an atom is carried in — invisible to every gate that reads element text",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "transform-label-changed.html",
+      "mutation": "the composed label edited so it is no longer what the registry transform makes of the atoms the placement names",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "partial-placement-overclaims.html",
+      "mutation": "a partial placement claiming a third atom the wrapper does not show, with the composition root recomputed so only the wrapper itself can refuse it",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "reordered-atoms.html",
+      "mutation": "two atoms swapped INSIDE one block wrapper, each still carrying its own hash and each still re-hashing — the page renders the declared blocks in the declared order, and says something else",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "chrome-marked-atom.html",
+      "mutation": "an element marked as chrome while carrying an atom stamp — furniture the residue rule skips and attested content at once",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "placement-claims-foreign-atom.html",
+      "mutation": "a placement naming an atom its block does not hold, with the composition root recomputed",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "render-descriptor-tampered.html",
+      "mutation": "a render descriptor edited with the composition root left as it was. Nothing a reader sees changes and the surface check is indifferent to the edit, which is what makes it the case for folding the descriptor into the placement leaf",
+      "refuses": [
+        7
+      ]
+    },
+    {
+      "file": "sst-charter-field-flipped.html",
+      "mutation": "one permission flipped in a charter served in the second shape — an entity carrying an sst_charter field rather than a bare charter document. The refusal names the hash mismatch, not a missing charter, which is what proves the shape was read rather than skipped",
+      "refuses": [
+        9
+      ]
     }
   ]
 }
