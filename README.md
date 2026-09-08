@@ -2,7 +2,7 @@
 
 **SST — Single Source of Truth: a self-verifying content format for sovereign operators: the operator holds the substrate, the public face is read-only by construction, and the charter travels as data.**
 This repository is its kernel: the whole idea in one dependency-free file you
-can read top to bottom in a sitting — under fourteen hundred lines, more than a
+can read top to bottom in a sitting — about fourteen hundred lines, more than a
 third of them commentary — plus the frozen vectors that hold it to account.
 
 > **This is not sst.dev.** sst.dev is a serverless-infrastructure framework that
@@ -225,7 +225,12 @@ used to be declared and unchecked: the *sequence and multiplicity* of the page's
 placements, against a transcript whose own root recomputes; the *descriptive
 fields* `role`, `section`, `name` and `block_type`, against the geometry sites
 that hash all four; and the *charter*, whose served terms hash to an atom inside
-a block the page root covers.
+a block the page root covers. Every one of those coordinates is attested by the
+page's own roots, not by a record outside it, so relabelling which coordinate a
+block occupies — consistently, across `manifest.blocks`, `placements` and
+`geometry.sites` — recomputes every root and passes every gate; the same limit
+as any self-consistency check here, it is caught only against the origin's own
+roots.
 
 What remains outside, and it is worth naming precisely:
 

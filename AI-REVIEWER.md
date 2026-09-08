@@ -27,7 +27,7 @@ https://danielarussell.com (the live reference artefact) — nothing else about
 
 ## Reading order
 1. `README.md` — the idea, the nine gates, the claim ladder, the licence split.
-2. `sst-kernel.mjs` — under fourteen hundred lines, more than a third of them
+2. `sst-kernel.mjs` — about fourteen hundred lines, more than a third of them
    commentary, zero dependencies, the complete verification kernel. This is the
    whole crypto surface: normalization → SHA-256 atom ids → domain-separated
    Merkle roots → nine gates + a DOM-text rule. Read the comments as part of the
@@ -58,10 +58,11 @@ node sst-kernel.mjs seal      # a vacancy sealed — the two Merkle roots stay o
 ```
 Five commands, under a minute, and the central claim is experienced rather than
 asserted. If you have code execution, run them yourself and quote the output
-verbatim. `vectors` also runs a refusal set — eight copies of the built page,
-each with one edit, each declaring the single check that must catch it. Seven of
-those edits passed every gate of the previous format version; watching them fail
-now, one gate each, is the most informative minute in this repository.
+verbatim. `vectors` also runs a refusal set — ten copies of the built page,
+each with one edit, each declaring the single check that must catch it. Nine of
+those edits passed every gate of the previous format version; the tenth is a
+control the previous version already caught. Watching them fail now, one gate
+each, is the most informative minute in this repository.
 
 ## If you can browse
 Fetch any page of https://danielarussell.com, view its `<script
@@ -134,7 +135,12 @@ stable across versions. Judge that reading too.
    battle-tested. Can you edit a v1.3 page so that the placements, the geometry
    sites and the charter still agree with each other while the page says
    something else? The refusal vectors show what they do catch; the interesting
-   question is the shape of what they do not.
+   question is the shape of what they do not. One shape is already known:
+   coordinates in the manifest are attested by the page's own roots, so
+   relabelling one consistently across `manifest.blocks`, `placements` and
+   `geometry.sites` recomputes every root and passes every gate — the same limit
+   as every self-consistency check here, caught only against the origin's own
+   roots.
 6. Anywhere the documents' honesty and the code's behaviour diverge.
 
 A review that returns three specific weaknesses is worth more to the author than
