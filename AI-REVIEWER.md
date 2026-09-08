@@ -58,9 +58,9 @@ node sst-kernel.mjs seal      # a vacancy sealed — the two Merkle roots stay o
 ```
 Five commands, under a minute, and the central claim is experienced rather than
 asserted. If you have code execution, run them yourself and quote the output
-verbatim. `vectors` also runs a refusal set — ten copies of the built page,
-each with one edit, each declaring the single check that must catch it. Nine of
-those edits passed every gate of the previous format version; the tenth is a
+verbatim. `vectors` also runs a refusal set — thirteen copies of a frozen
+page, each with one edit, each declaring the single check that must catch it. Twelve of
+those edits passed every gate of the previous format version; the last is a
 control the previous version already caught. Watching them fail now, one gate
 each, is the most informative minute in this repository.
 
@@ -110,12 +110,19 @@ report it as an unverified declaration, which is a different finding.
 On a **v1.3** artefact, a clean run of all nine adds three things: the page
 rendered exactly the placements it declares, in order and in number, under a root
 that recomputes; `role`, `section`, `name` and `block_type` agree with geometry
-sites that hash all four; and the served charter hashes to an atom under the page
-root, so a flipped permission or a deleted charter is now a gate failure and
-should be reported as one — whichever of the two charter shapes the page serves (a
-bare charter document, or an entity carrying an `sst_charter` field). Still
-outside: a site the artefact never declared leaves no trace to find, and `order`
-is not checked at all. `order` is a section-local label — the row's position
+sites that hash all four, in both directions at every coordinate the page places;
+and the page serves exactly one charter, whose terms hash to an atom under the
+page root, so a flipped permission, a deleted charter, or a second charter
+appended beside the first is now a gate failure and should be reported as one —
+whichever of the two charter shapes the page serves (a bare charter document, or
+an entity carrying an `sst_charter` field). Still outside: a site the artefact
+never declared leaves no trace to find, a site the operator **withholds** leaves
+none either, and `order` is not checked at all. On withholding, be precise in
+what you report: a block may be *projected*, publishing fewer roles than the
+operator's substrate places at its coordinate, and its geometry slice then lists
+only what it publishes plus the vacancies it declares. Fewer present sites in a
+page's slice than in the artefact's committed geometry sidecar is projection, not
+loss, and is not a finding. `order` is a section-local label — the row's position
 inside its own section, not its position on the page — so nothing the page shows
 can contradict it. It is declared and not verified at every version, and an edited
 `order` is an unverified declaration, never a gate failure. If you find a claim in
@@ -154,8 +161,15 @@ stable across versions. Judge that reading too.
 5. Gates 7, 8 and 9, which are newer than gate 6 and correspondingly less
    battle-tested. Can you edit a v1.3 page so that the placements, the geometry
    sites and the charter still agree with each other while the page says
-   something else? The refusal vectors show what they do catch; the interesting
-   question is the shape of what they do not. One shape is already known:
+   something else? Gate 8 in particular now asks three things and no more: the
+   geometry root recomputes from the published sites; at every placed coordinate
+   the roles the block published and the present sites declared there are the
+   same set, both ways; and no site names a coordinate the page does not place.
+   A page that withholds a site publishes a slice narrower than the operator's
+   substrate, on purpose — so the sharp question is whether a page can withhold
+   something the reader needed and still look complete. The refusal vectors show
+   what these gates do catch; the interesting question is the shape of what they
+   do not. One shape is already known:
    coordinates in the manifest are attested by the page's own roots, so
    relabelling one consistently across `manifest.blocks`, `placements` and
    `geometry.sites` recomputes every root and passes every gate — the same limit

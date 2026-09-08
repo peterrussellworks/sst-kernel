@@ -109,9 +109,9 @@ placement. That orthogonality is what `seal` demonstrates for the first pair, an
 it is why three roots are three roots rather than one.
 
 The page publishes its own geometry slice, and the slice is defined by what the
-page PLACES: for every coordinate it prints, that coordinate's sites — the roles
-it renders and the vacancies it declares — with the root that recomputes from
-them. It is deliberately not a *lattice page's* slice, because a rendered page is
+page PLACES and what it PUBLISHES: for every coordinate it prints, the roles it
+publishes there and the vacancies that coordinate declares, with the root that
+recomputes from them. It is deliberately not a *lattice page's* slice, because a rendered page is
 not a lattice page: one page draws its blocks from many, and a lattice page
 declares sites (a section still in draft) that no page renders. The whole-artefact
 `dist/geometry-manifest.json` stays a committed **sidecar** because it carries the
@@ -134,8 +134,8 @@ one.
 | 6 | **block completeness** — every block wrapper reconstructs from its atoms *and nothing else* |
 | — | **the §6.2 DOM-text rule** — gate 5's DOM-side counterpart: every *visible* atom's text re-hashes to its id (or, for a projected atom, the named projection recomputes) |
 | 7 | **composition** — the page renders exactly the declared placements, in document order, and the composition root recomputes from them |
-| 8 | **geometry** — the page's geometry root recomputes from the sites it publishes, and those sites and the blocks the page *places* describe the same page |
-| 9 | **the charter** — the served terms hash to the atom the charter names, inside a block the manifest carries, and therefore under the page root |
+| 8 | **geometry** — the page's geometry root recomputes from the sites it publishes; at every coordinate it places, the roles the block published there and the present sites declared there are the same set, *both ways*; and no site names a coordinate the page does not place |
+| 9 | **the charter** — the page serves *exactly one* charter object, and its served terms hash to the atom that charter names, inside a block the manifest carries, and therefore under the page root |
 
 **The artefact chooses the gate set, not the verifier.** A page declares its
 format version and gets that version's gates: an artefact built to v1.1 or v1.2
@@ -237,7 +237,14 @@ What remains outside, and it is worth naming precisely:
 - **The artefact still declares its own shape.** Gate 8 checks that the declared
   sites are internally consistent, hashed, and agree with the blocks the page
   carries. It cannot discover a site the artefact never declared, because a site
-  the artefact never declared leaves no trace on the page.
+  the artefact never declared leaves no trace on the page. It also cannot see a
+  site the operator *withholds*: a block may be **projected**, publishing fewer
+  roles than the substrate places at its coordinate — a telephone number that
+  stays in the lattice and never reaches a machine face. The page's slice is the
+  page's own shape and says only what the page publishes; the committed sidecar
+  carries the whole artefact's shape, where the withheld site is still present.
+  A slice showing fewer present sites than the sidecar is **projection, not
+  loss**, and gate 8 reads the page's.
 - **`order` is declared, never verified — at every version.** A block's `order`
   is a *section-local* label: the row's position inside its own section, not its
   position on the page. Nothing the page shows can contradict it, so no gate reads
@@ -307,8 +314,8 @@ blurred:
 - **`vectors/v1.3-manifest/`** — the v1.3 shape on the same terms, plus the
   frozen page itself and something neither other set has: a **refusal set**. Each
   file under `refusals/` is a frozen page with one edit, and each names the single
-  check that must catch it. Nine of the ten passed all six of the previous
-  version's gates untouched; the tenth is a control the previous version already
+  check that must catch it. Twelve of the thirteen passed all six of the previous
+  version's gates untouched; the last is a control the previous version already
   caught, and must still be caught in the same place. Beside them sits a second
   frozen page serving the same terms in the other charter shape, which must pass
   all nine — a refusal alone cannot tell you a shape was *read* rather than

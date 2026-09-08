@@ -93,8 +93,9 @@ What it pins, over `substrate/`:
   and the three superposition twins' labels: one entry keeping `page` + `name`,
   one keeping `name` alone, one keeping `section` + `name` + `order` with no
   `page`. `substrate/README.md` says what each twin exists to catch.
-- the **geometry spine** — 14 sites, 10 blocks, across both the published page
-  and the draft one.
+- the **geometry spine** — 15 sites, 10 blocks, across both the published page
+  and the draft one. One of those sites is *withheld* from the published page,
+  and the sidecar is where it is still counted.
 
 **It becomes a cross-implementation check the day a second implementation
 reproduces it.** That is the invitation: port the kernel, point it at this
@@ -125,22 +126,33 @@ What it pins, in `expected.json`:
   under which its terms are hashed. Flip a permission and this file moves.
 
 The nine sites are the sites of the seven coordinates the page PLACES — the roles
-it prints, plus the one vacancy those same blocks declare. The two head-rendered
-sites (`meta/seo`) are not among them: the page places no such block, so the slice
-makes no claim about it, and the whole-artefact sidecar is where every site on
-every page is still counted. That is a narrowing from the earlier freeze, and it
-is deliberate — a slice keyed on the lattice page rather than on the placements
-publishes sites the page cannot show, which on any composed page turns gate 8 into
-a refusal of ordinary composition.
+it PUBLISHES there, plus the one vacancy those same blocks declare. Three kinds of
+site are therefore absent from them, and each absence is deliberate. The two
+head-rendered sites (`meta/seo`) are absent because the page places no such block,
+so the slice makes no claim about it. The draft page's sites are absent for the
+same reason. And the colophon block's `phone` site is absent because the page
+**withholds** it: the substrate places an atom there and the published faces do
+not carry it, so the block the page publishes is a projection of the substrate's,
+and the slice lists what was published. The whole-artefact sidecar in
+`v1.2-manifest/` is where all three are still counted — a page's slice showing
+fewer present sites than the sidecar is projection, not loss.
+
+Both narrowings are load-bearing. A slice keyed on the lattice page rather than on
+the placements publishes sites the page cannot show, which on any composed page
+turns gate 8 into a refusal of ordinary composition; a slice valued by the
+substrate's occupancy rather than by what the page published does the same to
+every page that withholds anything, which on the reference artefact is every page
+it serves. Reinstate either reading and this freeze moves, which is the point of
+freezing it.
 
 And, beside them, `page.html` — the exact bytes the kernel builds. That is not
-decoration: nine of the ten files in `refusals/` are that page with one edit, so a
-page that drifted would turn the refusal set into a test of nothing. `vectors`
+decoration: twelve of the thirteen files in `refusals/` are that page with one
+edit, so a page that drifted would turn the refusal set into a test of nothing. `vectors`
 rebuilds it byte-for-byte, and checks it passes all nine gates, before it trusts
 a single refusal.
 
-`page-sst-charter-field.html` is the tenth file's subject and a vector in its own
-right: the same terms served in the OTHER charter shape — an entity document
+`page-sst-charter-field.html` is the thirteenth file's subject and a vector in its
+own right: the same terms served in the OTHER charter shape — an entity document
 carrying an `sst_charter` field, which is what the reference implementation serves
 — with its attestation block re-derived by the same canonical rule. The kernel
 does not emit that shape, so this page is cut by hand rather than rebuilt; what it
@@ -155,8 +167,8 @@ verifier must reject, which is the half a passing vector cannot reach: a gate ca
 be deleted, weakened, or accidentally short-circuited without a single frozen
 hash moving.
 
-Ten files, each a frozen page with ONE edit, each declaring in `expected.json` the
-exact list of checks `verify` must report as failed — so a gate that stops
+Thirteen files, each a frozen page with ONE edit, each declaring in
+`expected.json` the exact list of checks `verify` must report as failed — so a gate that stops
 refusing, starts refusing something else, or starts refusing two things at once
 all show up as drift rather than as a quiet pass.
 
@@ -168,15 +180,26 @@ all show up as drift rather than as a quiet pass.
 | `edited-atom-role.html` | an atom's `role` changed in the block list, its geometry site left alone | gate 8 |
 | `added-geometry-site.html` | a present site added for a role the block placed there does not carry, with the declared root recomputed over the longer list | gate 8 |
 | `removed-geometry-site.html` | the page's one declared vacancy deleted from the site list, the declared root left as it was | gate 8 |
+| `dropped-published-role.html` | a present site deleted for a role the block placed there does publish, with the declared root recomputed over the shorter list | gate 8 |
+| `withheld-site-claimed-present.html` | the projected block's withheld site claimed present in the slice — the sidecar's value for that coordinate — with the declared root recomputed | gate 8 |
 | `flipped-charter-permission.html` | one permission flipped in the served charter, the attested copy left alone | gate 9 |
 | `deleted-charter.html` | the charter declaration deleted outright | gate 9 |
+| `second-charter.html` | a second charter object appended after the first, granting everything the first withholds | gate 9 |
 | `sst-charter-field-flipped.html` | one permission flipped in a charter served in the other shape (on `page-sst-charter-field.html`) | gate 9 |
 | `edited-visible-text.html` | the control — one letter of visible text | gate 6 + the DOM-text rule |
 
-The two geometry cases are a matched pair on purpose. Removing a site with the
+The four geometry cases are matched pairs on purpose. Removing a site with the
 root left alone is caught by the root; adding one with the root *recomputed* can
 only be caught by the cross-check against the placements, so between them they
-prove both halves of gate 8 rather than the arithmetic twice. The flipped charter
+prove both halves of gate 8 rather than the arithmetic twice. The other pair takes
+the cross-check in both directions with the root recomputed each time: a published
+role missing from the slice, and a present site the block does not carry. The
+second of those is the one that keeps the projection rule honest — it claims for
+the page exactly the value the committed sidecar holds for that coordinate, so a
+verifier that read the artefact's shape where it should read the page's would pass
+it. `second-charter.html` earns its place the same way: the first charter still
+hashes correctly, so anything that stops at the first charter it finds reports a
+clean page while the terms a reader is shown are ambiguous. The flipped charter
 in the second shape is a pair with `page-sst-charter-field.html` for the same
 reason: the refusal names a hash mismatch, not a missing charter, and that is what
 shows the shape was read.
