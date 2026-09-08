@@ -3,15 +3,17 @@
   "fixture": "sst-kernel/substrate",
   "format": "SST Dual-Native v1.3",
   "frozen_by": "sst-kernel.mjs in this repository — a freeze, not a cross-implementation agreement. See vectors/README.md.",
-  "note": "The v1.3 page manifest and charter this kernel MUST reproduce from substrate/, plus page.html — the exact bytes the refusal set under refusals/ mutates, so a drifted page would make every refusal meaningless. Byte-exact: field order, omitted provenance labels and all. The three roots pinned here are the page root (covering the charter attestation block), the composition root over the placement transcript, and this page's geometry root over the sites its own placements define. The composition root now folds each placement's RENDER declaration into its leaf, so these bytes differ from the first v1.3 freeze; the whole-artefact geometry sidecar is unchanged by v1.3 and stays frozen in v1.2-manifest/, against the substrate frozen beside it.",
+  "note": "The v1.3 page manifest and charter this kernel MUST reproduce from substrate/, plus page.html — the exact bytes the refusal set under refusals/ mutates, so a drifted page would make every refusal meaningless. Byte-exact: field order, omitted provenance labels and all. FOUR roots are pinned here: the page root (covering the charter attestation block), the composition root over the placement transcript AND the page's furniture, this page's furniture root over the text it shows that no atom attests, and this page's geometry root over the sites its own placements define. The manifest also names the transform registry its render descriptors refer to, by the hash of the registry's own source region. The composition root has been redefined twice while v1.3 is pre-release — first to fold each placement's RENDER declaration into its leaf, now to append a final furniture leaf — so these bytes differ from both earlier freezes; the whole-artefact geometry sidecar is unchanged by v1.3 and stays frozen in v1.2-manifest/, against the substrate frozen beside it.",
   "version_axis": "v1.3 proceeds on the reading that a format version names the manifest schema and the gate set together, while identities stay stable across versions. That reading is proposed, not yet ruled.",
   "page_manifest": {
     "@context": "https://danielarussell.com/contexts/sst-manifest-v1",
     "@type": "SstPageManifest",
     "page": "paper",
     "version": "1.3",
+    "registry_hash": "83d23e122b1342e53ec92aa1632721be2d0e5042dae50c64990d4986439fb88e",
     "page_merkle_root": "56bf5439f7597dd3ea6b813764e002dfa4a1cef0fe858f4662177d1962086feb",
-    "composition_root": "2f265cea046c71e9e7a0fdb637824f514a2d0fbfdca94e52139af95cb847e2d9",
+    "composition_root": "5eeaddea099544795170c37a687ba8f71f274af2ae9e1f37a3e374133fc8c065",
+    "furniture_root": "5670680c8a3a29883e9e908e20a76c1b7a8d79f92694dcbbc52e43ce81d3191c",
     "block_count": 12,
     "atom_count": 26,
     "blocks": [
@@ -428,6 +430,10 @@
           }
         ]
       }
+    ],
+    "furniture": [
+      "Plate I",
+      "sst-kernel · the whole format in one file"
     ],
     "geometry": {
       "root": "1964ff836d84e8dbb2108e50211fc8bffe862d065ea1f8ab74a5d8f85c4738b6",

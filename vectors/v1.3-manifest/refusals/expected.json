@@ -3,7 +3,7 @@
   "format": "SST Dual-Native v1.3",
   "fixture": "vectors/v1.3-manifest/page.html",
   "frozen_by": "sst-kernel.mjs in this repository. A freeze, not a cross-implementation agreement — see vectors/README.md.",
-  "note": "A gate nobody has watched refuse is a comment. Each file below is a frozen page with ONE edit, and each names the check that must catch it; `refuses` is the exact list `verify` reports, so a gate that stops refusing, starts refusing something else, or starts refusing two things at once moves these values. All but the control passed every gate of the previous format version unchanged — that is why they exist. The control is an edit the previous version already caught, which must still be caught in the same place. Twenty-one of the twenty-two edit page.html; sst-charter-field-flipped.html edits page-sst-charter-field.html, which serves the same terms in the second charter shape and must itself pass all nine. The nine render-mode cases each take one surface or one rule: the stamp gone from a non-text atom, a letter changed inside an attribute, a composed label that no longer follows from its atoms, a partial placement claiming what the wrapper does not show, two atoms swapped inside one wrapper, a chrome marker on a stamped element, a placement naming an atom its block does not hold, and — the mirror of that last pair — a render descriptor edited with the composition root left alone, which changes nothing a reader sees and is refused by the root rather than by the wrapper. Where a case would otherwise fail two checks at once, the root it disturbs is recomputed before freezing, so each still fails exactly one.",
+  "note": "A gate nobody has watched refuse is a comment. Each file below is the frozen page with ONE edit, and each names the check that must catch it; `refuses` is the exact list `verify` reports, so a gate that stops refusing, starts refusing something else, or starts refusing two things at once moves these values. Twenty-five of the twenty-six are refusals; the last, consistent-furniture-rewrite.html, must PASS every gate, and what it pins is the set's own boundary — the same injected paragraph as the refusal beside it, declared, with both roots recomputed, so only a comparison with the origin's published root catches it. All but the control passed every gate of the previous format version unchanged — that is why they exist. The control is an edit the previous version already caught, which must still be caught in the same place. Twenty-four of the twenty-six edit page.html; sst-charter-field-flipped.html edits page-sst-charter-field.html, which serves the same terms in the second charter shape and must itself pass all nine. The nine render-mode cases each take one surface or one rule: the stamp gone from a non-text atom, a letter changed inside an attribute, a composed label that no longer follows from its atoms, a partial placement claiming what the wrapper does not show, two atoms swapped inside one wrapper, a chrome marker on a stamped element, a placement naming an atom its block does not hold, and — the mirror of that last pair — a render descriptor edited with the composition root left alone, which changes nothing a reader sees and is refused by the root rather than by the wrapper. The three furniture cases take the two holes the furniture root closed and the one way to move a declared span: an undeclared chrome-marked paragraph inside a wrapper, an undeclared free paragraph between two wrappers, and a declared span edited in both faces with the roots left as they were. Where a case would otherwise fail two checks at once, the root it disturbs is recomputed before freezing, so each still fails exactly the checks it names.",
   "cases": [
     {
       "file": "reordered-blocks.html",
@@ -42,7 +42,7 @@
     },
     {
       "file": "removed-geometry-site.html",
-      "mutation": "the page's one declared vacancy deleted from the site list, leaving the declared geometry root as it was — the silently removed hole",
+      "mutation": "the page’s one declared vacancy deleted from the site list, leaving the declared geometry root as it was — the silently removed hole",
       "refuses": [
         8
       ]
@@ -56,7 +56,7 @@
     },
     {
       "file": "withheld-site-claimed-present.html",
-      "mutation": "the withheld site of the page's one projected block claimed present in the slice — the value the committed sidecar holds for that coordinate, which is exactly what a page's slice may not import. The geometry root is recomputed, so only the cross-check against the placed block refuses it",
+      "mutation": "the withheld site of the page’s one projected block claimed present in the slice — the value the committed sidecar holds for that coordinate, which is exactly what a page’s slice may not import. The geometry root is recomputed, so only the cross-check against the placed block refuses it",
       "refuses": [
         8
       ]
@@ -99,7 +99,7 @@
     },
     {
       "file": "missing-non-text-stamp.html",
-      "mutation": "the stamp removed from the element bearing a non-text atom, so the placement's claim that this matter is carried here has no evidence left",
+      "mutation": "the stamp removed from the element bearing a non-text atom, so the placement’s claim that this matter is carried here has no evidence left",
       "refuses": [
         6
       ]
@@ -159,6 +159,35 @@
       "refuses": [
         9
       ]
+    },
+    {
+      "file": "undeclared-chrome-furniture.html",
+      "mutation": "a chrome-marked paragraph of prose added inside a block wrapper, the roots left alone. Its span is cut from the wrapper’s residue, exactly as a plate number’s is, so before the furniture root nothing bounded its text and the page passed all nine gates",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "undeclared-free-text.html",
+      "mutation": "a visible paragraph added between two block wrappers, the roots left alone. It sits inside no wrapper’s own markup, so before the page-level residue rule no gate looked there at all",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "edited-furniture-text.html",
+      "mutation": "a declared furniture span edited in both faces at once — the page and the furniture list agree, and the furniture root and the composition root are left as they were. Gate 6 refuses the page against the declared root, gate 7 refuses the declared list against it",
+      "refuses": [
+        6,
+        7
+      ]
+    },
+    {
+      "file": "consistent-furniture-rewrite.html",
+      "mutation": "THE SAME EDIT, declared. The injected chrome paragraph is added to the furniture list and both roots are recomputed, so the page is internally consistent and passes all nine gates — and its composition root is not the frozen page’s. This is the claim ladder’s second rung stated as a vector: internal integrity is what the gates prove, and an injected sentence is caught by comparing the page’s roots with the origin’s",
+      "refuses": [],
+      "passes": true,
+      "composition_root_moves": true
     }
   ]
 }
