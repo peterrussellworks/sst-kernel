@@ -108,8 +108,12 @@ neither the block nor the page root, and editing the block changes neither
 placement. That orthogonality is what `seal` demonstrates for the first pair, and
 it is why three roots are three roots rather than one.
 
-The page publishes its own geometry slice — every site it declares, vacancies
-included, with the root that recomputes from them. The whole-artefact
+The page publishes its own geometry slice, and the slice is defined by what the
+page PLACES: for every coordinate it prints, that coordinate's sites — the roles
+it renders and the vacancies it declares — with the root that recomputes from
+them. It is deliberately not a *lattice page's* slice, because a rendered page is
+not a lattice page: one page draws its blocks from many, and a lattice page
+declares sites (a section still in draft) that no page renders. The whole-artefact
 `dist/geometry-manifest.json` stays a committed **sidecar** because it carries the
 cross-page root, which no single page can. Note what the page-side slice does and
 does not buy you: the vacant sites are still not *rendered*, so a reader cannot
@@ -130,7 +134,7 @@ one.
 | 6 | **block completeness** — every block wrapper reconstructs from its atoms *and nothing else* |
 | — | **the §6.2 DOM-text rule** — gate 5's DOM-side counterpart: every *visible* atom's text re-hashes to its id (or, for a projected atom, the named projection recomputes) |
 | 7 | **composition** — the page renders exactly the declared placements, in document order, and the composition root recomputes from them |
-| 8 | **geometry** — the page's geometry root recomputes from the sites it publishes, and those sites and the block list describe the same page |
+| 8 | **geometry** — the page's geometry root recomputes from the sites it publishes, and those sites and the blocks the page *places* describe the same page |
 | 9 | **the charter** — the served terms hash to the atom the charter names, inside a block the manifest carries, and therefore under the page root |
 
 **The artefact chooses the gate set, not the verifier.** A page declares its
@@ -161,9 +165,32 @@ superposed pair of placements deleted, an atom's role edited, a block's order
 edited, a permission flipped in the charter, the charter deleted outright. None
 of them was a flaw in the arithmetic — every one was something the artefact
 *declared* and nothing *checked*. The three new gates hash those three
-declarations into the page, and the seven edits are now frozen as refusal
-vectors, each named with the check that catches it. The honest provenance of most
-good checks is that something got past the previous ones.
+declarations into the page. Six of the seven are now frozen as refusal vectors,
+each named with the check that catches it. The seventh — the edited `order` — is
+not, and the reason belongs here rather than in a footnote: `order` is a
+section-local label, so nothing the page shows can contradict it, and a gate that
+read it as a page-wide sequence refused ordinary pages. It stays declared and
+unverified, and the vector that claimed otherwise is gone. The honest provenance
+of most good checks is that something got past the previous ones; the honest
+provenance of a dropped one is that it was checking a fact the page does not
+carry.
+
+**The canonical form of a charter, precisely.** Gate 9 is only worth anything if
+two implementations apply one rule to the same bytes, so the rule is stated in
+full rather than left to the code. *Find* the charter: a JSON-LD document in
+`<head>` that either declares `@type: SstCharter` or carries an `sst_charter`
+field — the second is the shape an artefact serves when its terms hang on an
+entity it already publishes, and both are read. *Canonicalize* it: remove the
+`attestation` member, and nothing else, then serialize what remains with the
+standard JSON serializer — keys in document order, no added whitespace, no
+re-sorting. That string is the attestation atom's content, so its identity is the
+ordinary content hash (SHA-256 of the normalized text) and the attestation block
+is the Merkle root over that one atom id. *Check*: `attestation.atom` is that
+hash, `attestation.block` names a block the manifest carries, and the atom is in
+it. The pointer stays outside the hashed form because nothing can hash its own
+address. This is the rule the reference implementation already applies to its own
+charter — transcribed, not invented, so a page from either implementation is
+checked by one rule and not by two that happen to agree.
 
 A page passing all nine **and** the DOM-text rule is **Dual-Native**. A page
 failing any is a claim, not an artefact.
@@ -194,7 +221,7 @@ catch, so this project holds its own language to account first.
 establishes content identity from the page alone — every atom's text re-hashes to
 its declared id, every block root and the page root recompute from that content,
 and no block carries text its atoms do not attest — and then three things that
-used to be declared and unchecked: the *order and multiplicity* of the page's
+used to be declared and unchecked: the *sequence and multiplicity* of the page's
 placements, against a transcript whose own root recomputes; the *descriptive
 fields* `role`, `section`, `name` and `block_type`, against the geometry sites
 that hash all four; and the *charter*, whose served terms hash to an atom inside
@@ -206,14 +233,14 @@ What remains outside, and it is worth naming precisely:
   sites are internally consistent, hashed, and agree with the blocks the page
   carries. It cannot discover a site the artefact never declared, because a site
   the artefact never declared leaves no trace on the page.
-- **`order` is checked for consistency, not reconstructed.** A block's `order`
-  label is its position among its page's blocks; the only page-side evidence that
-  can contradict it is the rendered sequence, so a label the sequence contradicts
-  is refused and a label it merely permits is not. A head-only block — one the
-  manifest carries but the page's body never renders, such as the demo's
-  `meta/seo` block — has no printed position for the sequence to contradict, so
-  its `order` label is not checked by gate 7 at all: it is declared, not
-  verified.
+- **`order` is declared, never verified — at every version.** A block's `order`
+  is a *section-local* label: the row's position inside its own section, not its
+  position on the page. Nothing the page shows can contradict it, so no gate reads
+  it, and an edit to it is refused by nothing. Read it as a description the
+  artefact offers, like a notes column, never as evidence of where anything was
+  printed. Where a block *was* printed is a different field and gate 7 does cover
+  it: the placement's own `section` and `name`, hashed into the composition root,
+  where an edit to either moves the root.
 - **An older artefact keeps the older boundary.** A page declaring v1.1 or v1.2
   gets the six gates and the DOM-text rule — content identity and nothing more:
   reordered or repeated blocks, edited descriptive fields, and a flipped or
@@ -274,11 +301,13 @@ blurred:
   still emits the v1.2 shape on demand, and this set is what proves it.
 - **`vectors/v1.3-manifest/`** — the v1.3 shape on the same terms, plus the
   frozen page itself and something neither other set has: a **refusal set**. Each
-  file under `refusals/` is that page with one edit, and each names the single
-  check that must catch it. Seven of the eight passed all six of the previous
-  version's gates untouched; the eighth is a control the previous version already
-  caught, and must still be caught in the same place. A gate nobody has watched
-  refuse is a comment.
+  file under `refusals/` is a frozen page with one edit, and each names the single
+  check that must catch it. Nine of the ten passed all six of the previous
+  version's gates untouched; the tenth is a control the previous version already
+  caught, and must still be caught in the same place. Beside them sits a second
+  frozen page serving the same terms in the other charter shape, which must pass
+  all nine — a refusal alone cannot tell you a shape was *read* rather than
+  skipped. A gate nobody has watched refuse is a comment.
 
 A further set, `vectors/genesis-face/`, freezes the machine records a genesis face
 emits (`kit/AGENT-GENESIS.md` §7) rather than the format itself; the kernel does

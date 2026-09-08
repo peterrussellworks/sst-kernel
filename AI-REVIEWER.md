@@ -99,13 +99,15 @@ rendered exactly the placements it declares, in order and in number, under a roo
 that recomputes; `role`, `section`, `name` and `block_type` agree with geometry
 sites that hash all four; and the served charter hashes to an atom under the page
 root, so a flipped permission or a deleted charter is now a gate failure and
-should be reported as one. Still outside: a site the artefact never declared
-leaves no trace to find, and `order` is checked only against what the rendered
-sequence can contradict. A head-only block — one the manifest carries but the
-page's body never renders, such as the demo's `meta/seo` block — has no printed
-position at all, so its `order` label is not checked by gate 7; it is declared,
-not verified. If you find a claim in this repository that a v1.3 run proves more
-than that, it is a defect and the author wants to hear about it.
+should be reported as one — whichever of the two charter shapes the page serves (a
+bare charter document, or an entity carrying an `sst_charter` field). Still
+outside: a site the artefact never declared leaves no trace to find, and `order`
+is not checked at all. `order` is a section-local label — the row's position
+inside its own section, not its position on the page — so nothing the page shows
+can contradict it. It is declared and not verified at every version, and an edited
+`order` is an unverified declaration, never a gate failure. If you find a claim in
+this repository that a v1.3 run proves more than that, it is a defect and the
+author wants to hear about it.
 
 The version axis itself is proposed rather than settled: v1.3 reads a format
 version as naming the manifest schema and the gate set together, with identities
