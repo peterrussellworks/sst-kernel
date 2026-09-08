@@ -16,6 +16,17 @@ paper,geometry,body,detail,_PENDING_
 paper,superposition,note,body,superposition_1
 paper,colophon,note,body,superposition_1
 paper,colophon,note,phone,phone_1
+paper,plate,figure,image,plate_matter
+paper,plate,figure,alt,plate_alt
+paper,plate,figure,caption,plate_caption
+paper,testimony,card,body,testimony_1
+paper,testimony,card,rating,rating_5
+paper,tags,line,category,tag_category
+paper,tags,line,garment,tag_garment
+paper,tags,line,occasion,tag_occasion
+paper,excerpt,body,opening,excerpt_1
+paper,excerpt,body,middle,excerpt_2
+paper,excerpt,body,closing,excerpt_3
 notes,meta,seo,title,seo_title
 notes,meta,seo,description,seo_description
 notes,appendix,body,body,claim_1

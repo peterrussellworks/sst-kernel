@@ -244,6 +244,108 @@ const projectBlock = (b) => {
   return atoms.length === b.atoms.length ? b : { ...b, atoms, hash: merkleRoot(atoms.map((a) => a.hash)) };
 };
 
+// ── PLACEMENT RENDER MODE (v1.3) ──────────────────────────────────────────
+// A placement declares, in RENDERED order, the atoms it carries and HOW each one
+// reached the reader. The descriptor is a (surface, transform) pair written as a
+// colon-joined string:
+//
+//   verbatim                          the atom's text IS the element's text
+//   attribute:<name>                  the atom's text is the value of that attribute
+//   non-text                          the atom is stamped, and shows no text at all
+//   <surface>:<transform>             any surface, through a registry transform
+//   attribute:<name>:<transform>      (the attribute surface names its attribute first)
+//
+// `verbatim` is the default, so an omitted `render` and an omitted `atoms` list
+// both mean what every v1.1 and v1.2 manifest already means: all of the block's
+// atoms, in canonical order, as visible text. Nothing published before this field
+// existed changes meaning because of it.
+//
+// COMPLETE OR PARTIAL IS DERIVED, NEVER DECLARED (§2.5 P3, as amended). A
+// placement whose list is the block's whole atom list is complete; one whose list
+// is a proper subset is PARTIAL — the block still holds every atom it ever held,
+// and this placement simply did not print them all. No field says so; the two
+// lists say so, which is why there is nothing to forge.
+const RENDER_VERBATIM = 'verbatim';
+
+/** Split a descriptor into { surface, attribute, transform }. An unreadable
+ *  descriptor comes back with `surface: null`, so a caller refuses it by name
+ *  rather than silently treating it as verbatim. */
+function parseRender(render = RENDER_VERBATIM) {
+  const parts = String(render).split(':');
+  if (parts[0] === 'attribute')
+    return parts.length === 2 || parts.length === 3
+      ? { surface: 'attribute', attribute: parts[1], transform: parts[2] ?? null }
+      : { surface: null };
+  if ((parts[0] === RENDER_VERBATIM || parts[0] === 'non-text') && parts.length <= 2)
+    return { surface: parts[0], attribute: null, transform: parts[1] ?? null };
+  return { surface: null };
+}
+
+/** HOW EACH PLACEMENT RENDERS ITS ATOMS — the declared binding between a role and
+ *  a placement render mode, keyed by the coordinate rendering it.
+ *
+ *  In the reference implementation this binding lives in the stencil layer beside
+ *  the role table, because §6.2's rule is that a mode is DECLARED and never
+ *  inferred: a verifier that guessed the mode from the markup would accept any
+ *  markup. Here it is a small table, so this fixture exercises every mode the way
+ *  a real artefact does rather than describing them in prose.
+ *
+ *  A coordinate absent from this table renders the default — all of its atoms, in
+ *  lattice order, as visible text — which is what every block on this page did
+ *  before modes existed, and why their bytes have not moved.
+ *
+ *  Each entry is an ORDERED list of [role, descriptor]. Order is the RENDERED
+ *  order, which is where it differs from the lattice: `excerpt/body` declares two
+ *  of its three atoms and declares them backwards, so it is a PARTIAL placement
+ *  and a reordered one at once — neither fact stated anywhere, both derived from
+ *  the list. */
+const PLACEMENT_RENDER = {
+  // A figure. The matter is stamped and shows nothing; the alt text is markup a
+  // verifier reads rather than text a reader sees; the caption is ordinary text.
+  // The alt sits on the <img> INSIDE the <picture> that carries the matter,
+  // because one element attests one atom (§2.7) — an image and its alt cannot
+  // share an element, and nesting is how a real page resolves that.
+  'plate/figure': [
+    ['image', 'non-text'],
+    ['alt', 'attribute:alt'],
+    ['caption', RENDER_VERBATIM],
+  ],
+  // A rating whose atom is the NUMBER and whose rendered form is the sentence a
+  // screen reader announces — a transform on the attribute surface. The stars
+  // themselves are drawn, not written.
+  'testimony/card': [
+    ['body', RENDER_VERBATIM],
+    ['rating', 'attribute:aria-label:rating-label'],
+  ],
+  // Three taxonomy atoms COMPOSED into one label by a composing transform. The
+  // element carries the first atom's hash; the rest of the run is declared here
+  // and nowhere else, which is the only reason the glue between them is attested.
+  'tags/line': [
+    ['category', 'verbatim:tag-label'],
+    ['garment', 'verbatim:tag-label'],
+    ['occasion', 'verbatim:tag-label'],
+  ],
+  // PARTIAL and REORDERED: the block holds three atoms, this placement prints two
+  // of them, last one first.
+  'excerpt/body': [
+    ['closing', RENDER_VERBATIM],
+    ['opening', RENDER_VERBATIM],
+  ],
+};
+
+/** The atoms one placement carries, in rendered order, resolved against the
+ *  block it places. Returns the block's own atoms untouched where no declaration
+ *  exists — the same objects, so the default path allocates no new meaning. */
+function declaredAtoms(block) {
+  const decl = PLACEMENT_RENDER[`${block.section}/${block.name}`];
+  if (!decl) return block.atoms.map((a) => ({ ...a, render: RENDER_VERBATIM, declared: false }));
+  return decl.map(([role, render]) => {
+    const atom = block.atoms.find((a) => a.role === role);
+    if (!atom) throw new Error(`render declaration names role "${role}", absent from ${block.section}/${block.name}`);
+    return { ...atom, render, declared: true };
+  });
+}
+
 // ─────────── THE GEOMETRY SPINE — the shape, incl. the negative space ───────────
 // A SECOND Merkle root, peer to the content root (SPEC §4.7.2). Where content
 // attests WHAT IS PRESENT, geometry attests the full bill of materials — every
@@ -397,19 +499,84 @@ const TAG = { heading: 'h1', subtitle: 'p', body: 'p' };
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const escAttr = (s) => esc(s).replace(/"/g, '&quot;');
 
+/** CHROME INSIDE A WRAPPER — markup that is the page's furniture rather than the
+ *  operator's content, marked so the residue rule excludes it. Chrome normally
+ *  renders OUTSIDE every block wrapper, where gate 6 never looks; where it must
+ *  sit inside one, the marker is how it says so, and it buys nothing else — a
+ *  chrome-marked element carrying an atom hash is refused. */
+const CHROME = { 'plate/figure': '    <p data-sst-chrome>Plate I</p>' };
+
+/** An atom's RENDERED form on a visible or attribute surface: its content, put
+ *  through the declared transform when there is one. */
+const renderedValue = (a) => {
+  const { transform } = parseRender(a.render);
+  return transform ? applyTransform(transform, [a.content]) : a.content;
+};
+
+/** Render one placement's declared atom list. Every mode's shape on a page is
+ *  here and nowhere else, so what each one looks like can be read rather than
+ *  inferred from a spec. */
+function renderDeclared(list) {
+  const out = [];
+  for (let i = 0; i < list.length; i++) {
+    const a = list[i];
+    const { surface, attribute, transform } = parseRender(a.render);
+
+    // A COMPOSING transform takes the run of atoms declared after it under the
+    // same descriptor: ONE element, several atoms, the glue between them supplied
+    // by the registry — which is the only reason that glue is attested rather
+    // than being loose text a reader has to take on trust.
+    if (transform && composes(transform)) {
+      const run = [a];
+      while (i + 1 < list.length && list[i + 1].render === a.render) run.push(list[++i]);
+      const text = applyTransform(transform, run.map((r) => r.content));
+      out.push(`    <p data-atom-hash="${a.hash}" data-atom-projected="${transform}">${esc(text)}</p>`);
+      continue;
+    }
+
+    // NON-TEXT: the atom is a matter hash, so the served derivative's path IS the
+    // atom rather than a name beside it. An attribute-mode atom declared next
+    // rides the <img> inside — one element, one atom, both attested.
+    if (surface === 'non-text') {
+      const src = `/matter/${a.content}.webp`;
+      const rider = list[i + 1] && parseRender(list[i + 1].render).surface === 'attribute' ? list[++i] : null;
+      out.push(
+        rider
+          ? `    <picture data-atom-hash="${a.hash}"><img data-atom-hash="${rider.hash}" ${parseRender(rider.render).attribute}="${escAttr(renderedValue(rider))}" src="${src}"></picture>`
+          : `    <picture data-atom-hash="${a.hash}"><source srcset="${src}" type="image/webp"></picture>`
+      );
+      continue;
+    }
+
+    // ATTRIBUTE on its own bearing element. The stars are drawn, not written, so
+    // the element carries no visible text at all — the label is the attribute.
+    if (surface === 'attribute') {
+      out.push(`    <div data-atom-hash="${a.hash}" ${attribute}="${escAttr(renderedValue(a))}"><svg viewBox="0 0 20 20" aria-hidden="true"></svg></div>`);
+      continue;
+    }
+
+    const tag = TAG[a.role] ?? 'p';
+    const mark = transform ? ` data-atom-projected="${transform}"` : '';
+    out.push(`    <${tag} data-atom-hash="${a.hash}"${mark}>${esc(renderedValue(a))}</${tag}>`);
+  }
+  return out.join('\n');
+}
+
 function renderBody(blocks) {
   return blocks
-    .map(
-      (b) =>
-        `  <section data-block-hash="${b.hash}">\n` +
-        b.atoms
-          .map(
-            (a) =>
-              `    <${TAG[a.role] ?? 'p'} data-atom-hash="${a.hash}">${esc(a.content)}</${TAG[a.role] ?? 'p'}>`
-          )
-          .join('\n') +
-        `\n  </section>`
-    )
+    .map((b) => {
+      const key = `${b.section}/${b.name}`;
+      // A coordinate that declares no modes renders exactly as it did before modes
+      // existed — same tags, same order, same bytes. That is not a courtesy; it is
+      // what makes "the default is verbatim" a fact about the output rather than a
+      // sentence in a document.
+      const inner = PLACEMENT_RENDER[key]
+        ? [CHROME[key], renderDeclared(declaredAtoms(b))].filter(Boolean).join('\n')
+        : b.atoms
+            .map((a) => `    <${TAG[a.role] ?? 'p'} data-atom-hash="${a.hash}">${esc(a.content)}</${TAG[a.role] ?? 'p'}>`)
+            .join('\n');
+      return `  <section data-block-hash="${b.hash}">\n${inner}\n  </section>`;
+    })
     .join('\n');
 }
 
@@ -435,6 +602,15 @@ function renderHeadBlocks(blocks) {
 // content comes from the substrate. Both faces trace to the same source,
 // so they cannot disagree — by construction, not by discipline.
 
+/** Elements with no closing tag, and elements whose content is character data
+ *  rather than markup. ONE copy, read by both scanners below: two scanners that
+ *  disagreed about what closes an element would disagree about where a block's
+ *  own markup ends, which is the kind of drift this file exists to refuse.
+ *  Raw-text elements are skipped whole — the same 64 hex characters inside a
+ *  <style> body are not evidence. */
+const VOID = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+const RAW = new Set(['script', 'style', 'textarea', 'title']);
+
 /** Read the evidence attributes at ATTRIBUTE POSITION, and record for each
  *  atom which block wrapper (if any) encloses it. Also records each block
  *  wrapper's SPAN — where its markup opens and closes — because gate 6 needs
@@ -453,8 +629,6 @@ function renderHeadBlocks(blocks) {
  *  `<` in text and in attribute values and nests properly) — a verifier reading
  *  a stranger's HTML wants a real parser. */
 function readEvidence(html) {
-  const VOID = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
-  const RAW = new Set(['script', 'style', 'textarea', 'title']);
   const attr = (attrs, name) => {
     const m = new RegExp(`\\b${name}="([0-9a-f]{64})"`).exec(attrs);
     return m ? m[1] : null;
@@ -547,8 +721,33 @@ function ownMarkup(html, blocks, i) {
 // root is the same `merkleRoot`, so the leaves are domain-separated by the
 // existing tags and a single-placement page still has a root distinct from its
 // leaf.
-const placementLeaf = (block, section, name) =>
-  createHash('sha256').update([block, section, name].join(US)).digest('hex');
+// ── THE PLACEMENT LEAF ────────────────────────────────────────────────────
+// The identity placed, the coordinate it was placed at, and the RENDER ROOT —
+// a Merkle root over one leaf per atom carried, each leaf the atom's id joined to
+// its descriptor under the same unit separator. Four fields, not three.
+//
+// The mode enters NO identity: not the atom id, not the block root, not the page
+// root, and not the geometry leaf. Renaming an attribute would fork an atom's
+// claim if it were inside the atom; one block rendered verbatim here and as an
+// attribute there would be two blocks if it were inside the block root, which
+// breaks Data Superposition. What a page DID with an identity belongs to the
+// placement, and that is where it is attested — so a swapped, deleted or forged
+// mode moves the composition root while every other root stays byte-identical.
+const renderLeaf = (atomHash, render) =>
+  createHash('sha256').update([atomHash, render ?? RENDER_VERBATIM].join(US)).digest('hex');
+
+/** The render root over a placement's declared atom list. */
+const renderRoot = (atoms) => merkleRoot(atoms.map((a) => renderLeaf(a.hash, a.render)));
+
+/** A placement's atom list, resolved: the declared list, or — when none is
+ *  declared — the block's own atoms in canonical order, every one verbatim. ONE
+ *  function, read by the emitter, by gate 6 and by gate 7, so the default cannot
+ *  mean one thing to the leaf and another to the check. */
+const placementAtomList = (placement, entry) =>
+  placement.atoms ?? (entry?.atoms ?? []).map((a) => ({ hash: a.hash, render: RENDER_VERBATIM }));
+
+const placementLeaf = (block, section, name, atoms) =>
+  createHash('sha256').update([block, section, name, renderRoot(atoms)].join(US)).digest('hex');
 
 // §2.5 provenance labels (P2, ruled 2026-08-24). The four coordinate fields are
 // OPTIONAL, and each is a CLAIM about where this page rendered the identity.
@@ -653,8 +852,16 @@ function buildManifest(renderedBody, blocks, { page, publishedPages, version, re
   if (domOrder.length !== rendered.length) throw new Error('placement drift: DOM wrappers ≠ rendered blocks');
   const placements = rendered.map((b, i) => {
     if (domOrder[i] !== b.hash) throw new Error(`placement drift at ${i}: DOM ${domOrder[i]} ≠ ${b.hash}`);
-    return { block: b.hash, section: b.section, name: b.name };
+    const placement = { block: b.hash, section: b.section, name: b.name };
+    // The list is emitted only where it SAYS something. A placement carrying all
+    // of its block's atoms, in canonical order, as visible text is the default,
+    // and a manifest that spelled the default out on every placement would make
+    // "additive on the machine face" a claim rather than an observation.
+    if (PLACEMENT_RENDER[`${b.section}/${b.name}`])
+      placement.atoms = declaredAtoms(b).map((a) => ({ hash: a.hash, render: a.render }));
+    return placement;
   });
+  const entryFor = new Map(entries.map((e) => [e.hash, e]));
 
   return {
     '@context': 'https://danielarussell.com/contexts/sst-manifest-v1',
@@ -662,7 +869,9 @@ function buildManifest(renderedBody, blocks, { page, publishedPages, version, re
     page,
     version,
     page_merkle_root: merkleRoot(entries.map((e) => e.hash)),
-    composition_root: merkleRoot(placements.map((p) => placementLeaf(p.block, p.section, p.name))),
+    composition_root: merkleRoot(
+      placements.map((p) => placementLeaf(p.block, p.section, p.name, placementAtomList(p, entryFor.get(p.block))))
+    ),
     block_count: entries.length,
     atom_count: entries.reduce((n, e) => n + e.atoms.length, 0),
     blocks: entries,
@@ -765,8 +974,8 @@ const FORMAT_VERSION = '1.3';
  *  `build` writes what this returns; `vectors` compares it to the frozen values.
  *  Parameterised by version because the frozen v1.2 set is a promise this kernel
  *  keeps: the older shape is still emitted on demand, byte-for-byte. */
-function compileArtefact(version = FORMAT_VERSION) {
-  const { atoms, rows } = readSubstrate();
+function compileArtefact(version = FORMAT_VERSION, dir = SUBSTRATE) {
+  const { atoms, rows } = readSubstrate(dir);
   // Project BEFORE anything reads a block id: the page's identities are the ones
   // it publishes, so a withheld atom must be gone before the faces, the labels and
   // the slice are derived from them.
@@ -864,22 +1073,70 @@ function domTextToContent(inner) {
  *  path, which carries no inline vocabulary in v1.2. */
 const domTextPlain = (inner) => decodeEntities(inner.replace(/<[^>]+>/g, ''));
 
-/** The CLOSED projected-atom registry (SPEC §6.2). The v1.2 vocabulary is exactly
- *  `enum-label`: lowercase the whole string; each `_` → one ASCII space. */
-const PROJECTIONS = {
-  'enum-label': (s) => s.toLowerCase().replace(/_/g, ' '),
-};
+// ── THE SHARED TRANSFORM REGISTRY ────────────────────────────────────────────
+// The closed registry of deterministic content→display transforms (SPEC §6.2).
+// It is the TRANSFORM SLOT of a placement render mode: available on every
+// surface, with `verbatim` as its identity case.
+//
+// IT IS NOT THIS FILE'S REGISTRY. The reference implementation carries the same
+// table, and a transform that meant one thing in the emitter and another in the
+// verifier would forge every label it touched — so there is ONE table, vendored
+// byte-identically wherever it is needed. This kernel is one file on purpose
+// (the whole idea, readable top to bottom, copyable and runnable on its own), so
+// the table is not extracted to a module; instead the region between the two
+// markers below is hashed as a conformance vector, and any implementation can
+// prove its vendored copy equal by reproducing that hash over its own bytes.
+// Move a marker, reformat an entry, or add one, and the vector moves.
+//
+// An entry takes a LIST of canonical contents and returns the rendered string.
+// `arity: 1` reads one atom's content; `arity: 'n'` COMPOSES several atoms into
+// one element, which is why the amended one-atom-one-element rule admits a
+// composing element when its placement declares the transform.
 
-/** Which rendered atoms declare a projection, read from the DOM. Gate 6 needs
- *  this: a projected atom's VISIBLE text is the projection of its canonical
- *  content, so the expected block text must be projected the same way. */
-function projectionsInDom(html) {
-  const found = new Map();
-  for (const m of html.matchAll(/<[a-z0-9]+\b[^>]*\bdata-atom-hash="([a-f0-9]{64})"[^>]*>/gi)) {
-    const p = /\bdata-atom-projected="([^"]*)"/.exec(m[0]);
-    if (p) found.set(m[1], p[1]);
-  }
-  return found;
+// ═══ SHARED TRANSFORM REGISTRY — BEGIN (hashed as a conformance vector) ═══
+const PROJECTIONS = {
+  // An enum rendered as a label: lowercase the whole string; each `_` → one
+  // ASCII space (`TAKE_IN` → "take in"). The v1.1 vocabulary, unchanged.
+  'enum-label': { arity: 1, apply: ([s]) => s.toLowerCase().replace(/_/g, ' ') },
+
+  // A numeric rating rendered as the label a screen reader announces. The atom
+  // is the number; the sentence around it is the transform, so the label's one
+  // free parameter IS the atom.
+  'rating-label': { arity: 1, apply: ([s]) => `${s} out of 5 stars` },
+
+  // Several taxonomy atoms composed into one label: each upper-cased with `_` →
+  // one ASCII space, empty sources dropped, joined by a spaced mid-dot
+  // (`WEDDING`, `DRESS`, `DAY` → "WEDDING · DRESS · DAY"). The glue is the
+  // transform's, which is why it is attested rather than being loose text.
+  'tag-label': {
+    arity: 'n',
+    apply: (xs) => xs.filter(Boolean).map((s) => s.toUpperCase().replace(/_/g, ' ')).join(' · '),
+  },
+};
+// ═══ SHARED TRANSFORM REGISTRY — END ═══
+
+const isTransform = (name) => Object.prototype.hasOwnProperty.call(PROJECTIONS, name);
+/** Does this transform compose several atoms into one element? A composing
+ *  transform cannot be recomputed from a single atom, so only a placement that
+ *  declares its atom list can check one. */
+const composes = (name) => isTransform(name) && PROJECTIONS[name].arity === 'n';
+/** Apply a registry transform to an ordered list of canonical contents. */
+const applyTransform = (name, contents) => PROJECTIONS[name].apply(contents);
+
+/** The registry region's own bytes, as this file carries them — the thing a
+ *  second implementation vendors and the conformance vector hashes. Read from
+ *  this file rather than reconstructed, so the vector cannot drift from the
+ *  code it claims to pin. */
+const REGISTRY_MARKERS = [
+  '// ═══ SHARED TRANSFORM REGISTRY — BEGIN (hashed as a conformance vector) ═══\n',
+  '// ═══ SHARED TRANSFORM REGISTRY — END ═══',
+];
+function registrySource(path = new URL(import.meta.url)) {
+  const src = readFileSync(path, 'utf8');
+  const from = src.indexOf(REGISTRY_MARKERS[0]);
+  const to = src.indexOf(REGISTRY_MARKERS[1], from);
+  if (from === -1 || to === -1) throw new Error('the transform registry markers are missing from this file');
+  return src.slice(from + REGISTRY_MARKERS[0].length, to);
 }
 
 /** Run the §6.2 DOM-text rule over a rendered page against its manifest. For each
@@ -893,18 +1150,39 @@ function domTextRule(html, manifest) {
   for (const b of manifest.blocks ?? [])
     for (const a of b.atoms ?? []) canonicalByHash.set(a.hash, a.content);
 
+  // ATOMS THAT REACHED THE READER SOMEWHERE OTHER THAN AS VISIBLE TEXT. This rule
+  // pins what a reader SEES; an atom carried in an attribute or stamped on an
+  // image has no visible text to re-hash, and demanding one would make every page
+  // that renders an image fail a rule about prose. Gate 6 is what checks those,
+  // per placement and by their declared surface — and it is stricter, not looser:
+  // it requires a non-text element to show nothing at all. Nor is this a way out:
+  // an atom re-declared onto another surface to dodge this rule moves the
+  // composition root, so gate 7 refuses the page before gate 6 is reached.
+  const elsewhere = new Set();
+  for (const p of manifest.placements ?? [])
+    for (const a of p.atoms ?? [])
+      if (parseRender(a.render).surface !== RENDER_VERBATIM) elsewhere.add(a.hash);
+
   const re = /<([a-z0-9]+)\b[^>]*\bdata-atom-hash="([a-f0-9]{64})"[^>]*>([\s\S]*?)<\/\1>/gi;
   for (const m of html.matchAll(re)) {
     const openTag = m[0].slice(0, m[0].indexOf('>'));
     const hash = m[2];
+    if (elsewhere.has(hash)) continue;
     const proj = /\bdata-atom-projected(?:="([^"]*)")?/.exec(openTag);
     if (proj) {
       const projection = proj[1];
       if (!projection) { errors.push(`<${m[1]} …${hash.slice(0, 8)}> BARE data-atom-projected marker (must name a closed-registry projection)`); continue; }
-      if (!Object.prototype.hasOwnProperty.call(PROJECTIONS, projection)) { errors.push(`<${m[1]} …${hash.slice(0, 8)}> UNKNOWN projection "${projection}"`); continue; }
+      if (!isTransform(projection)) { errors.push(`<${m[1]} …${hash.slice(0, 8)}> UNKNOWN projection "${projection}"`); continue; }
+      // A COMPOSING transform reads several atoms, and which ones is a fact only
+      // the placement's declared atom list carries. This rule is per-element and
+      // per-atom, so it cannot check one and does not pretend to: gate 6, which
+      // does hold the list, is what checks a composed label. A page that declares
+      // no list gets no free pass — gate 6 refuses a composing marker it cannot
+      // resolve rather than skipping it too.
+      if (composes(projection)) continue;
       const canonical = canonicalByHash.get(hash);
       if (canonical === undefined) continue; // absent from manifest ⇒ already a gate-3 failure
-      const projected = normalize(PROJECTIONS[projection](canonical));
+      const projected = normalize(applyTransform(projection, [canonical]));
       const rendered = normalize(domTextPlain(m[3]));
       if (projected !== rendered) errors.push(`<${m[1]} …${hash.slice(0, 8)}> projected("${projection}") ${JSON.stringify(rendered)} ≠ ${JSON.stringify(projected)}`);
       continue;
@@ -929,46 +1207,207 @@ function domTextRule(html, manifest) {
 // rule untouched — every hashed element is still authentic, and the injected one
 // simply carries no hash to check.
 
-/** The extra characters `actual` carries that `expected` does not — the common
- *  prefix and suffix trimmed away, so an injection is reported as itself. */
-function residueOf(actual, expected) {
-  let p = 0;
-  while (p < actual.length && p < expected.length && actual[p] === expected[p]) p++;
-  let s = 0;
-  while (s < actual.length - p && s < expected.length - p && actual[actual.length - 1 - s] === expected[expected.length - 1 - s]) s++;
-  let e = actual.length - s;
-  if (p >= e) return '';
-  // A residue quoted to a human must not fabricate a corrupted word: back the
-  // prefix/suffix trim off to the nearest whitespace boundary before slicing.
-  while (p > 0 && !/\s/.test(actual[p - 1])) p--;
-  while (e < actual.length && !/\s/.test(actual[e])) e++;
-  return actual.slice(p, e);
+/** THE GLUE CLASS. Everywhere gate 6 compares text it compares with ALL
+ *  whitespace removed, on both sides. `normalize` collapses whitespace runs to
+ *  one space but cannot insert one, so a page that renders two atoms with no
+ *  space between them, or lays a label out across three lines of source, differs
+ *  from its atoms by glue alone — a fact about typesetting, not about content.
+ *  Removing whitespace entirely is what stops that being reported as tampering.
+ *  Nothing else is relaxed: a single changed letter still fails. */
+const squeeze = (s) => normalize(s).replace(/\s/g, '');
+
+/** One attribute's value, decoded. Matched from the start of the attribute name
+ *  so that `alt` does not match inside `data-alt`. */
+function attrValue(attrs, name) {
+  const m = new RegExp(`(?:^|\\s)${name.replace(/[^a-zA-Z0-9:_-]/g, '')}="([^"]*)"`).exec(attrs);
+  return m ? decodeEntities(m[1]) : null;
+}
+
+/** Every element in a stretch of markup that carries an atom stamp or a chrome
+ *  marker, with its SPAN — where the element opens and closes — because gate 6
+ *  accounts for a wrapper by subtracting spans rather than by concatenating text.
+ *  Spans are relative to the markup handed in. Same discipline as `readEvidence`:
+ *  attribute position only, raw-text elements skipped whole. */
+function scanElements(markup) {
+  const found = [];
+  const open = [];
+  const tag = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][a-zA-Z0-9:-]*)((?:"[^"]*"|'[^']*'|[^>"'])*?)(\/?)>/g;
+  let m;
+  while ((m = tag.exec(markup))) {
+    if (m[0].startsWith('<!--')) continue;
+    const name = m[2].toLowerCase();
+    if (m[1]) {
+      for (let d = open.length - 1; d >= 0; d--) {
+        if (open[d].name !== name) continue;
+        for (let k = open.length - 1; k >= d; k--)
+          if (open[k].at !== null) { found[open[k].at].innerEnd = m.index; found[open[k].at].end = tag.lastIndex; }
+        open.length = d;
+        break;
+      }
+      continue;
+    }
+    const stamp = /\bdata-atom-hash="([0-9a-f]{64})"/.exec(m[3]);
+    const chrome = /\bdata-sst-chrome\b/.test(m[3]);
+    let at = null;
+    if (stamp || chrome) {
+      at = found.length;
+      found.push({
+        hash: stamp ? stamp[1] : null, chrome, attrs: m[3], tag: name,
+        start: m.index, innerStart: tag.lastIndex, innerEnd: markup.length, end: markup.length,
+      });
+    }
+    if (VOID.has(name) || m[4]) {
+      if (at !== null) { found[at].innerEnd = found[at].innerStart; found[at].end = tag.lastIndex; }
+      continue;
+    }
+    if (RAW.has(name)) {
+      const close = new RegExp(`</${name}\\s*>`, 'gi');
+      close.lastIndex = tag.lastIndex;
+      const e = close.exec(markup);
+      if (at !== null) { found[at].innerEnd = e ? e.index : markup.length; found[at].end = e ? e.index + e[0].length : markup.length; }
+      tag.lastIndex = e ? e.index + e[0].length : markup.length;
+      continue;
+    }
+    open.push({ name, at });
+  }
+  return found;
+}
+
+/** What is left of `markup` once every span in `spans` is cut out. Spans may
+ *  nest and may overlap — a declared element inside another declared element is
+ *  ordinary on a real page — so they are merged before the complement is taken. */
+function markupOutside(markup, spans) {
+  const merged = [...spans].sort((a, b) => a[0] - b[0]).reduce((acc, s) => {
+    const last = acc[acc.length - 1];
+    if (last && s[0] <= last[1]) last[1] = Math.max(last[1], s[1]);
+    else acc.push([...s]);
+    return acc;
+  }, []);
+  let out = '';
+  let cursor = 0;
+  for (const [from, to] of merged) { out += markup.slice(cursor, from); cursor = Math.max(cursor, to); }
+  return out + markup.slice(cursor);
 }
 
 function blockCompleteness(html, manifest, evidence) {
   const errors = [];
   const entryByHash = new Map((manifest.blocks ?? []).map((b) => [b.hash, b]));
-  const projected = projectionsInDom(html);
+  // A wrapper is checked against a placement that claims THAT IDENTITY — the
+  // first one not already spoken for, in transcript order. Not positionally: a
+  // page whose wrappers and transcript are in different orders, or which prints
+  // one wrapper too many, has already failed gate 7, and gate 6 reading the
+  // transcript positionally would report that single failure a second time in a
+  // different vocabulary. Sequence is gate 7's question; what each wrapper shows
+  // is this one's. A wrapper with no placement left to claim it is read as the
+  // default — all of its block's atoms, verbatim — which is what a page with no
+  // transcript at all gets, and is where every v1.1 and v1.2 page arrives.
+  const transcript = Array.isArray(manifest.placements) ? manifest.placements : [];
+  const spoken = new Set();
 
   evidence.blocks.forEach((b, i) => {
     const entry = entryByHash.get(b.hash);
     if (!entry) return; // not in the manifest ⇒ already a gate-3 forward failure
-    const expected = normalize(
-      (entry.atoms ?? [])
-        .map((a) => {
-          const p = projected.get(a.hash);
-          return p && Object.prototype.hasOwnProperty.call(PROJECTIONS, p) ? PROJECTIONS[p](a.content) : a.content;
-        })
-        .join(' ')
-    );
-    const actual = normalize(domTextToContent(ownMarkup(html, evidence.blocks, i)));
-    if (actual === expected) return;
-    const residue = residueOf(actual, expected);
-    errors.push(
-      residue
-        ? `block …${b.hash.slice(0, 8)} carries visible text no atom attests: ${JSON.stringify(residue)}`
-        : `block …${b.hash.slice(0, 8)} visible text ${JSON.stringify(actual)} ≠ its atoms ${JSON.stringify(expected)}`
-    );
+    const why = (msg) => errors.push(`block …${b.hash.slice(0, 8)} ${msg}`);
+    const claim = transcript.findIndex((p, n) => !spoken.has(n) && p.block === b.hash);
+    if (claim !== -1) spoken.add(claim);
+    const placement = claim === -1 ? {} : transcript[claim];
+    const list = placementAtomList(placement, entry);
+    const declared = Array.isArray(placement.atoms);
+    const markup = ownMarkup(html, evidence.blocks, i);
+    const elements = scanElements(markup);
+    const held = new Map((entry.atoms ?? []).map((a) => [a.hash, a.content]));
+    const spans = [];
+    const used = new Set();
+
+    // CHROME INSIDE THE WRAPPER. Markup outside every wrapper is invisible to this
+    // gate already — a wrapper's own markup is where it opens to where it closes —
+    // so a page's furniture normally never reaches here. Where it must sit inside
+    // a wrapper, the marker excludes its span from the residue and buys nothing
+    // else: a chrome-marked element that also carries an atom stamp is refused,
+    // because "this is furniture" and "this is attested content" cannot both be
+    // true of one element, and admitting the pair would make the marker a way to
+    // hide an atom from its own check.
+    for (const el of elements) {
+      if (!el.chrome) continue;
+      if (el.hash) why(`marks an element as chrome and stamps it with an atom hash — one element cannot be both`);
+      spans.push([el.start, el.end]);
+    }
+
+    let cursor = -1;
+    for (let k = 0; k < list.length; k++) {
+      const item = list[k];
+      const { surface, attribute, transform } = parseRender(item.render);
+      if (surface === null) { why(`declares an unreadable render descriptor ${JSON.stringify(item.render)}`); continue; }
+      if (!held.has(item.hash)) { why(`declares atom …${String(item.hash).slice(0, 8)}, which the block does not hold`); continue; }
+
+      // Find the BEARING ELEMENT: the one carrying this atom's stamp. Every mode
+      // has one — that is what makes a mode a claim with evidence rather than a
+      // claim about evidence. Elements are consumed as they are matched, so a
+      // block that prints one atom twice is read as two placements of it and not
+      // as the same element counted twice.
+      const at = elements.findIndex((e, n) => !used.has(n) && !e.chrome && e.hash === item.hash);
+      if (at === -1) { why(`declares atom …${item.hash.slice(0, 8)} and no element in the wrapper carries it`); continue; }
+      used.add(at);
+      const el = elements[at];
+      if (at < cursor) why(`renders atom …${item.hash.slice(0, 8)} out of the order its placement declares`);
+      cursor = at;
+      spans.push([el.start, el.end]);
+
+      // The effective transform: the one the placement declares, or — for an
+      // artefact that declares no atom list at all — the marker the DOM carries,
+      // which is how v1.1 and v1.2 pages named a projection and still do.
+      const marked = attrValue(el.attrs, 'data-atom-projected');
+      const named = transform ?? marked;
+      if (transform && marked !== null && marked !== transform)
+        { why(`declares transform "${transform}" on atom …${item.hash.slice(0, 8)} while the page marks it "${marked}"`); continue; }
+      if (named !== null && named !== undefined && !isTransform(named))
+        { why(`names transform "${named}", which is not in the registry`); continue; }
+
+      // A COMPOSING transform takes the run declared after it. Without a declared
+      // list there is no run to take, so a page that marks a composing transform
+      // and declares nothing is refused rather than waved through — the marker
+      // would otherwise be a way to make one element stand for any text at all.
+      const inputs = [item.hash];
+      if (named && composes(named)) {
+        if (!declared) { why(`marks a composing transform "${named}" without declaring the atoms it composes`); continue; }
+        while (k + 1 < list.length && list[k + 1].render === item.render) {
+          const next = list[++k];
+          if (!held.has(next.hash)) { why(`declares atom …${String(next.hash).slice(0, 8)}, which the block does not hold`); continue; }
+          inputs.push(next.hash);
+        }
+      }
+      const expected = named ? applyTransform(named, inputs.map((h) => held.get(h))) : held.get(item.hash);
+      const inner = markup.slice(el.innerStart, el.innerEnd);
+
+      if (surface === 'attribute') {
+        // An attribute is markup a verifier reads, not text a reader is shown —
+        // the boundary is stated in the README and not narrowed here.
+        const value = attrValue(el.attrs, attribute);
+        if (value === null) why(`declares atom …${item.hash.slice(0, 8)} in attribute "${attribute}", which its element does not carry`);
+        else if (squeeze(value) !== squeeze(expected))
+          why(`attribute "${attribute}" reads ${JSON.stringify(value)} ≠ the atom's ${JSON.stringify(expected)}`);
+      } else if (surface === 'non-text') {
+        // "No text expected" is ENFORCED, not assumed. The whole element's span is
+        // subtracted from the residue, so an element allowed to carry text under
+        // this mode would be a hole through the residue rule exactly the size of
+        // whatever was put inside it.
+        if (squeeze(domTextPlain(inner)) !== '')
+          why(`declares atom …${item.hash.slice(0, 8)} as non-text and its element shows ${JSON.stringify(normalize(domTextPlain(inner)))}`);
+      } else {
+        const shown = named ? domTextPlain(inner) : domTextToContent(inner);
+        if (squeeze(shown) !== squeeze(expected))
+          why(`shows ${JSON.stringify(normalize(shown))} where atom …${item.hash.slice(0, 8)} reads ${JSON.stringify(expected)}`);
+      }
+    }
+
+    // THE RESIDUE RULE. Everything the placement accounts for has had its span cut
+    // out; whatever visible text is left is text no atom attests, and is reported
+    // as itself. This is the half of gate 6 that gates 1–5 and the DOM-text rule
+    // cannot reach: an injected sentence carries no hash, so there is nothing for
+    // them to check, and every one of them passes while the page says something
+    // its author never wrote.
+    const residue = normalize(domTextPlain(markupOutside(markup, spans)));
+    if (squeeze(residue) !== '') why(`carries visible text no atom attests: ${JSON.stringify(residue)}`);
   });
   return { ok: errors.length === 0, errors };
 }
@@ -1139,7 +1578,15 @@ function runGates(html, log = console.log) {
     for (let i = 0; i < domBlocks.length; i++)
       if (domBlocks[i] !== claimed[i].block)
         why.push(`gate 7: placement ${i} declares …${claimed[i].block.slice(0, 8)}, the page renders …${domBlocks[i].slice(0, 8)}`);
-  const compositionRoot = merkleRoot(claimed.map((c) => placementLeaf(c.block, c.section, c.name)));
+  // The leaf's fourth field is the RENDER ROOT over the placement's atom list, so
+  // a swapped, deleted or forged render descriptor moves the composition root
+  // while every atom, block and page root stays byte-identical. A placement that
+  // declares no list resolves to its block's atoms, verbatim — the same default
+  // gate 6 reads, from the same function, so the root and the check cannot come
+  // to different conclusions about what "omitted" means.
+  const compositionRoot = merkleRoot(
+    claimed.map((c) => placementLeaf(c.block, c.section, c.name, placementAtomList(c, entryByHash.get(c.block))))
+  );
   if (compositionRoot !== manifest.composition_root)
     why.push(`gate 7: composition root recomputes to ${compositionRoot.slice(0, 8)}… ≠ declared ${String(manifest.composition_root).slice(0, 8)}…`);
 
@@ -1450,8 +1897,14 @@ function vectors() {
   // Byte-exact JSON comparison on purpose: field order, omitted labels and all.
   // A dedupe that stopped deduping, a label that started guessing, or a version
   // that slipped back to 1.1 each move these bytes.
+  // Built over the SUBSTRATE FROZEN BESIDE IT, not over the live one. A freeze
+  // whose inputs keep moving is not a freeze: when the fixture grows a block to
+  // exercise a new rule, a v1.2 set built from the live substrate would have to be
+  // re-cut, and "the older shape is still emitted byte-for-byte" would become a
+  // sentence nobody could check. Pinned, the promise is testable for good — and
+  // the pinned copy is the substrate these bytes were frozen over.
   const frozen = JSON.parse(readFileSync(new URL('vectors/v1.2-manifest/expected.json', import.meta.url), 'utf8'));
-  const built = compileArtefact('1.2');
+  const built = compileArtefact('1.2', new URL('vectors/v1.2-manifest/', import.meta.url));
   if (JSON.stringify(built.manifest) !== JSON.stringify(frozen.page_manifest)) fail('v1.2 page manifest drift — the built manifest is not the frozen one');
   else console.log(`  ✓ the v1.2 page manifest reproduces byte-for-byte (${frozen.page_manifest.block_count} identities, ${frozen.page_manifest.atom_count} atoms, version ${frozen.page_manifest.version})`);
   if (JSON.stringify(built.geometry) !== JSON.stringify(frozen.geometry)) fail('v1.2 geometry manifest drift');
@@ -1464,6 +1917,37 @@ function vectors() {
   // quietly make every refusal a test of nothing.
   const f13 = JSON.parse(readFileSync(new URL('vectors/v1.3-manifest/expected.json', import.meta.url), 'utf8'));
   const b13 = compileArtefact('1.3');
+
+  // ── THE SHARED TRANSFORM REGISTRY ──
+  // Two things are pinned, and they answer two different questions. The
+  // input→output pairs answer "does this implementation compute what the registry
+  // says"; the hash of the registry's own source answers "is this the same
+  // registry at all". An implementation can reproduce every pair with a table
+  // that quietly carries an extra entry, or a differently-worded one that happens
+  // to agree on the cases anyone thought to freeze — so the bytes are pinned too,
+  // and a second implementation vendoring the region between the markers can
+  // prove its copy equal without reading a word of prose.
+  const reg = f13.transform_registry;
+  const regHash = createHash('sha256').update(registrySource(), 'utf8').digest('hex');
+  if (regHash !== reg.source_sha256) fail(`transform registry source drift: ${regHash.slice(0, 16)}… ≠ ${reg.source_sha256.slice(0, 16)}…`);
+  let pairs = 0;
+  const named = new Set();
+  for (const c of reg.transforms) {
+    named.add(c.name);
+    if (!isTransform(c.name)) { fail(`transform registry: "${c.name}" is frozen and this kernel has no such entry`); continue; }
+    if ((PROJECTIONS[c.name].arity === 'n') !== (c.arity === 'n')) fail(`transform registry: "${c.name}" arity ${PROJECTIONS[c.name].arity} ≠ frozen ${c.arity}`);
+    const got = applyTransform(c.name, c.in);
+    if (got !== c.out) fail(`transform registry: ${c.name}(${JSON.stringify(c.in)}) = ${JSON.stringify(got)} ≠ ${JSON.stringify(c.out)}`);
+    else pairs++;
+  }
+  // The registry is CLOSED, so an entry this kernel has and the vector does not is
+  // drift in the same way round: a transform nobody froze is a transform nobody
+  // else can reproduce.
+  for (const name of Object.keys(PROJECTIONS))
+    if (!named.has(name)) fail(`transform registry: this kernel carries "${name}", which the frozen set does not`);
+  if (pairs === reg.transforms.length)
+    console.log(`  ✓ ${pairs} transform pairs reproduce across ${new Set(reg.transforms.map((c) => c.name)).size} registry entries, and the registry's own source hashes to the frozen value`);
+
   if (JSON.stringify(b13.manifest) !== JSON.stringify(f13.page_manifest)) fail('v1.3 page manifest drift — the built manifest is not the frozen one');
   else console.log(`  ✓ the v1.3 page manifest reproduces byte-for-byte (${f13.page_manifest.block_count} identities, ${f13.page_manifest.placements.length} placements, ${f13.page_manifest.geometry.sites.length} sites, version ${f13.page_manifest.version})`);
   if (JSON.stringify(b13.charter) !== JSON.stringify(f13.charter)) fail('v1.3 charter drift — the attestation is not the frozen one');
@@ -1516,16 +2000,28 @@ function vectors() {
 
 function rootOf(path) {
   if (!path) throw new Error('usage: node sst-kernel.mjs root <json-file>');
-  const items = JSON.parse(readFileSync(path, 'utf8'));
-  if (!Array.isArray(items)) throw new Error('expected a JSON array of hashes, blocks, or placements');
+  const doc = JSON.parse(readFileSync(path, 'utf8'));
+
+  // A WHOLE MANIFEST is accepted as well as a bare list, and for the composition
+  // root it is the honest input: a placement that declares no atom list means its
+  // block's atoms, verbatim, so its leaf cannot be computed from the placement
+  // alone. Handed the manifest, this verb resolves the default the way both gates
+  // do; handed only placements, it says which one it needs rather than guessing.
+  const blocks = new Map((Array.isArray(doc?.blocks) ? doc.blocks : []).map((b) => [b.hash, b]));
+  const items = Array.isArray(doc) ? doc : Array.isArray(doc?.placements) ? doc.placements : null;
+  if (!items) throw new Error('expected a JSON array of hashes, blocks or placements, or a page manifest');
+
   const leaves = items.map((it, i) => {
     if (typeof it === 'string') {
       if (!/^[0-9a-f]{64}$/.test(it)) throw new Error(`item ${i}: not a 64-character hex hash`);
       return it;
     }
+    if (it && typeof it.block === 'string' && typeof it.section === 'string' && typeof it.name === 'string') {
+      if (!Array.isArray(it.atoms) && !blocks.has(it.block))
+        throw new Error(`item ${i}: a placement with no atom list means its block's atoms — pass the whole manifest, not just the placements`);
+      return placementLeaf(it.block, it.section, it.name, placementAtomList(it, blocks.get(it.block)));
+    }
     if (it && typeof it.hash === 'string') return it.hash;          // a manifest block
-    if (it && typeof it.block === 'string' && typeof it.section === 'string' && typeof it.name === 'string')
-      return placementLeaf(it.block, it.section, it.name);          // a placement
     throw new Error(`item ${i}: neither a hash, a block entry, nor a placement`);
   });
   console.log(merkleRoot(leaves));
