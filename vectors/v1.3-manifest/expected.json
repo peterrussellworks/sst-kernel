@@ -3,7 +3,7 @@
   "fixture": "sst-kernel/substrate",
   "format": "SST Dual-Native v1.3",
   "frozen_by": "sst-kernel.mjs in this repository — a freeze, not a cross-implementation agreement. See vectors/README.md.",
-  "note": "The v1.3 page manifest and charter this kernel MUST reproduce from substrate/, plus page.html — the exact bytes the refusal set under refusals/ mutates, so a drifted page would make every refusal meaningless. Byte-exact: field order, omitted provenance labels and all. The three roots pinned here are the page root (now covering the charter attestation block), the composition root over the placement transcript, and this page geometry root over its own sites. The whole-artefact geometry sidecar is unchanged by v1.3 and stays frozen in v1.2-manifest/.",
+  "note": "The v1.3 page manifest and charter this kernel MUST reproduce from substrate/, plus page.html — the exact bytes the refusal set under refusals/ mutates, so a drifted page would make every refusal meaningless. Byte-exact: field order, omitted provenance labels and all. The three roots pinned here are the page root (now covering the charter attestation block), the composition root over the placement transcript, and this page geometry root over the sites its own placements define. The whole-artefact geometry sidecar is unchanged by v1.3 and stays frozen in v1.2-manifest/.",
   "version_axis": "v1.3 proceeds on the reading that a format version names the manifest schema and the gate set together, while identities stay stable across versions. That reading is proposed, not yet ruled.",
   "page_manifest": {
     "@context": "https://danielarussell.com/contexts/sst-manifest-v1",
@@ -241,22 +241,8 @@
       }
     ],
     "geometry": {
-      "root": "7c3fb826ce4f96743d01d489e022ad0b9b3b3a1d0dd6aed4271302ab303565ca",
+      "root": "8ae5e523a00e22dd68fc01ba3c06c9cc56b7a63b5aa1437d87c93b9930b5dfdf",
       "sites": [
-        {
-          "section": "meta",
-          "block": "seo",
-          "block_type": "paragraph",
-          "role": "title",
-          "state": "present"
-        },
-        {
-          "section": "meta",
-          "block": "seo",
-          "block_type": "paragraph",
-          "role": "description",
-          "state": "present"
-        },
         {
           "section": "hero",
           "block": "intro",

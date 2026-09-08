@@ -136,7 +136,7 @@ const PUBLISHED_PAGES = new Set([PAGE]);
 /** The charter attestation site. §2.5's sole structural departure: this block is
  *  SYNTHESIZED from the charter, not compiled from a lattice row, so it has no
  *  lattice position (it is appended after every substrate block) and no geometry
- *  site (gate 8 exempts it; gate 9 is what binds it instead). */
+ *  site — it is placed nowhere, so gate 8 never reaches it; gate 9 binds it. */
 const CHARTER_ATTESTATION = { section: 'charter', name: 'attestation' };
 const HEAD_BLOCKS = [
   { section: 'meta', name: 'seo' },
@@ -144,8 +144,6 @@ const HEAD_BLOCKS = [
 ];
 const isHeadBlock = (b) =>
   HEAD_BLOCKS.some((h) => h.section === b.section && h.name === b.name);
-const isCharterAttestation = (b) =>
-  b.section === CHARTER_ATTESTATION.section && b.name === CHARTER_ATTESTATION.name;
 
 // ── Reserved sentinels (SPEC §4.7.2) ──────────────────────────────────────
 // A vacant lattice site is NOT a missing row — it is a row whose atom_ref is one
@@ -240,11 +238,12 @@ const geomLeaf = (page, section, block, blockType, role, state) =>
 const roleState = (refs) =>
   refs.some((r) => occupancyOf(r) === 'present') ? 'present' : refs.length ? occupancyOf(refs[0]) : 'pending';
 
-/** ONE page's SITES, in canonical (first-appearance) order — section → block →
- *  role, each role one coordinate valued by its aggregate occupancy state. This
- *  is the ordered list the whole-artefact spine hashes AND the list v1.3 publishes
- *  as the manifest's geometry slice: one derivation, read twice, so a verifier
- *  recomputing the root from the published sites gets the builder's number. */
+/** ONE LATTICE PAGE's SITES, in canonical (first-appearance) order — section →
+ *  block → role, each role one coordinate valued by its aggregate occupancy state.
+ *  This is the ordered list the whole-artefact spine hashes. It is NOT the list a
+ *  page publishes: a lattice page and a rendered page are different objects (a
+ *  page draws blocks from many lattice pages, and a lattice page declares sites
+ *  the page never renders), so the published slice is built from the placements. */
 function pageSites(rows, page) {
   const sections = []; const sIdx = new Map();
   for (const r of rows) {
@@ -292,11 +291,44 @@ function buildGeometry(rows) {
   return { root: merkleRoot(pageRoots), siteCount, blockCount: blockKeys.size, states };
 }
 
-/** The GEOMETRY SLICE one page publishes in its v1.3 manifest: its own root over
- *  its own sites, vacancies included. The whole-artefact sidecar stays where it
- *  is — it carries the cross-page root, which no single page can. */
-const geometrySlice = (rows, page) => {
-  const sites = pageSites(rows, page);
+/** ONE COORDINATE's sites: one entry per role declared at (page, section, block),
+ *  in first-appearance order, valued by that role's aggregate occupancy state —
+ *  vacancies included, which is the whole point of a geometry spine. */
+function coordinateSites(rows, page, section, block) {
+  const roles = []; const idx = new Map();
+  let blockType = 'paragraph'; // this kernel's own lattice has no block_type column
+  for (const r of rows) {
+    if (r.page !== page || r.section !== section || r.block !== block) continue;
+    if (r.block_type) blockType = r.block_type;
+    let ro = idx.get(r.role); if (!ro) { ro = { role: r.role, refs: [] }; roles.push(ro); idx.set(r.role, ro); }
+    ro.refs.push(r.atom_ref);
+  }
+  return roles.map((ro) => ({ section, block, block_type: blockType, role: ro.role, state: roleState(ro.refs) }));
+}
+
+/** The GEOMETRY SLICE a page publishes in its v1.3 manifest, DEFINED BY ITS
+ *  PLACEMENTS: for every coordinate the page places, that coordinate's sites — the
+ *  roles it renders AND the vacancies it declares — in placement order, with the
+ *  root over exactly that list.
+ *
+ *  Not the lattice page's slice, and the difference is measured rather than
+ *  aesthetic: on a real artefact one rendered page draws its blocks from many
+ *  lattice pages, and a lattice page declares sites (a section still in draft)
+ *  that no page renders. A slice keyed on the lattice page would publish sites
+ *  this page cannot show and omit sites it does show, so gate 8 would refuse an
+ *  ordinary composed page. Keyed on the placements, the slice is a statement about
+ *  THIS page, and the page is the only thing the verifier has.
+ *
+ *  The whole-artefact sidecar stays where it is — it carries the cross-page root,
+ *  which no single page can. */
+const geometrySlice = (rows, page, placements) => {
+  const sites = []; const seen = new Set();
+  for (const p of placements) {
+    const key = `${p.section}${US}${p.name}`;
+    if (seen.has(key)) continue; // a coordinate placed twice declares its sites once
+    seen.add(key);
+    sites.push(...coordinateSites(rows, page, p.section, p.name));
+  }
   return { root: pageGeometryRoot(page, sites), sites };
 };
 
@@ -591,7 +623,7 @@ function buildManifest(renderedBody, blocks, { page, publishedPages, version, re
     atom_count: entries.reduce((n, e) => n + e.atoms.length, 0),
     blocks: entries,
     placements,
-    geometry: geometrySlice(rows, page),
+    geometry: geometrySlice(rows, page, placements),
   };
 }
 
@@ -617,17 +649,31 @@ const CHARTER = {
   },
 };
 
-/** The charter's ATTESTED CONTENT — the canonical serialization of the charter
- *  document, minus its own attestation pointer. ONE function, read twice: the
- *  emitter hashes it into the attestation atom, and gate 9 recomputes it from the
- *  served `<script>`, so the terms a reader is shown and the terms under the page
- *  root cannot drift. (Parsing and re-serializing is a fixed point for anything
- *  this serializer emitted, so the canonical form is the served form.)
+/** THE CANONICAL FORM OF A CHARTER, and the one place it is defined.
+ *
+ *  Take the served JSON-LD charter document; drop the `attestation` member, and
+ *  nothing else; serialize what remains with the standard JSON serializer, keys in
+ *  document order, no added whitespace. That string is the attestation ATOM's
+ *  content, so its id is the same content hash any atom gets, and the attestation
+ *  BLOCK is the Merkle root over that one id.
+ *
+ *  This is not a form invented here. It is the rule the reference implementation
+ *  already applies to its own charter (its charter compiler's attestation block),
+ *  transcribed so that a page emitted by either implementation is checked by one
+ *  rule rather than two that happen to agree today. Measured before adopting: the
+ *  two produce identical bytes for the same document.
+ *
+ *  ONE function, read twice: the emitter hashes it into the attestation atom, and
+ *  gate 9 recomputes it from the served `<script>`, so the terms a reader is shown
+ *  and the terms under the page root cannot drift. (Parsing and re-serializing is
+ *  a fixed point for anything this serializer emitted, so the canonical form is
+ *  the served form, less the pointer.)
  *
  *  The pointer is excluded because it cannot be inside what it points at: an
  *  attestation over bytes containing its own hash has no fixed point. Everything
- *  a reader relies on — the operator, every permission category — is inside the
- *  hash; only the address is outside it. */
+ *  a reader relies on — the operator, every permission category, and on the entity
+ *  shape every field of the entity — is inside the hash; only the address is
+ *  outside it. */
 function charterAtomContent(charter) {
   const { attestation, ...terms } = charter;
   return JSON.stringify(terms);
@@ -1046,31 +1092,17 @@ function runGates(html, log = console.log) {
   if (compositionRoot !== manifest.composition_root)
     why.push(`gate 7: composition root recomputes to ${compositionRoot.slice(0, 8)}… ≠ declared ${String(manifest.composition_root).slice(0, 8)}…`);
 
-  // A placement names its own coordinate (the P4 witness); a bill entry may carry
-  // a shortened one (P2). Where the entry does make a claim, the two must agree.
-  for (const c of claimed) {
-    const e = entryByHash.get(c.block);
-    if (!e) continue; // absent from the bill ⇒ already a gate-3 forward failure
-    if (e.section !== undefined && e.section !== c.section)
-      why.push(`gate 7: block …${c.block.slice(0, 8)} claims section "${e.section}", placed at "${c.section}"`);
-    if (e.name !== undefined && e.name !== c.name)
-      why.push(`gate 7: block …${c.block.slice(0, 8)} claims name "${e.name}", placed as "${c.name}"`);
-  }
-
-  // A block's `order` label claims its position among its page's blocks. The
-  // transcript is the only page-side evidence that can contradict it: distinct
-  // identities must carry increasing labels in the order they are printed. Where
-  // a label is omitted (P2) no claim is made and none is checked — this is a
-  // consistency check on a declared field, not a reconstruction of it.
-  const ordered = [];
-  for (const c of claimed) {
-    const e = entryByHash.get(c.block);
-    if (!e || e.order === undefined || ordered.some((o) => o.block === c.block)) continue;
-    ordered.push({ block: c.block, order: e.order });
-  }
-  for (let i = 1; i < ordered.length; i++)
-    if (!(ordered[i].order > ordered[i - 1].order))
-      why.push(`gate 7: block …${ordered[i].block.slice(0, 8)} claims order ${ordered[i].order}, printed after order ${ordered[i - 1].order}`);
+  // That is the whole of gate 7: the sequence, and the root over it. In
+  // particular it checks NOTHING about `order`. A block's `order` is a
+  // SECTION-LOCAL label — the row's position inside its own section — not a
+  // page-wide position, so the printed sequence cannot contradict it, and a
+  // verifier that reads it as a page-wide sequence refuses ordinary pages:
+  // simulated against the reference implementation's home page, a monotonicity
+  // check over the transcript fired 39 times in 58 transitions on a page nobody
+  // had touched. `order` is descriptive metadata, declared and not verified, at
+  // every version. The coordinate that IS bound is the placement's own (section,
+  // name) — not by comparing it against a label, but by hashing it into the
+  // composition root above, where an edit to either moves the root.
 
   gate(7, why.length === 0, 'the page renders exactly the declared placements, in order');
   for (const e of why) log(`         · ${e.replace(/^gate 7: /, '')}`);
@@ -1081,7 +1113,7 @@ function runGates(html, log = console.log) {
   // state; the manifest declares the same fields and hashed none of them, so an
   // edited role or a silently dropped vacancy cost nothing. Publishing the page's
   // slice binds the two: the root recomputes from the published sites, and the
-  // sites and the bill must describe the same page.
+  // sites and the PLACEMENTS must describe the same page.
   const geo = manifest.geometry ?? {};
   const sites = Array.isArray(geo.sites) ? geo.sites : [];
   const why8 = [];
@@ -1089,6 +1121,23 @@ function runGates(html, log = console.log) {
   if (!sites.length) why8.push('the manifest declares no geometry sites');
   else if (geoRoot !== geo.root)
     why8.push(`geometry root recomputes to ${geoRoot.slice(0, 8)}… ≠ declared ${String(geo.root).slice(0, 8)}…`);
+
+  // The published sites are the PLACEMENTS' sites, so the transcript is what they
+  // are checked against — never the bill, which is a set of identities and cannot
+  // say where anything was printed. Each coordinate the page places, once: a
+  // coordinate placed twice declares its sites once, because a site is a
+  // coordinate and not an occurrence.
+  const placedAt = new Map();
+  for (const c of claimed) {
+    const key = `${c.section}${US}${c.name}`;
+    if (!placedAt.has(key)) placedAt.set(key, { section: c.section, name: c.name, block: c.block });
+  }
+
+  // Every site names a coordinate this page places. A site naming anything else is
+  // a claim about a different page, and this object is this page's slice.
+  for (const site of sites)
+    if (!placedAt.has(`${site.section}${US}${site.block}`))
+      why8.push(`site ${site.section}/${site.block}/${site.role} names a block this page does not place`);
 
   // A bill entry may omit the coordinate fields its candidate rows disagree about
   // (P2), and an omitted field makes no claim — so it constrains nothing here. A
@@ -1098,19 +1147,28 @@ function runGates(html, log = console.log) {
     (entry.name === undefined || entry.name === site.block) &&
     entry.block_type === site.block_type;
 
-  for (const site of sites) {
-    if (site.state !== 'present') continue; // a vacancy is declared, and renders nothing
-    if (!manifest.blocks.some((e) => compatible(e, site) && (e.atoms ?? []).some((a) => a.role === site.role)))
-      why8.push(`site ${site.section}/${site.block}/${site.role} is present, and no block carries it`);
-  }
-  for (const e of manifest.blocks) {
-    if (isCharterAttestation(e)) continue; // synthesized: no lattice row, hence no site (gate 9 binds it)
-    for (const role of new Set((e.atoms ?? []).map((a) => a.role)))
-      if (!sites.some((site) => site.state === 'present' && site.role === role && compatible(e, site)))
-        why8.push(`block …${e.hash.slice(0, 8)} declares role "${role}" that no present site declares`);
+  // Both directions at each placed coordinate: the block printed there carries
+  // exactly the roles the present sites declare, and describes itself the way the
+  // site does. Head-rendered blocks and the synthesized charter block are placed
+  // nowhere, so nothing here reaches them — gate 9 is what binds the charter.
+  for (const p of placedAt.values()) {
+    const entry = entryByHash.get(p.block);
+    if (!entry) continue; // absent from the bill ⇒ already a gate-3 forward failure
+    const here = sites.filter((s) => s.section === p.section && s.block === p.name);
+    for (const site of here)
+      if (!compatible(entry, site))
+        why8.push(`the block placed at ${p.section}/${p.name} describes itself differently from the site declared there`);
+    const present = new Set(here.filter((s) => s.state === 'present').map((s) => s.role));
+    const carried = new Set((entry.atoms ?? []).map((a) => a.role));
+    for (const role of carried)
+      if (!present.has(role))
+        why8.push(`the block placed at ${p.section}/${p.name} carries role "${role}" that no present site declares`);
+    for (const role of present)
+      if (!carried.has(role))
+        why8.push(`site ${p.section}/${p.name}/${role} is present, and the block placed there does not carry it`);
   }
 
-  gate(8, why8.length === 0, 'the page geometry recomputes, and its sites and blocks agree');
+  gate(8, why8.length === 0, 'the page geometry recomputes, and its sites and the blocks it places agree');
   for (const e of why8) log(`         · ${e}`);
 
   // Gate 9: THE CHARTER — the operator's terms, under the page root.
@@ -1120,7 +1178,16 @@ function runGates(html, log = console.log) {
   // hashed by the same rule as any other content and the resulting atom must be
   // the one the charter names, inside a block the manifest carries — which gate 4
   // has already folded into the page root.
-  const charter = ld.find((d) => d['@type'] === 'SstCharter');
+  // TWO SHAPES, ONE RULE. This kernel's demo serves a bare `SstCharter` document.
+  // A real artefact usually has an entity already — the reference implementation
+  // serves `@type: ProfessionalService` — and hangs the charter on it as an
+  // `sst_charter` field, because the terms and the thing they govern are one
+  // object. A verifier that knew only the first shape would report "no charter" on
+  // a page that plainly publishes one, so either is a charter. The manifest is
+  // neither, and is not a candidate.
+  const charter = ld.find(
+    (d) => d && typeof d === 'object' && (d['@type'] === 'SstCharter' || 'sst_charter' in d)
+  );
   let why9 = null;
   if (!charter) why9 = 'no charter in <head>';
   else {
@@ -1330,10 +1397,23 @@ function vectors() {
   else if (runGates(frozenPage, () => {}).length) fail('the frozen v1.3 page does not pass its own gates');
   else console.log('  ✓ the frozen v1.3 page rebuilds byte-for-byte and passes all nine gates + the DOM-text rule');
 
-  // The REFUSAL set. Every case but the control passed all six gates of the
-  // previous version untouched; each must now fail EXACTLY the check it names —
-  // a gate that stops refusing, refuses something else, or refuses two things at
-  // once all move these values.
+  // The SECOND CHARTER SHAPE, frozen as a page rather than derived: the same terms
+  // served the way a real artefact serves them — an entity document carrying an
+  // `sst_charter` field — with its attestation block re-derived by the same
+  // canonical rule. This kernel emits the bare-document shape, so this vector is
+  // cut by hand; what it pins is that ONE rule reads BOTH shapes. Its flipped
+  // sibling in refusals/ pins the other half: that the shape is checked rather
+  // than merely found, since a charter that is not found also fails gate 9.
+  const fieldPage = readFileSync(new URL('vectors/v1.3-manifest/page-sst-charter-field.html', import.meta.url), 'utf8');
+  const fieldFails = runGates(fieldPage, () => {});
+  if (fieldFails.length) fail(`the second charter shape does not pass its own gates: [${fieldFails.join(', ')}]`);
+  else console.log('  ✓ a charter served as an sst_charter field on an entity passes all nine gates');
+
+  // The REFUSAL set. Each case must fail EXACTLY the check it names — a gate that
+  // stops refusing, refuses something else, or refuses two things at once all move
+  // these values. All but the control passed all six gates of the previous version
+  // untouched, which is why they exist; the control is one the previous version
+  // already caught, and must still be caught in the same place.
   const refusals = JSON.parse(readFileSync(new URL('vectors/v1.3-manifest/refusals/expected.json', import.meta.url), 'utf8'));
   let refused = 0;
   for (const c of refusals.cases) {
