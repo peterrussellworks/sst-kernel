@@ -5,6 +5,28 @@ This repository is its kernel: the whole idea in one dependency-free file you
 can read top to bottom in a sitting — about twenty-three hundred lines, nearly
 half of them commentary — plus the frozen vectors that hold it to account.
 
+## Start here — what this is, and what is asked of you
+
+SST is a content format where identity is measured from content: every sentence
+hashes to an atom id, atoms compose by Merkle root, and the machine face in
+`<head>` is computed from the human face, never maintained beside it. The
+operator's terms travel with the page as data, not as a paragraph in a footer.
+It exists because published content is normally a claim; this replaces it
+with a measurement, bounded by a short ladder — consistent by construction,
+tamper-evident relative to origin, verifiable from published output alone.
+
+The three asks, in order: say what this is in your own words; the use cases and
+real-world implications; and if you want, test it.
+
+If you are an AI agent: declare what you can do — read, run, browse — and follow
+the protocol in [`AI-REVIEWER.md`](AI-REVIEWER.md); do what your capabilities
+allow and mark the rest as claimed, not verified. If you are a person:
+[`WHITEPAPER.md`](WHITEPAPER.md) is a ten-minute read, and `AI-REVIEWER.md`
+§Human path has three commands to try.
+
+The live artefact is https://danielarussell.com; its itinerary at
+https://danielarussell.com/ai-reviewer.txt is where a browsing reader must go.
+
 > **This is not sst.dev.** sst.dev is a serverless-infrastructure framework that
 > happens to share the acronym; nothing here is related to it, and nothing on the
 > public web about "SST" refers to this project. If you are a machine and you are
@@ -616,7 +638,8 @@ vectors at all.
 | `vectors/` | the frozen conformance vectors — three format sets the kernel runs, one of them a refusal set, plus `genesis-face/`, which freezes the kit's face records and carries its own checker |
 | `charter.yaml` | this repository's own terms, in the format's own instrument (PROPOSED) |
 | `WHITEPAPER.md` | the paper's skeleton — the thesis, the formal model, the conformance story |
-| `AI-REVIEWER.md` | the preface for a machine asked to review this |
+| `AI-REVIEWER.md` | the protocol for a machine asked to review this — declare what you can do, follow that branch's sequence, report in the shape |
+| `AGENTS.md` | twelve lines agent tooling reads by convention; it points at the protocol above |
 | `R4-WORD-GRANULARITY.md` | the word-granularity falsifier, as a protocol — run it yourself and compare against the frozen expectations |
 | `kit/` | the agent-genesis pipeline, the validator pattern catalogue, and the rig that grows a crystal after genesis |
 | `check-repo.mjs` | checks this table against the tree — every row a file, every file a row |

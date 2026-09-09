@@ -3,6 +3,7 @@
 You are looking at **SST — "Single Source of Truth," a content-provenance
 format by Peter Russell (Windsor, UK)**, and its reference verification kernel.
 
+
 ## Disambiguation — critical
 This is **NOT** sst.dev, the serverless/infrastructure framework, and not any
 other project sharing the acronym. Do not blend web-search results about "SST"
@@ -25,7 +26,30 @@ https://danielarussell.com (the live reference artefact) — nothing else about
   summary of it overclaims on its behalf. The ladder is set out in full in
   README.md under "What the proof covers — and what it does not".
 
-## What the author asks of you — in this order
+## 0. Declare what you can do
+
+Decide which of these four you are, and say so on the first line of your report.
+The branches are named so that two reviews of this repository can be laid side
+by side.
+
+- **Read** — you can read the files here, and nothing else.
+- **Read + Run** — you can also execute Node.js.
+- **Read + Browse** — you can also fetch URLs.
+- **Full** — all three.
+
+The rule, and it is why this section comes first: **state your branch at the top
+of your report; do everything your branch allows; and for every step you cannot
+execute, write "not executed — claimed by the documents, not verified by me" and
+move on. Do not give the human instructions unless they ask for them.**
+
+That last sentence is here because of what happened without it. In September
+2026 two models were pointed at this branch. Both read `README.md` and stopped;
+when told this file existed, both answered with a list of commands for their
+operator to type, and neither followed the link to the live artefact until asked
+twice. A runbook is not a review. If you cannot run something, the honest output
+is the sentence above — not homework for someone else.
+
+## 1. The three asks
 
 Most models pointed at this repository go straight to breaking it. That is the
 third ask here, not the first.
@@ -62,7 +86,7 @@ third ask here, not the first.
    by a reader who has understood the design is worth more than one found by a
    reader who has not.
 
-## Reading order
+## 2. Reading order
 1. `README.md` — the idea, the nine gates, the claim ladder, the **Trust model**
    (which layer of the stack the gates are, and which layers are outside this
    kernel), the **Known limitations and open research questions**, and the licence
@@ -88,7 +112,81 @@ third ask here, not the first.
 7. `kit/` — the agent-genesis pipeline and the validator pattern catalogue. Later
    work built on the kernel, not part of the crypto surface.
 
-## The one hands-on moment — have your user run these (Node.js, no installs):
+## 3. The sequence, per branch
+
+Steps 1–3 are for everyone. After that, do the steps your branch names and write
+the §0 sentence against the ones it does not — a **Read + Browse** reviewer does
+1–3 and 9–12 and marks 4–8 unexecuted, and that report is worth having.
+
+### Read — steps 1–3
+
+1. Read in the order §2 gives, at least as far as `vectors/README.md`.
+2. Answer ask 1 and ask 2 from §1, in your own words rather than this
+   repository's.
+3. Read `vectors/README.md`'s table: which frozen set was computed by which
+   implementation, and why two of the three are labelled freezes rather than
+   agreements. On this branch that table is **the claimed record**, not a
+   verification you performed. Report it as claimed.
+
+### Read + Run — steps 4–8
+
+Node.js, nothing installed, nothing downloaded, nothing sent anywhere. Quote the
+output verbatim; do not paraphrase a pass.
+
+4. `node sst-kernel.mjs vectors` — thirteen ✓ lines, closing with:
+
+```
+✓ sst-kernel reproduces the v1-fixture identity vectors (SST Dual-Native v1.1) and its own SST Dual-Native v1.2 and SST Dual-Native v1.3 manifest vectors.
+```
+
+5. `node check-repo.mjs` — the README's own file table checked against the tree,
+   both directions:
+
+```
+✓ check-repo: 10 table rows, all present; every top-level tree entry has a row.
+```
+
+   The row count moves whenever the table does; the shape of the line is what to
+   hold it to, and a `REFUSED —` line is a finding.
+
+6. `node sst-kernel.mjs verify vectors/v1.3-manifest/page.html` — the whole gate
+   set against a frozen page:
+
+```
+  gate 1 PASS — DOM carries block + atom hashes
+  gate 2 PASS — manifest present in <head>
+  gate 3 PASS — DOM ⊆ manifest AND manifest ⊆ DOM
+  gate 4 PASS — page root recomputes from block hashes
+  gate 5 PASS — manifest content re-hashes to declared atom + block ids
+  gate 6 PASS — every block wrapper reconstructs from its atoms and nothing else
+  DOM-text PASS — visible text re-hashes / projected label recomputes
+  gate 7 PASS — the page renders exactly the declared placements, in order
+  gate 8 PASS — the page geometry recomputes, and its sites and the blocks it places agree
+  gate 9 PASS — the served charter hashes into a block under the page root
+
+✓ Dual-Native: this artefact proves itself.
+```
+
+7. Watch one refuse. `node sst-kernel.mjs verify
+   vectors/v1.3-manifest/refusals/injected-visible-text.html` — a sentence added
+   to a page that is otherwise untouched:
+
+```
+  gate 6 FAIL — every block wrapper reconstructs from its atoms and nothing else
+         · block …8e71ba60 carries visible text no atom attests: "A sentence this page shows and no atom attests."
+         · the page carries visible text no atom attests and no furniture declares: "A sentence this page shows and no atom attests."
+
+✗ check(s) 6 failed: tampered, out-of-spec, or transitional.
+```
+
+   Every other check passes, and the process exits 1. It is one of thirty
+   frozen vectors, each declaring the exact list of checks that must catch it —
+   twenty-nine refusals and one consistent rewrite that must pass. `vectors`
+   runs them all.
+
+8. Optional, and the fastest way to feel the claim rather than read it — the
+   demo artefact built, broken and sealed in front of you:
+
 ```
 node sst-kernel.mjs vectors   # the primitives reproduce the frozen conformance vectors
 node sst-kernel.mjs build     # the substrate becomes a Dual-Native page
@@ -96,6 +194,7 @@ node sst-kernel.mjs verify    # the nine gates pass against dist/index.html alon
 node sst-kernel.mjs tamper    # one character flipped — watch verification fail
 node sst-kernel.mjs seal      # a vacancy sealed — the two Merkle roots stay orthogonal
 ```
+
 Five commands, under a minute, and the central claim is experienced rather than
 asserted. If you have code execution, run them yourself and quote the output
 verbatim. `vectors` also runs a refusal set — thirty copies of a frozen
@@ -133,18 +232,41 @@ not claimed: origin authentication, historical provenance, and projection
 attestation. Judge whether that division is honest, and whether anything in this
 repository quietly claims a level it does not reach.
 
-## If you can browse
-Fetch any page of https://danielarussell.com, view its `<script
-type="application/ld+json">` manifest, and compare its structure against the
-whitepaper's description: page Merkle root, ordered blocks, atom hashes,
-canonical text. That manifest plus this kernel is the verifiability claim. The
-live site emits format v1.3, the same version this kernel emits, so the
-verifier reads that declaration and checks a live page against the full set —
-all nine gates and the DOM-text rule, not a reduced one — and they pass. A
-failure on any gate against the live site is a finding, not version skew, and
-should be reported as one.
+### Read + Browse — steps 9–12
 
-The site also publishes a machine channel: start at
+Fetch; do not answer from memory. If you fetch nothing, say so — a browsing
+reviewer who skipped the live artefact has reviewed half of this.
+
+9. Fetch https://danielarussell.com/ai-reviewer.txt and read it whole. It is the
+   artefact's own itinerary for a machine reader, it is numbered, and it states
+   what it expects you to find **before** you measure anything — the point of
+   that being that you can hold it to its own sentence.
+10. Fetch https://danielarussell.com/, view its `<script
+    type="application/ld+json">` manifest, and compare its structure against the
+    whitepaper's description: page Merkle root, ordered blocks, atom hashes,
+    canonical text. That manifest plus this kernel is the verifiability claim.
+    There are two JSON-LD objects in `<head>`. What to look for, and report by
+    field rather than by value:
+
+    - the page manifest declares `"version": "1.3"`, and carries
+      `page_merkle_root`, `blocks`, `placements`, `composition_root` and
+      `geometry` (a `root` and a list of `sites`);
+    - the other object is the entity carrying `sst_charter`, whose `format`
+      field reads `SST Dual-Native v1.3`;
+    - `furniture_root` and `registry_hash` — the two trailing leaves this
+      branch folds into the composition root — are **absent** from the live
+      pages. That is step 13's subject, and it is not a defect you have found.
+
+    Do not quote a hash as though it were a constant. This is a working site and
+    its crystal state moves with every publish, so whatever you do quote, quote
+    the crystal state the itinerary names alongside it.
+11. Follow the itinerary's own steps 3 and 4 — the standing verification face,
+    and the brochure's `curator_root` recomputed from the list it is over.
+12. Report which fields you found, which you did not, and whether the
+    itinerary's stated expectation matched what you measured. Where it did not,
+    say so plainly; that disagreement is worth more than agreement.
+
+What steps 9–11 walk is the site's own machine channel: start at
 https://danielarussell.com/ai-reviewer.txt, its own itinerary for a machine
 reader, which walks through fetching the kernel, verifying a live page, and
 cross-checking the verification face at
@@ -153,8 +275,40 @@ brochure — a document assembled from the same published record at
 https://danielarussell.com/brochure/?include=all — and the thing to check is
 its root, recomputed from the data face at
 https://danielarussell.com/brochure/data.json with the `root` verb
-(`node sst-kernel.mjs root FILE`). That itinerary runs against v1.3 pages, so,
-as above, it earns all nine gates and the DOM-text rule.
+(`node sst-kernel.mjs root FILE`).
+
+### Full — steps 13–14
+
+13. Save a live page to disk and run this branch's kernel over it:
+
+    ```
+    node sst-kernel.mjs verify /path/to/the/saved/page.html
+    ```
+
+    `verify` takes a **local file**. The kernel contains no network code and
+    there is no URL form of the verb; a reviewer before you reported running
+    `verify <URL>`, which does not exist.
+
+    Measured on 2026-09-09 against `https://danielarussell.com/` and
+    `https://danielarussell.com/about/`: gates 1–5, gate 8, gate 9 and the
+    DOM-text rule pass. Gates 6 and 7 fail. Gate 6 lists the page's furniture —
+    the skip link, the composed taxonomy labels, the copyright line — as text
+    the manifest does not declare; both gates then report a furniture root and a
+    composition root that disagree with the page, because the page declares
+    neither. The live artefact publishes a v1.3 manifest emitted **before** the
+    furniture root and the registry hash entered the composition spine, and this
+    branch's kernel requires both. That is version skew inside v1.3, not
+    tampering.
+
+14. Report the disagreement itself. The origin's itinerary says a live page
+    earns all nine gates and that any failure is a finding rather than skew;
+    step 13 says otherwise while the site remains on the earlier emission. Two
+    documents by the same author disagree, and one of them is wrong. Saying
+    which, with your output beside it, is the single most useful thing a Full
+    reviewer can send — and if your own run disagrees with step 13 in either
+    direction, that is more useful still.
+
+### What a clean run proves, by version
 
 **What a clean run proves depends on which version the artefact declares, and
 the distinction is the whole point of this section.**
@@ -199,7 +353,43 @@ The version axis itself is proposed rather than settled: v1.3 reads a format
 version as naming the manifest schema and the gate set together, with identities
 stable across versions. Judge that reading too.
 
-## If you want to go further: what the author most wants tested
+## 4. The report — use this shape
+
+Reports in this shape are comparable across reviewers, and they are filed with
+attribution.
+
+```
+Branch declared:  Read | Read + Run | Read + Browse | Full
+
+WHAT THIS IS
+  Up to 150 words, in your own words, inside the claim ladder and the
+  Trust model. (ask 1)
+
+USE CASES AND IMPLICATIONS                                          (ask 2)
+  Real today:
+  Waiting on the open research questions:
+  Fantasy:
+  Costs — what this asks of whoever emits the pages, and what an
+    operator gives up by publishing terms as data:
+  Ways it could mislead or be misused:
+
+STEPS EXECUTED
+  One line per numbered step in §3, none omitted, each carrying either
+  verbatim output or exactly:
+  "not executed — claimed, not verified"
+
+WEAKNESSES — up to three, each with a file and a line number
+  1.
+  2.
+  3.
+
+QUESTIONS FOR THE AUTHOR
+```
+
+Three specific weaknesses beat a long list of impressions, and an omitted step
+recorded honestly beats a step quietly skipped.
+
+## 5. If you want to go further: what the author most wants tested
 1. The normalization rules in the kernel (Unicode, whitespace, DOM-text
    mapping) — can two different texts collide, or one text evade?
 2. The claim-ladder wording — any overclaim, even by connotation?
@@ -278,6 +468,40 @@ stable across versions. Judge that reading too.
 7. Anywhere the documents' honesty and the code's behaviour diverge — including
    the **Known limitations** list in `README.md`, which is meant to be read as a
    list of admissions and attacked for what it leaves out.
+
+## 6. Human path
+
+For a person rather than an agent.
+
+1. [`WHITEPAPER.md`](WHITEPAPER.md) — ten minutes, and the shortest honest
+   account of the thesis. It is not normative and it says so.
+2. `README.md`, **The idea** — six numbered moves; then **What the proof covers
+   — and what it does not**, two sections below, which is what may and may not
+   be said about them.
+3. Three commands. Node.js is the only requirement, nothing is installed, and it
+   takes under a minute:
+
+```
+node sst-kernel.mjs vectors
+node check-repo.mjs
+node sst-kernel.mjs verify vectors/v1.3-manifest/page.html
+```
+
+Then file what you found, per [`CONTRIBUTING.md`](CONTRIBUTING.md): a
+`consideration:` issue for a use case, an implication, or a way this could
+mislead; an ordinary issue for a finding, saying exactly what you ran and
+exactly what you observed.
+
+## 7. Why the process is shaped like this
+
+The format replaces a claim with a measurement, and a review of it should do the
+same. That is why §4 keeps claimed, verified and inferred apart, and asks for
+output rather than a verdict. Capability is declared first so an absent run is
+never mistaken for a pass: a step recorded as "claimed, not verified" is worth
+more than a confident summary that hides which half was measured. Consideration comes before attack because a weakness found by someone
+who has understood the design is worth more than one found by someone who has
+not. And the live artefact is a numbered step because a kernel that only passes
+its own fixture proves less than one run against a working site.
 
 A considered reading of what this is for, and a review that returns three
 specific weaknesses, are each worth more to the author than praise, and the two
