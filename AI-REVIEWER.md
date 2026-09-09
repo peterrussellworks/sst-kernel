@@ -289,24 +289,21 @@ https://danielarussell.com/brochure/data.json with the `root` verb
     there is no URL form of the verb; a reviewer before you reported running
     `verify <URL>`, which does not exist.
 
-    Measured on 2026-09-09 against `https://danielarussell.com/` and
-    `https://danielarussell.com/about/`: gates 1–5, gate 8, gate 9 and the
-    DOM-text rule pass. Gates 6 and 7 fail. Gate 6 lists the page's furniture —
-    the skip link, the composed taxonomy labels, the copyright line — as text
-    the manifest does not declare; both gates then report a furniture root and a
-    composition root that disagree with the page, because the page declares
-    neither. The live artefact publishes a v1.3 manifest emitted **before** the
-    furniture root and the registry hash entered the composition spine, and this
-    branch's kernel requires both. That is version skew inside v1.3, not
-    tampering.
+    Expected, on this branch's kernel against a page the origin serves today:
+    all nine gates and the DOM-text rule pass, and the served manifest carries
+    `furniture`, `furniture_root` and `registry_hash` beside `composition_root`
+    and `geometry`. The origin publishes from the same emission this branch
+    verifies; the itinerary at `/ai-reviewer.txt` says which kernel branch to
+    use and why the `main` branch's older gate 6 reports residues here that this
+    one does not. That paragraph is the only version skew the origin admits to.
 
-14. Report the disagreement itself. The origin's itinerary says a live page
-    earns all nine gates and that any failure is a finding rather than skew;
-    step 13 says otherwise while the site remains on the earlier emission. Two
-    documents by the same author disagree, and one of them is wrong. Saying
-    which, with your output beside it, is the single most useful thing a Full
-    reviewer can send — and if your own run disagrees with step 13 in either
-    direction, that is more useful still.
+14. Report any disagreement as a finding, with your output beside it. A gate
+    that fails on a live page under this branch's kernel is either tampering,
+    an emission the origin has not yet republished, or a hole in the kernel —
+    and telling which, from the output alone, is the single most useful thing a
+    Full reviewer can send. If the served manifest lacks the three fields named
+    in step 13, say so first: that is the origin lagging its own kernel, and it
+    is the author's to fix, not yours to excuse.
 
 ### What a clean run proves, by version
 
