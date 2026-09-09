@@ -1,5 +1,10 @@
 # substrate/ — the fixture the kernel builds, and the traps built into it
 
+This is an **example crystal, made visible on purpose**: the first-class object
+in this format is an operator's private substrate, and the only reason you can
+read one whole here is that this repository exists to teach the mechanism rather
+than to hold anything back.
+
 Two CSVs. That is the whole substrate.
 
 | file | carries | principle |

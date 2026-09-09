@@ -14,6 +14,10 @@ operator's terms travel with the page as data, not as a paragraph in a footer.
 It exists because published content is normally a claim; this replaces it
 with a measurement, bounded by a short ladder — consistent by construction,
 tamper-evident relative to origin, verifiable from published output alone.
+What you are looking at, here and wherever this format is published, is a
+*projection* of an operator's private crystal and never the first-class object
+itself — and this repository is built to teach that, by handing you an example
+crystal and letting you assemble a page out of it.
 
 The three asks, in order: say what this is in your own words; the use cases and
 real-world implications; and if you want, test it.
@@ -87,6 +91,19 @@ source and your screen. SST replaces the claim with a *measurement*:
    Merkle root — the **geometry spine** — over every declared site, present or vacant. So
    "what is missing" is a measurement, not a guess: a tamper-evident census of the
    artefact's known-unknowns.
+7. **Projections, not the object.** The first-class object is the operator's
+   *crystal* — the atoms, the lattice and the charter, held privately — and
+   everything published is a **projection** of it. This repository projects an
+   example crystal it also shows you (`substrate/`, `charter.yaml`), so the
+   mechanism is visible end to end; the live reference artefact projects a real
+   crystal that stays private, and its verification face and its brochure's data
+   face are further projections of that same one. Between two projections, and
+   between a projection and the roots the origin publishes, a reader can
+   establish that they agree — which is the second rung of the ladder under
+   **Trust model**, and no higher. What a face *withholds* is a different
+   question: matching a published face against the material behind it needs the
+   operator to share a slice of the crystal, and until then a reader has the
+   domain, the artefacts on it, and the roots.
 
 The demo artefact's content **is** this explanation: the page describes the
 mechanism that proves the page. Run `tamper` to watch the content proof work (it

@@ -51,6 +51,23 @@ is the sentence above — not homework for someone else.
 
 ## 1. The three asks
 
+**What you are looking at.** Not the object itself. The first-class object in
+this format is an operator's *crystal* — atoms, lattice and charter, held
+privately — and everything published is a **projection** of it: a page, a PDF, a
+data face. This repository teaches the mechanism by making one crystal visible.
+`substrate/atoms.csv`, `substrate/lattice.csv` and `charter.yaml` are an example
+crystal small enough to read whole, so you can assemble an artefact out of atoms
+and watch the identities fall out. That primes the second half. The live artefact
+at https://danielarussell.com is itself a projection, of a real crystal you will
+never see; its domain is the verifier of last resort, under the operator's
+control and publishing the roots its projections must agree with, and the
+artefacts on that domain — the site, the verification face, the brochure's data
+face — are further projections of the same crystal. Where the operator shares a
+slice, the cryptography lets it be matched; without that, you have the domain,
+the artefacts on it, and the roots. So the arc is: understand the mechanism on
+the example crystal, read the live projection, hold the two side by side, then
+form an opinion.
+
 Most models pointed at this repository go straight to breaking it. That is the
 third ask here, not the first.
 
@@ -114,6 +131,17 @@ third ask here, not the first.
 
 ## 3. The sequence, per branch
 
+Nothing here asks you to run code you have not read. The kernel is one
+dependency-free file — 2,379 lines, nearly half commentary — readable before it
+is run; `check-repo.mjs` is 52. There is no evaluation script and no manifest of
+commands to paste: each step says what it establishes and why, and its command is
+one way there, not the only one. A reader who trusts neither can write its own
+verifier from the algorithm `README.md` states and meet it against
+`vectors/v1-fixture/`: `expected.json` carries each atom's normalized text beside
+its id, the block roots, the page root and the geometry root — every value
+computed by a different implementation. Agreement is byte-identical hex, and a
+difference exactly locatable.
+
 Steps 1–3 are for everyone. After that, do the steps your branch names and write
 the §0 sentence against the ones it does not — a **Read + Browse** reviewer does
 1–3 and 9–12 and marks 4–8 unexecuted, and that report is worth having.
@@ -133,23 +161,63 @@ the §0 sentence against the ones it does not — a **Read + Browse** reviewer d
 Node.js, nothing installed, nothing downloaded, nothing sent anywhere. Quote the
 output verbatim; do not paraphrase a pass.
 
-4. `node sst-kernel.mjs vectors` — thirteen ✓ lines, closing with:
+4. **Assemble the artefact yourself.** `node sst-kernel.mjs build` compiles
+   `substrate/atoms.csv` and `substrate/lattice.csv` — the example crystal, small
+   enough to read before you build it — into `dist/index.html` and
+   `dist/geometry-manifest.json`. *Why this first:* every later step is about a
+   page, and this is the one where you watch a page be made out of atoms, which
+   is the mechanism everything else here is checking.
+
+   One piece of housekeeping, said here so you do not report it as a finding:
+   `build` leaves a `dist/` behind, `dist/` has no row in README's file table,
+   and step 7's `check-repo` therefore refuses while it is there —
+
+   ```
+   REFUSED — the tree has entries README.md never mentions:
+     · dist — on disk, missing from the table
+   ```
+
+   Remove `dist/` when you are finished with it and the ✓ line comes back.
+
+5. **Verify what you just built.** `node sst-kernel.mjs verify` with no argument
+   reads `dist/index.html` — the page you made a moment ago — and runs the gate
+   set against it, closing with `✓ Dual-Native: this artefact proves itself.`
+   *Why:* you know exactly what went in, so a pass here is about the mechanism
+   rather than about a file somebody handed you.
+
+6. **Break it and watch the refusal.** `node sst-kernel.mjs tamper` copies that
+   page, flips one character of visible text and re-verifies the copy: gate 6 and
+   the DOM-text rule fail, naming the block, the atom, and the sentence as it now
+   reads against the sentence the atom holds, while every other check passes and
+   the process exits 1. *Why:* a gate nobody has watched refuse is a comment, and
+   this is the cheapest way to watch one refuse on a page whose provenance is
+   your own. `node sst-kernel.mjs seal` is the geometry counterpart — seal the
+   fixture's one vacancy and the geometry root moves while the content root
+   holds, which is what makes them two spines rather than one.
+
+7. **Then the frozen sets, and the repository's account of itself.**
+   `node sst-kernel.mjs vectors` — thirteen ✓ lines, closing with:
 
 ```
 ✓ sst-kernel reproduces the v1-fixture identity vectors (SST Dual-Native v1.1) and its own SST Dual-Native v1.2 and SST Dual-Native v1.3 manifest vectors.
 ```
 
-5. `node check-repo.mjs` — the README's own file table checked against the tree,
-   both directions:
+   and `node check-repo.mjs` — the README's own file table checked against the
+   tree, both directions:
 
 ```
 ✓ check-repo: 10 table rows, all present; every top-level tree entry has a row.
 ```
 
    The row count moves whenever the table does; the shape of the line is what to
-   hold it to, and a `REFUSED —` line is a finding.
+   hold it to, and a `REFUSED —` line is a finding — unless it is the `dist/` you
+   left behind in step 4. *Why:* the first says this kernel's primitives agree
+   with an implementation in another language, which is what makes "SST in
+   miniature" a measurement rather than a slogan; the second says the
+   repository's description of itself is checked rather than asserted.
 
-6. `node sst-kernel.mjs verify vectors/v1.3-manifest/page.html` — the whole gate
+8. **Last, a page you did not build — and one that must be refused.**
+   `node sst-kernel.mjs verify vectors/v1.3-manifest/page.html` — the whole gate
    set against a frozen page:
 
 ```
@@ -167,9 +235,9 @@ output verbatim; do not paraphrase a pass.
 ✓ Dual-Native: this artefact proves itself.
 ```
 
-7. Watch one refuse. `node sst-kernel.mjs verify
-   vectors/v1.3-manifest/refusals/injected-visible-text.html` — a sentence added
-   to a page that is otherwise untouched:
+   Then the same verb against one of the frozen refusals — `node sst-kernel.mjs
+   verify vectors/v1.3-manifest/refusals/injected-visible-text.html`, a sentence
+   added to that page and nothing else besides:
 
 ```
   gate 6 FAIL — every block wrapper reconstructs from its atoms and nothing else
@@ -179,34 +247,19 @@ output verbatim; do not paraphrase a pass.
 ✗ check(s) 6 failed: tampered, out-of-spec, or transitional.
 ```
 
-   Every other check passes, and the process exits 1. It is one of thirty
-   frozen vectors, each declaring the exact list of checks that must catch it —
-   twenty-nine refusals and one consistent rewrite that must pass. `vectors`
-   runs them all.
-
-8. Optional, and the fastest way to feel the claim rather than read it — the
-   demo artefact built, broken and sealed in front of you:
-
-```
-node sst-kernel.mjs vectors   # the primitives reproduce the frozen conformance vectors
-node sst-kernel.mjs build     # the substrate becomes a Dual-Native page
-node sst-kernel.mjs verify    # the nine gates pass against dist/index.html alone
-node sst-kernel.mjs tamper    # one character flipped — watch verification fail
-node sst-kernel.mjs seal      # a vacancy sealed — the two Merkle roots stay orthogonal
-```
-
-Five commands, under a minute, and the central claim is experienced rather than
-asserted. If you have code execution, run them yourself and quote the output
-verbatim. `vectors` also runs a refusal set — thirty copies of a frozen
-page, each with one edit, each declaring the exact list of checks that must catch
-it. Twenty-nine are refusals; most of those edits passed every gate of the
-previous format version, one is a control the previous version already caught,
-two came in with the newest bindings, and two passed all nine gates of the kernel
-immediately before them. The thirtieth must **pass**: the same
-injected paragraph as the refusal
-beside it, declared and with both roots recomputed, so that only a comparison with
-the origin's published root catches it. Watching them fail — and that one pass —
-is the most informative minute in this repository.
+   Every other check passes, and the process exits 1. It is one of thirty frozen
+   vectors — thirty copies of that page, each with one edit, each declaring the
+   exact list of checks that must catch it, and step 7's `vectors` ran them all.
+   Twenty-nine are refusals: most of those edits passed every gate of the
+   previous format version, one is a control the previous version already caught,
+   two came in with the newest bindings, and two passed all nine gates of the
+   kernel immediately before this one. The thirtieth must **pass** — the same
+   injected paragraph as the refusal beside it, declared and with both roots
+   recomputed, so that only a comparison with the origin's published root catches
+   it. *Why:* step 6 showed a gate refusing a page you made; this shows the same
+   gates holding on a page whose provenance is not yours, then naming — by block,
+   and by the sentence itself — what a stranger added to it. Watching them fail,
+   and that one pass, is the most informative minute in this repository.
 
 **What a nine-gate run now proves**, and it is more than it was: that the page's
 content re-hashes; that the two faces carry the same identities; that the page
@@ -276,6 +329,29 @@ https://danielarussell.com/brochure/?include=all — and the thing to check is
 its root, recomputed from the data face at
 https://danielarussell.com/brochure/data.json with the `root` verb
 (`node sst-kernel.mjs root FILE`).
+
+**And this is where the two projections are held side by side.** Everything that
+channel hands you is a face: the site, the verification face, the brochure's data
+face are three projections of one crystal that stays private. The domain is the
+part the operator holds end to end, so it is the verifier of last resort, and the
+roots those faces must agree with are published on it. The itinerary names them —
+a **crystal state** and a **substrate fingerprint** at the top, which pin *which*
+state of the artefact you read; the **page Merkle root** each page declares in the
+manifest in its own `<head>`, restated for that page in the verification face's
+block and atom hash tables; and the brochure's **`curator_root`**, with the ordered
+list of block roots it was computed over. Concretely, then: take one page, read
+its `page_merkle_root` and its block and atom hashes out of the manifest, find
+that same page's table in the verification face, and compare the values, field by
+field. Two faces assembled by different paths out of one crystal; if they
+disagree, one of them is lying and you have found it. Quote the crystal state
+alongside whatever you quote, because the site is live and its state moves with
+every publish.
+
+What that establishes is agreement *between projections*, and between a
+projection and the roots the origin stands behind. It does not establish that
+either face is faithful to the crystal behind it: material the operator withheld
+leaves no trace on either, so no comparison you can run here reaches it. That is
+§5 item 6 — the open question, not a step.
 
 ### Full — steps 13–14
 
@@ -472,7 +548,7 @@ For a person rather than an agent.
 
 1. [`WHITEPAPER.md`](WHITEPAPER.md) — ten minutes, and the shortest honest
    account of the thesis. It is not normative and it says so.
-2. `README.md`, **The idea** — six numbered moves; then **What the proof covers
+2. `README.md`, **The idea** — seven numbered moves; then **What the proof covers
    — and what it does not**, two sections below, which is what may and may not
    be said about them.
 3. Three commands. Node.js is the only requirement, nothing is installed, and it
@@ -499,6 +575,16 @@ more than a confident summary that hides which half was measured. Consideration 
 who has understood the design is worth more than one found by someone who has
 not. And the live artefact is a numbered step because a kernel that only passes
 its own fixture proves less than one run against a working site.
+
+Two more things about the shape. **Nothing in §3 hands you a script to run**,
+because a reader arriving from a link should not execute a stranger's code
+unread: the kernel is one file that can be read first, each step says what it
+establishes rather than only what to type, and a reader who wants neither can
+write its own verifier from the algorithm and meet the frozen vectors instead.
+**And the ontology comes before the sequence**, because a review that mistakes a
+projection for the object is measuring the wrong thing — everything published is
+a face of a crystal held privately, and this repository makes one crystal visible
+so the mechanism can be understood before the live projection is judged.
 
 A considered reading of what this is for, and a review that returns three
 specific weaknesses, are each worth more to the author than praise, and the two
