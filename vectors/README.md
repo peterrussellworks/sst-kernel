@@ -392,7 +392,7 @@ the rendered sequence appeared to contradict, and the gate that refused it read
 inside its own SECTION. Simulated against the reference implementation's own home
 page, that reading fired 39 times in 58 transitions on a page nobody had touched.
 So the check is gone, `order` is declared and not verified at every version — the
-README's boundary says so — and the vector that asserted otherwise is deleted
+`KERNEL.md`'s boundary says so — and the vector that asserted otherwise is deleted
 rather than quietly re-frozen. A vector proving a gate that should not exist is
 worse than no vector.
 

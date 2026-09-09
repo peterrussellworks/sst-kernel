@@ -10,11 +10,11 @@ bureaucracy but the format's own logic applied to itself.
 
 A bug, an unclear paragraph, a cold run of `kit/AGENT-GENESIS.md` that didn't go
 the way the document predicted, a vector that doesn't reproduce on your machine,
-a claim in `README.md` or `WHITEPAPER.md` that overstates what the gates actually
+a claim in `KERNEL.md` or `WHITEPAPER.md` that overstates what the gates actually
 prove — these are wanted reports, not tolerated ones. An edit to a page that all
 nine gates accept and that a reader would call tampering is the most valuable
 report of all: the two furniture holes were found that way, by a stranger running
-edits against the built page rather than reading about it. `README.md`'s **Known
+edits against the built page rather than reading about it. `KERNEL.md`'s **Known
 limitations and open research questions** is the list to attack first, and its
 being a list is an invitation. Open an issue and say
 exactly what you ran and what you observed, the same discipline this repository
@@ -39,7 +39,7 @@ Merkle composition, the gate set, the geometry and composition spines, and the t
 trailing leaves the composition spine now carries — the page's furniture root, and
 the `registry_hash` naming the table its render descriptors refer to — are what the
 vectors hold to account. The gate set is the nine gates plus the DOM-text rule,
-and what each one covers is stated in `README.md`; a change to what any of them
+and what each one covers is stated in `KERNEL.md`; a change to what any of them
 accepts or refuses is a format change, including the page-level residue rule gate
 6 gained with the furniture root. So is the shared transform registry, the closed table
 of content→display transforms between the two marker comments in

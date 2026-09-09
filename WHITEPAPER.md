@@ -1,5 +1,36 @@
 # SST — Single Source of Truth: a self-verifying, sovereign content format
 
+## What SST is, and why
+
+**The data is the single source of truth.** An operator keeps one private data crystal. It holds the
+sentences themselves — atoms — a lattice that says at which coordinate each atom appears, and a charter
+that states the operator's terms. Nothing else is authoritative. A web page, a PDF, a brochure, a
+machine-readable manifest, a printed sheet: each is a projection of the crystal through a lattice, a
+second-class object that is derived and never edited in its own right. Change a projection and you have
+made a forgery, not an edit; change the crystal and every projection follows.
+
+**Why the cryptography.** The crystal is private; the faces are public. A reader holding only a face has,
+until now, had to trust that it matches whatever it was made from. SST makes identity a property of the
+matter: an atom's identity is the hash of its own normalised text, a block's the Merkle root of its atoms,
+a page's the root of its blocks. A projection therefore carries the crystal's own matter with identities
+that anyone can re-derive by reading it. Two faces of one crystal do not merely agree with each other;
+they are the same matter, and that is what a reader re-hashing a page establishes. Hashes and Merkle roots
+are the medium, not the idea.
+
+**Sovereignty.** The operator holds the crystal and nobody else can write to it. Public faces are read-only
+by construction. The operator's terms — reading, agent ingestion, quoting, derivative works, training,
+oracle and sentiment mining — travel with every face as data, hashed under the same roots, so that silence
+is never mistaken for consent.
+
+**What is proved, and what is not.** From a face alone: that it is consistent by construction, that it is
+tamper-evident relative to its origin, and that its content identity is verifiable from the published
+output. With the origin — the operator's own domain, which publishes the roots — that the face is the one
+the operator published. Not proved: who authored the crystal (an origin is a domain, not a person), and
+whether a face shows everything the crystal holds. That last relationship, between a face and the
+material behind it, is open research; the kernel's own documents name it projection attestation.
+
+The sections that follow are this paper's skeleton, to be written in full.
+
 **White-paper SKELETON.** This is the outline the full paper grows into, not the
 paper itself. It is planted here and grown post-launch, because the argument is
 only worth writing down once the format is frozen (the conformance vectors) and
@@ -47,14 +78,14 @@ document, compressed.
   *Sources:* COMPANION → "The Landlord Trap", "Why platforms cannot replicate SST".
 - **§1.3 Claim vs measurement.** Today you *trust* that what you read is what was
   written. SST replaces the trust with a re-computable measurement.
-  *Sources:* README.md "The idea"; SPEC §6.2.
+  *Sources:* KERNEL.md "The idea"; SPEC §6.2.
 
 ## Part II — The idea in miniature (the on-ramp)
 
 The gentle first pass — the whole model in one dependency-free script the reader
 can run. The paper earns the formalism of Part III by first showing it working.
 *Sources:* `sst-kernel.mjs` (build / verify / tamper / seal / vectors);
-README.md in full. This part **is** the README, expanded.
+KERNEL.md in full. This part **is** KERNEL.md, expanded.
 
 ## Part III — The formal model: identity and composition
 
@@ -119,7 +150,7 @@ README.md in full. This part **is** the README, expanded.
 - **§6.2 The trust model.** The gates prove internal consistency relative to the
   canonical origin (DNS + TLS), not authorship; the forbidden-language discipline;
   SST-SIG (Ed25519 over the roots, key in DNS) as the designed extension.
-  *Sources:* SPEC §6.5; README.md "What the proof covers".
+  *Sources:* SPEC §6.5; KERNEL.md "What the proof covers".
 - **§6.3 Temporality.** The substrate is a snapshot; living artefacts delegate
   history to version control; versioned artefacts keep superseded manifests
   addressable; citation = content hash + optional version pin. *Sources:* SPEC §2.10.

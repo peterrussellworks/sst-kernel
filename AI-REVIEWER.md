@@ -24,7 +24,7 @@ https://danielarussell.com (the live reference artefact) — nothing else about
   tamper-evident relative to origin; verifiable from published output alone.*
   Evaluate whether even that wording overclaims — and equally whether your
   summary of it overclaims on its behalf. The ladder is set out in full in
-  README.md under "What the proof covers — and what it does not".
+  `KERNEL.md` under "What the proof covers — and what it does not".
 
 ## 0. Declare what you can do
 
@@ -74,7 +74,7 @@ third ask here, not the first.
 1. **Say what this is, in your own words.** After the reading order below and
    before any verdict, write a short account of the thing itself: what problem it
    addresses, what it replaces a claim with, and what it does not do. Two sections
-   of `README.md` are the bounds of that account — the claim ladder ("What the
+   of `KERNEL.md` are the bounds of that account — the claim ladder ("What the
    proof covers — and what it does not") is what may be said, and the **Trust
    model** names the layers above it that are neither shipped nor claimed. Stay
    inside both, in your own sentences rather than this repository's. It is also a
@@ -87,10 +87,10 @@ third ask here, not the first.
    decide what it may do with a page it has just fetched; provenance, where a quote
    has to be shown faithful to what was written; and law and consent, where this
    format's position is that silence is not consent, so each of the six permission
-   categories `README.md` lists takes an explicit stance. The reference artefact is
+   categories `KERNEL.md` lists takes an explicit stance. The reference artefact is
    a working atelier's site with real customers, not a demonstration built to be
    reviewed — so sort what you find into three: uses that are real today, uses that
-   wait on the open research questions in `README.md`, and uses that are fantasy.
+   wait on the open research questions in `KERNEL.md`, and uses that are fantasy.
    Name the costs as well: the discipline this asks of whoever emits the pages, and
    what an operator gives up by publishing terms as data. Name the ways it could
    mislead or be misused, too — a face that is internally perfect and materially
@@ -104,11 +104,15 @@ third ask here, not the first.
    reader who has not.
 
 ## 2. Reading order
-1. `README.md` — the idea, the nine gates, the claim ladder, the **Trust model**
+1. `README.md` — orientation: what this is, what is asked of you, the five
+   minutes, the file table and the licence split. It is short.
+2. `WHITEPAPER.md` — the paper's skeleton. Not normative, and it points at canon
+   not published here; it says so.
+3. `KERNEL.md` — the idea, the nine gates, the claim ladder, the **Trust model**
    (which layer of the stack the gates are, and which layers are outside this
-   kernel), the **Known limitations and open research questions**, and the licence
-   split.
-2. `sst-kernel.mjs` — about twenty-three hundred lines, nearly half of them
+   kernel), the **Known limitations and open research questions**, and
+   conformance.
+4. `sst-kernel.mjs` — about twenty-three hundred lines, nearly half of them
    commentary, zero dependencies, the complete verification kernel. This is the
    whole crypto surface: normalization → SHA-256 atom ids → domain-separated
    Merkle roots → nine gates + a DOM-text rule. Read the comments as part of the
@@ -116,17 +120,15 @@ third ask here, not the first.
    the comment says what got past it — and three of the nine gates exist because
    a static read of this file by another model found seven edits the first six
    accepted.
-3. `substrate/README.md` — the fixture, and the three deliberate superposition
+5. `substrate/README.md` — the fixture, and the three deliberate superposition
    twins built into it. Each one is a trap for a specific rule; check whether
    the traps are the right traps.
-4. `vectors/README.md` — which frozen set was computed by which implementation,
+6. `vectors/README.md` — which frozen set was computed by which implementation,
    and why two of the three are honestly labelled freezes rather than
    agreements.
-5. `WHITEPAPER.md` — the paper's skeleton. Not normative, and it points at canon
-   not published here; it says so.
-6. `R4-WORD-GRANULARITY.md` — the word-granularity falsifier as a protocol: run
+7. `R4-WORD-GRANULARITY.md` — the word-granularity falsifier as a protocol: run
    it yourself and compare your numbers to the frozen expectations.
-7. `kit/` — the agent-genesis pipeline and the validator pattern catalogue. Later
+8. `kit/` — the agent-genesis pipeline and the validator pattern catalogue. Later
    work built on the kernel, not part of the crypto surface.
 
 ## 3. The sequence, per branch
@@ -136,7 +138,7 @@ dependency-free file — 2,379 lines, nearly half commentary — readable before
 is run; `check-repo.mjs` is 52. There is no evaluation script and no manifest of
 commands to paste: each step says what it establishes and why, and its command is
 one way there, not the only one. A reader who trusts neither can write its own
-verifier from the algorithm `README.md` states and meet it against
+verifier from the algorithm `KERNEL.md` states and meet it against
 `vectors/v1-fixture/`: `expected.json` carries each atom's normalized text beside
 its id, the block roots, the page root and the geometry root — every value
 computed by a different implementation. Agreement is byte-identical hex, and a
@@ -277,7 +279,7 @@ are hashed under the page root.
 What it still does not prove is authorship: every root here is the page's own, so
 a mirror that rewrites the whole page rehashes everything and passes. The roots
 are evidence against drift and tampering *relative to the origin*, which is the
-second rung of the claim ladder in `README.md`, and the README says so. Its
+second rung of the claim ladder in `KERNEL.md`, and it says so. Its
 **Trust model** section names the two levels this kernel reaches — internal
 integrity from the page alone, then source correspondence against the origin's
 published roots — and the three layers above them that are not shipped and are
@@ -501,7 +503,7 @@ recorded honestly beats a step quietly skipped.
    own text under a declaration. The original question stays open too: can you
    inject visible text into a page that gates 1–6 and the DOM-text rule all
    accept? CSS-injected content via `::before`, a nested block wrapper, an
-   element the scanner and a browser disagree about — the README admits some of
+   element the scanner and a browser disagree about — `KERNEL.md` admits some of
    these are out of reach for a markup-level verifier, so the question is whether
    it admits *all* of them.
 4. The provenance-label rule. Where several lattice coordinates share one block
@@ -539,7 +541,7 @@ recorded honestly beats a step quietly skipped.
    withholding checkable? The author believes this is the most important open
    question in the design, and it is research rather than a parked feature.
 7. Anywhere the documents' honesty and the code's behaviour diverge — including
-   the **Known limitations** list in `README.md`, which is meant to be read as a
+   the **Known limitations** list in `KERNEL.md`, which is meant to be read as a
    list of admissions and attacked for what it leaves out.
 
 ## 6. Human path
@@ -548,7 +550,7 @@ For a person rather than an agent.
 
 1. [`WHITEPAPER.md`](WHITEPAPER.md) — ten minutes, and the shortest honest
    account of the thesis. It is not normative and it says so.
-2. `README.md`, **The idea** — seven numbered moves; then **What the proof covers
+2. `KERNEL.md`, **The idea** — seven numbered moves; then **What the proof covers
    — and what it does not**, two sections below, which is what may and may not
    be said about them.
 3. Three commands. Node.js is the only requirement, nothing is installed, and it
