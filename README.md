@@ -552,8 +552,10 @@ hidden.
   given above: it is a section-local label and nothing the page shows can
   contradict it.
 
-This repository is a demonstrator of a proposed architecture and an invitation to
-attack, extend and falsify it, not a claim of completeness.
+This repository is a demonstrator of a proposed architecture. It asks first to be
+considered — what publishing this way would mean, for whom, at what cost, and with
+what implications — and then to be attacked, extended and falsified; it is not a
+claim of completeness.
 
 ## Conformance
 

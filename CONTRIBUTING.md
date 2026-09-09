@@ -23,6 +23,15 @@ not observe has broken the only thing this document is for"). A report that says
 "this failed, here is the exact output" is more useful than a patch that papers
 over the symptom.
 
+A considered reading is a contribution too. An issue that names a use case the
+documents do not foresee, an implication of publishing this way that they have not
+followed through, or a way the format could mislead or be misused, is wanted as
+much as a refusal that should have fired and didn't — the design questions here
+are at least as open as the code ones. Title it `consideration:` and then the
+thing itself — `consideration: a face that withholds, in a regulated
+disclosure` — and say who would be affected and how, with the same specificity a
+bug report would get.
+
 ## Format changes: not by pull request
 
 `vectors/` is frozen, and `sst-kernel.mjs`'s identity primitives — atom hashing,
