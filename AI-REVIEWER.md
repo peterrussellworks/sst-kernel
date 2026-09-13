@@ -252,13 +252,16 @@ output verbatim; do not paraphrase a pass.
 ✗ check(s) 6 failed: tampered, out-of-spec, or transitional.
 ```
 
-   Every other check passes, and the process exits 1. It is one of thirty frozen
-   vectors — thirty copies of that page, each with one edit, each declaring the
-   exact list of checks that must catch it, and step 7's `vectors` ran them all.
-   Twenty-nine are refusals: most of those edits passed every gate of the
-   previous format version, one is a control the previous version already caught,
-   two came in with the newest bindings, and two passed all nine gates of the
-   kernel immediately before this one. The thirtieth must **pass** — the same
+   Every other check passes, and the process exits 1. It is one of thirty-two
+   frozen vectors — thirty-two copies of that page, each with one edit, each
+   declaring the exact list of checks that must catch it, and step 7's
+   `vectors` ran them all. Thirty-one are refusals: most of those edits passed
+   every gate of the previous format version, one is a control the previous
+   version already caught, two came in with the newest bindings, two passed all
+   nine gates of the kernel immediately before this one, and two are a
+   reviewer's worry about the whitespace rule measured as vectors — a
+   zero-width space and a bidirectional override, each outside JavaScript's
+   `\s` and inside an atom. The thirty-second must **pass** — the same
    injected paragraph as the refusal beside it, declared and with both roots
    recomputed, so that only a comparison with the origin's published root catches
    it. *Why:* step 6 showed a gate refusing a page you made; this shows the same

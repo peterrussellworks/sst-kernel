@@ -198,7 +198,13 @@ Four consequences worth stating plainly.
 - **Whitespace is not evidence.** Every text comparison in gate 6 is made with
   all whitespace removed on both sides. A page that sets two atoms with no space
   between them, or lays a label across three lines of source, differs from its
-  atoms by typesetting; a page that changes one letter still fails.
+  atoms by typesetting; a page that changes one letter still fails. The boundary
+  is exactly JavaScript's own `\s` — the ordinary space and the no-break space
+  alike, plus tabs, line breaks and the rest of that class — so substituting one
+  for the other is typesetting and passes. Everything outside that class is
+  content: a zero-width space, a soft hyphen or a bidirectional override sitting
+  inside an atom's text is untouched by `\s`, survives into the hash, and is
+  refused (`zero-width-inside-atom.html`, `bidi-override-inside-atom.html`).
 
 **A block wrapper carries content and nothing else.** The page-level rule below
 reads `<script>`, `<style>` and `<template>` as showing nothing, because a
@@ -571,15 +577,18 @@ blurred:
   still emits the v1.2 shape on demand, and this set is what proves it.
 - **`vectors/v1.3-manifest/`** — the v1.3 shape on the same terms, plus the
   frozen page itself and something neither other set has: a **refusal set**.
-  Thirty files under `refusals/`, each the frozen page with one edit, each
-  naming the exact list of checks `verify` must report. Twenty-nine are refusals.
+  Thirty-two files under `refusals/`, each the frozen page with one edit, each
+  naming the exact list of checks `verify` must report. Thirty-one are refusals.
   Most of them passed all six of the previous version's gates untouched, which is
   why they exist; the control is an edit the previous version already caught and
   must still catch in the same place; two of them are the cases the newest
   bindings brought with them — a swapped registry name, and an inline script
-  inside a block wrapper; and two are nearer still, a sentence hidden in an
+  inside a block wrapper; two are nearer still, a sentence hidden in an
   attribute-mode element's own children, which passed all nine gates until gate 6
-  stopped cutting that element's whole span. The thirtieth must **pass**: the same
+  stopped cutting that element's whole span; and two are a reviewer's worry about
+  gate 6's whitespace rule, measured: a zero-width space and a bidirectional
+  override, each sitting outside JavaScript's `\s` and inside an atom. The
+  thirty-second must **pass**: the same
   injected paragraph as the refusal beside it, *declared*, with both roots
   recomputed — a page with internal integrity and a composition root that is not
   the origin's, which is the claim ladder's second rung frozen as a vector. Beside
