@@ -3,6 +3,7 @@
 Read [`AI-REVIEWER.md`](AI-REVIEWER.md) first — it is written for you, and it sets the order.
 
 1. Declare your capability profile: Read, Read + Run, Read + Browse, or Full (§0).
+   Your report's first line is literally `Capabilities declared: …`.
 2. Follow that profile's numbered sequence (§3). Against every step your profile
    cannot reach, write "not executed — claimed by the documents, not verified by
    me". Do not hand your operator a runbook unasked.
