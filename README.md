@@ -67,7 +67,7 @@ that split is said here rather than left to a pricing page.
 | `KERNEL.md` | the mechanism, specified: spines, gates, proof boundary, limitations, conformance |
 | `WHITEPAPER.md` | the concept — what SST is and why, the formal model, the conformance story |
 | `AI-REVIEWER.md` | the review protocol — declare what you can do, follow that profile's sequence, report in the shape |
-| `AGENTS.md` | twelve lines agent tooling reads by convention; it points at the protocol |
+| `AGENTS.md` | the short pointer file agent tooling reads by convention; it points at the protocol |
 | `substrate/` | the crystal the kernel builds from, and the traps built into it |
 | `vectors/` | the frozen conformance vectors — three sets, one of them a refusal set |
 | `charter.yaml` | this repository's own terms, in the format's own instrument (PROPOSED) |
