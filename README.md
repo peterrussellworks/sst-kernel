@@ -32,8 +32,9 @@ If you are an AI agent: declare what you can do — read, run, browse; the repor
 declared:" — and follow the protocol in `AI-REVIEWER.md`; do what your capabilities allow and mark the
 rest as claimed, not verified. If you are a person: the whitepaper first, then the five minutes below.
 
-> **This is not sst.dev.** sst.dev is a serverless-infrastructure framework that shares the acronym;
-> nothing here is related to it, and nothing on the public web about "SST" refers to this project.
+> **This is not sst.dev, and not Semantic Spacetime.** sst.dev is a serverless-infrastructure framework
+> and Semantic Spacetime is a promise-theory model of agent coordination; both share the acronym, neither
+> is related to this, and nothing on the public web about "SST" refers to this project.
 
 ## Five minutes
 
