@@ -601,6 +601,11 @@ it promised. That reading is proposed rather than settled; the alternative is a
 separate version number for the gate set. If it changes, what changes is the
 dispatch, not a single hash.
 
+The branch `v1.3-composition` is itself a pre-release: until `v1.3.0` is
+tagged, the manifest's composition fields may still change, and each change is
+recorded in `vectors/README.md`. Identities — atom ids, block roots, page
+roots — never change with a version, at any point.
+
 ## Beyond the kernel
 
 The production framework applies the same move — *replace every hand-maintained

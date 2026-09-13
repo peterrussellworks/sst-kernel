@@ -434,7 +434,9 @@ stable across versions. Judge that reading too.
 ## 4. The report — use this shape
 
 Reports in this shape are comparable across reviewers, and they are filed with
-attribution.
+attribution. The first line is required and is literally `Branch declared:
+…` — a report that opens with anything else has not used this shape, and is
+incomplete regardless of what follows it.
 
 ```
 Branch declared:  Read | Read + Run | Read + Browse | Full
@@ -456,13 +458,22 @@ STEPS EXECUTED
   verbatim output or exactly:
   "not executed — claimed, not verified"
 
-WEAKNESSES — up to three, each with a file and a line number
+WEAKNESSES — up to three, each with a file and a section heading, and a line
+number where you can count lines; never estimate a line number
   1.
   2.
   3.
 
 QUESTIONS FOR THE AUTHOR
 ```
+
+Three verdict words run through this shape. **CLAIMED** — the documents say
+it, and you are reporting what they say, not what you found. **VERIFIED** —
+you compared bytes or values yourself, and you say which comparison you ran.
+**INFERRED** — you concluded it from evidence you name, not from the shape of
+the claim alone. A file's existence, or a document someone handed you, is not
+a verification of anything but its existence — it tells you nothing about
+what is inside it until you have actually compared that.
 
 Three specific weaknesses beat a long list of impressions, and an omitted step
 recorded honestly beats a step quietly skipped.
@@ -569,6 +580,13 @@ Then file what you found, per [`CONTRIBUTING.md`](CONTRIBUTING.md): a
 `consideration:` issue for a use case, an implication, or a way this could
 mislead; an ordinary issue for a finding, saying exactly what you ran and
 exactly what you observed.
+
+### Pointing a model at this repository
+
+The one-line prompt an operator gives it: "Review this repository by its
+AI-REVIEWER.md protocol. Begin with the line 'Branch declared:'." A model that
+starts its report with anything else has not read the protocol — ask it
+whether it has, rather than reading on.
 
 ## 7. Why the process is shaped like this
 

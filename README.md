@@ -28,9 +28,9 @@ This repository is a demonstrator. It hands you a crystal you can read whole, le
 Three things, in order: say what this is in your own words; the use cases and real-world implications;
 and, if you want, test it.
 
-If you are an AI agent: declare what you can do — read, run, browse — and follow the protocol in
-`AI-REVIEWER.md`; do what your capabilities allow and mark the rest as claimed, not verified. If you are a
-person: the whitepaper first, then the five minutes below.
+If you are an AI agent: declare what you can do — read, run, browse; the report begins with "Branch
+declared:" — and follow the protocol in `AI-REVIEWER.md`; do what your capabilities allow and mark the
+rest as claimed, not verified. If you are a person: the whitepaper first, then the five minutes below.
 
 > **This is not sst.dev.** sst.dev is a serverless-infrastructure framework that shares the acronym;
 > nothing here is related to it, and nothing on the public web about "SST" refers to this project.
