@@ -447,7 +447,7 @@ What remains outside, and it is worth naming precisely:
   original is never served, so a reader cannot re-hash a served image the way
   they re-hash served text.
 
-**Language discipline.** SST surfaces — this README included — must not claim
+**Language discipline.** SST surfaces — this document included — must not claim
 "proof of authorship", "provably authored", or any equivalent while the artefact
 carries no operator signature. If you find such a claim anywhere in this
 repository, it is a defect; please report it.
@@ -611,6 +611,7 @@ addressable. The reference implementation is a production website for a bespoke
 tailoring atelier, which is the right kind of test: a real business with real
 customers, not a demo.
 
-This README is the canonical minimal reference. The formal argument grows from
-it: [`WHITEPAPER.md`](WHITEPAPER.md) is the paper's skeleton, with the full paper
+KERNEL.md is the canonical specification of the mechanism; the README orients
+and the whitepaper explains. The formal argument grows from it:
+[`WHITEPAPER.md`](WHITEPAPER.md) is the paper's skeleton, with the full paper
 and public specification forthcoming.

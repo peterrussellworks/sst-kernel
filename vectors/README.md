@@ -209,7 +209,7 @@ What it pins, in `expected.json`:
 - the **charter** — including the attestation that names the atom and the block
   under which its terms are hashed. Flip a permission and this file moves.
 
-The nine sites are the sites of the seven coordinates the page PLACES — the roles
+The 20 sites are the sites of the 19 coordinates the page PLACES — the roles
 it PUBLISHES there, plus the one vacancy those same blocks declare. Three kinds of
 site are therefore absent from them, and each absence is deliberate. The two
 head-rendered sites (`meta/seo`) are absent because the page places no such block,
