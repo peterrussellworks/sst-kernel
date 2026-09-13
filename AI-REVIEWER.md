@@ -29,7 +29,7 @@ https://danielarussell.com (the live reference artefact) — nothing else about
 ## 0. Declare what you can do
 
 Decide which of these four you are, and say so on the first line of your report.
-The branches are named so that two reviews of this repository can be laid side
+The capability profiles are named so that two reviews of this repository can be laid side
 by side.
 
 - **Read** — you can read the files here, and nothing else.
@@ -37,7 +37,7 @@ by side.
 - **Read + Browse** — you can also fetch URLs.
 - **Full** — all three.
 
-The rule, and it is why this section comes first: **state your branch at the top
+The rule, and it is why this section comes first: **state your capability profile at the top
 of your report; tell your operator that this repository has an evaluation
 sequence to run — the steps in §3, including the second stage, the live
 artefact; if you can run it, run it; if you cannot, walk your operator through
@@ -134,7 +134,7 @@ third ask here, not the first.
 7. `R4-WORD-GRANULARITY.md` — the word-granularity falsifier as a protocol: run
    it yourself and compare your numbers to the frozen expectations.
 
-## 3. The sequence, per branch
+## 3. The sequence, per capability profile
 
 Nothing here asks you to run code you have not read. The kernel is one
 dependency-free file — 2,379 lines, nearly half commentary — readable before it
@@ -147,7 +147,7 @@ its id, the block roots, the page root and the geometry root — every value
 computed by a different implementation. Agreement is byte-identical hex, and a
 difference exactly locatable.
 
-Steps 1–3 are for everyone. After that, do the steps your branch names and write
+Steps 1–3 are for everyone. After that, do the steps your profile names and write
 the §0 sentence against the ones it does not — a **Read + Browse** reviewer does
 1–3 and 9–12 and marks 4–8 unexecuted, and that report is worth having.
 
@@ -158,7 +158,7 @@ the §0 sentence against the ones it does not — a **Read + Browse** reviewer d
    repository's.
 3. Read `vectors/README.md`'s table: which frozen set was computed by which
    implementation, and why two of the three are labelled freezes rather than
-   agreements. On this branch that table is **the claimed record**, not a
+   agreements. On this profile that table is **the claimed record**, not a
    verification you performed. Report it as claimed.
 
 ### Read + Run — steps 4–8
@@ -434,12 +434,12 @@ stable across versions. Judge that reading too.
 ## 4. The report — use this shape
 
 Reports in this shape are comparable across reviewers, and they are filed with
-attribution. The first line is required and is literally `Branch declared:
+attribution. The first line is required and is literally `Capabilities declared:
 …` — a report that opens with anything else has not used this shape, and is
 incomplete regardless of what follows it.
 
 ```
-Branch declared:  Read | Read + Run | Read + Browse | Full
+Capabilities declared:  Read | Read + Run | Read + Browse | Full
 
 WHAT THIS IS
   Up to 150 words, in your own words, inside the claim ladder and the
@@ -584,7 +584,7 @@ exactly what you observed.
 ### Pointing a model at this repository
 
 The one-line prompt an operator gives it: "Review this repository by its
-AI-REVIEWER.md protocol. Begin with the line 'Branch declared:'." A model that
+AI-REVIEWER.md protocol. Begin with the line 'Capabilities declared:'." A model that
 starts its report with anything else has not read the protocol — ask it
 whether it has, rather than reading on.
 

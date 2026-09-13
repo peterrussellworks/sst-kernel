@@ -28,7 +28,7 @@ This repository is a demonstrator. It hands you a crystal you can read whole, le
 Three things, in order: say what this is in your own words; the use cases and real-world implications;
 and, if you want, test it.
 
-If you are an AI agent: declare what you can do — read, run, browse; the report begins with "Branch
+If you are an AI agent: declare what you can do — read, run, browse; the report begins with "Capabilities
 declared:" — and follow the protocol in `AI-REVIEWER.md`; do what your capabilities allow and mark the
 rest as claimed, not verified. If you are a person: the whitepaper first, then the five minutes below.
 
@@ -66,7 +66,7 @@ that split is said here rather than left to a pricing page.
 | `sst-kernel.mjs` | the whole implementation — build, verify, tamper, seal, vectors |
 | `KERNEL.md` | the mechanism, specified: spines, gates, proof boundary, limitations, conformance |
 | `WHITEPAPER.md` | the concept — what SST is and why, the formal model, the conformance story |
-| `AI-REVIEWER.md` | the review protocol — declare what you can do, follow that branch's sequence, report in the shape |
+| `AI-REVIEWER.md` | the review protocol — declare what you can do, follow that profile's sequence, report in the shape |
 | `AGENTS.md` | twelve lines agent tooling reads by convention; it points at the protocol |
 | `substrate/` | the crystal the kernel builds from, and the traps built into it |
 | `vectors/` | the frozen conformance vectors — three sets, one of them a refusal set |
