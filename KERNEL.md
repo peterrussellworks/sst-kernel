@@ -601,28 +601,6 @@ it promised. That reading is proposed rather than settled; the alternative is a
 separate version number for the gate set. If it changes, what changes is the
 dispatch, not a single hash.
 
-## The rig
-
-Genesis (`kit/AGENT-GENESIS.md`) builds a crystal once. The rig — `kit/rig/` — is what grows it
-afterward: the same working method carried as files, not as a habit that lives in one operator's
-head. *The Last CEO*'s claim is that the org chart is replaced by an operator and a rig; this is
-what makes that more than a slogan.
-
-| file | does |
-|---|---|
-| `CLAUDE-SKELETON.md` | the map-file pattern a fresh agent reads first, before touching anything |
-| `LAWS.md` | the distilled physics — what breaks a rig, and the rule that prevents each failure |
-| `agents/` | three executor definitions — ordinary steps, hard kernels, read-only audit |
-| `skills/` | how the orchestrator briefs a step, and how it verifies what comes back before merging |
-| `hooks/` | an optional mechanical fence — offered, never imposed |
-
-**Install it by cloning.** There is nothing to build or run: copy `agents/*.md` into
-`.claude/agents/` (or your tooling's equivalent), copy `skills/*.md` and `LAWS.md` wherever your
-agent reads from at session start, and instantiate `CLAUDE-SKELETON.md` as your own `CLAUDE.md`.
-`AGENT-GENESIS.md`'s own closing phase performs this gesture automatically at the end of a
-genesis run, if `kit/rig/` sits beside it; [`kit/rig/README.md`](kit/rig/README.md) has the full
-walkthrough for installing it on its own.
-
 ## Beyond the kernel
 
 The production framework applies the same move — *replace every hand-maintained

@@ -128,8 +128,6 @@ third ask here, not the first.
    agreements.
 7. `R4-WORD-GRANULARITY.md` — the word-granularity falsifier as a protocol: run
    it yourself and compare your numbers to the frozen expectations.
-8. `kit/` — the agent-genesis pipeline and the validator pattern catalogue. Later
-   work built on the kernel, not part of the crypto surface.
 
 ## 3. The sequence, per branch
 

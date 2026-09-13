@@ -54,11 +54,10 @@ standard library only; nothing is installed, downloaded or sent anywhere. Remove
 What `seal` just showed you: a vacancy is not missing data. It is a declared absence with its own identity
 and its own root, so "what is missing" is a measurement rather than a guess.
 
-**Have a folder of your own work?** [`kit/AGENT-GENESIS.md`](kit/AGENT-GENESIS.md) turns it into a
-private, verifiable crystal and a face you can print — nothing adopted, nothing published — and
-[`kit/rig/`](kit/rig/) is what grows the crystal afterwards. [`kit/README.md`](kit/README.md) says what
-the shipped shapes can and cannot make of it. The kit is complete and free at individual-operator scale;
-the paid layer is organisational only, and that split is said here rather than left to a pricing page.
+**Have a folder of your own work?** The kit that turns it into a private, verifiable crystal, and the
+rig that grows the crystal afterwards, live in their own repository and will be published separately.
+The kit is complete and free at individual-operator scale; the paid layer is organisational only, and
+that split is said here rather than left to a pricing page.
 
 ## What is in here
 
@@ -73,7 +72,6 @@ the paid layer is organisational only, and that split is said here rather than l
 | `vectors/` | the frozen conformance vectors — three sets, one of them a refusal set |
 | `charter.yaml` | this repository's own terms, in the format's own instrument (PROPOSED) |
 | `R4-WORD-GRANULARITY.md` | the word-granularity falsifier, as a protocol |
-| `kit/` | the agent-genesis pipeline, the validator pattern catalogue, and the rig |
 | `check-repo.mjs` | checks this table against the tree — every row a file, every file a row |
 
 ## Licence
