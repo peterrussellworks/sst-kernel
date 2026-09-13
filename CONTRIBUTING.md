@@ -8,7 +8,7 @@ bureaucracy but the format's own logic applied to itself.
 
 ## Findings are welcome
 
-A bug, an unclear paragraph, a cold run of `kit/AGENT-GENESIS.md` that didn't go
+A bug, an unclear paragraph, a cold run of the genesis kit (now in its own repository) that didn't go
 the way the document predicted, a vector that doesn't reproduce on your machine,
 a claim in `README.md` or `WHITEPAPER.md` that overstates what the gates actually
 prove — these are wanted reports, not tolerated ones. Open an issue and say
@@ -38,15 +38,7 @@ as an issue — argue for it in prose — and it will be considered on those ter
 
 ## The kit: propose, the operator adopts
 
-`kit/` — the genesis pipeline, the rig, the validator pattern catalogue — is less
-frozen than the format, but it still does not evolve by merge-on-approval. It
-evolves the way its own documents already describe: **run it, see what breaks,
-file the fix.** Open an issue describing what broke, what you expected, and, if
-you have one, a proposed fix. The operator adopts it in their own surface, on
-their own timeline, the same way a genesis run adopts nothing until the operator
-says so (`kit/AGENT-GENESIS.md` §8). A pull request against `kit/` may still be
-useful as a concrete proposal to read — but it is a proposal, not a merge queue
-entry, and silence on it is not a rejection.
+The genesis kit, the rig and the validator pattern catalogue live in a separate repository, to be published separately; findings about them go there.
 
 ## Conduct
 

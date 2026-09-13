@@ -10,12 +10,10 @@ repository — the written argument, not the machinery:
     R4-WORD-GRANULARITY.md
     substrate/README.md
     vectors/README.md
-    kit/README.md
-    kit/AGENT-GENESIS.md
     charter.yaml (the prose of its declared terms)
 
 Everything else — sst-kernel.mjs, the substrate fixture, the frozen
-conformance vectors, kit/validator-catalog.json — is licensed under the
+conformance vectors — is licensed under the
 Apache License 2.0. See LICENSE.
 
 Copyright 2026 Peter Russell.

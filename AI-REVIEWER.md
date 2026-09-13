@@ -43,8 +43,6 @@ https://danielarussell.com (the live reference artefact) — nothing else about
    not published here; it says so.
 6. `R4-WORD-GRANULARITY.md` — the word-granularity falsifier as a protocol: run
    it yourself and compare your numbers to the frozen expectations.
-7. `kit/` — the agent-genesis pipeline and the validator pattern catalogue. Later
-   work built on the kernel, not part of the crypto surface.
 
 ## The one hands-on moment — have your user run these (Node.js, no installs):
 ```

@@ -27,11 +27,7 @@ declared rather than silent.
 No dependencies. Node's standard library only. Nothing is installed, downloaded,
 or sent anywhere.
 
-**Have a folder of your own work?** [`kit/AGENT-GENESIS.md`](kit/AGENT-GENESIS.md)
-is the file to hand your agent: it turns that folder into a private, verifiable
-crystal and a face you can print — nothing adopted, nothing published, and
-[`kit/README.md`](kit/README.md) says up front what the shipped shapes can and
-cannot make of it.
+The agent-genesis kit and the rig that grows a crystal live in a separate repository, to be published separately.
 
 ## The idea
 
@@ -219,10 +215,6 @@ blurred:
   failure rather than a surprise, and it becomes a cross-implementation check the
   day a second implementation reproduces it.
 
-A third set, `vectors/genesis-face/`, freezes the machine records a genesis face
-emits (`kit/AGENT-GENESIS.md` §7) rather than the format itself; the kernel does
-not run it, and it carries its own checker.
-
 [`vectors/README.md`](vectors/README.md) has the full provenance of all three. If you
 port this kernel and your bytes differ from those, one of us is wrong and the
 difference is exactly locatable — which is the entire argument for having
@@ -234,40 +226,13 @@ vectors at all.
 |---|---|
 | `sst-kernel.mjs` | the whole implementation — build, verify, tamper, seal, vectors |
 | `substrate/` | the fixture the kernel builds, and the traps built into it |
-| `vectors/` | the frozen conformance vectors — two format sets the kernel runs, plus `genesis-face/`, which freezes the kit's face records and carries its own checker |
+| `vectors/` | the frozen conformance vectors — two format sets the kernel runs |
 | `charter.yaml` | this repository's own terms, in the format's own instrument (PROPOSED) |
 | `WHITEPAPER.md` | the paper's skeleton — the thesis, the formal model, the conformance story |
 | `AI-REVIEWER.md` | the preface for a machine asked to review this |
 | `R4-WORD-GRANULARITY.md` | the word-granularity falsifier, as a protocol — run it yourself and compare against the frozen expectations |
-| `kit/` | the agent-genesis pipeline, the validator pattern catalogue, and the rig that grows a crystal after genesis |
 | `check-repo.mjs` | checks this table against the tree — every row a file, every file a row |
 
-## The rig
-
-Genesis (`kit/AGENT-GENESIS.md`) builds a crystal once. The rig — `kit/rig/` — is what grows it
-afterward: the same working method carried as files, not as a habit that lives in one operator's
-head. *The Last CEO*'s claim is that the org chart is replaced by an operator and a rig; this is
-what makes that more than a slogan.
-
-| file | does |
-|---|---|
-| `CLAUDE-SKELETON.md` | the map-file pattern a fresh agent reads first, before touching anything |
-| `LAWS.md` | the distilled physics — what breaks a rig, and the rule that prevents each failure |
-| `agents/` | three executor definitions — ordinary steps, hard kernels, read-only audit |
-| `skills/` | how the orchestrator briefs a step, and how it verifies what comes back before merging |
-| `hooks/` | an optional mechanical fence — offered, never imposed |
-
-**Install it by cloning.** There is nothing to build or run: copy `agents/*.md` into
-`.claude/agents/` (or your tooling's equivalent), copy `skills/*.md` and `LAWS.md` wherever your
-agent reads from at session start, and instantiate `CLAUDE-SKELETON.md` as your own `CLAUDE.md`.
-`AGENT-GENESIS.md`'s own closing phase performs this gesture automatically at the end of a
-genesis run, if `kit/rig/` sits beside it; [`kit/rig/README.md`](kit/rig/README.md) has the full
-walkthrough for installing it on its own.
-
-**The free/paid line, stated outright:** the kit — genesis, the rig, the validator catalogue — is
-complete and free at individual-operator scale; the paid layer is organizational only
-(certification against the vectors, multi-operator crews, custody, canon-as-a-service), and
-that split is said here rather than left for a pricing page to reveal.
 
 ## Licence
 

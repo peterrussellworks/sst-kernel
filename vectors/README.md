@@ -10,7 +10,6 @@ that does not rot.
 `node sst-kernel.mjs vectors` runs the two FORMAT sets below. They have two
 different provenances and prove two different things. **Which is which matters,
 so it is stated here rather than implied.** A third set,
-[`genesis-face/`](genesis-face/), freezes a layer built on the format rather
 than the format itself; the kernel does not run it and it carries its own
 checker.
 
@@ -98,42 +97,11 @@ difference is exactly locatable.
 
 ---
 
-## `genesis-face/` — the machine channel of a genesis face, frozen by this kernel
-
-**Provenance: computed by THIS repository, over a synthetic example. A freeze,
-not an agreement**, on the same terms as `v1.2-manifest/`. It is a set about the
-KIT rather than about the format: `kit/AGENT-GENESIS.md` §7 describes a genesis
-face's machine channel — the page manifest, the proto-charter, the emission
-record — and described it in prose alone until the first stranger to run the
-document cold had to invent all three shapes for himself.
-
-What it pins: the `@type` vocabulary and required fields of those three
-records, plus the face declaration that ties them together; and a reproduction
-rule under which every identity in the set recomputes from the set alone — atom
-ids from their canonical text, a projected block root from exactly the atoms a
-face rendered, `projected_from` from every atom the crystal block holds, the
-page root from the block hashes, the crystal root from the bill of materials.
-
-It is **not** run by `node sst-kernel.mjs vectors`: the kernel is the format,
-and a kit layer has no business inside it. Run it on its own —
-
-```
-node vectors/genesis-face/check-genesis-face.mjs
-```
-
-— which reproduces §4.1's 18 frozen vectors with its own transcription of the
-primitives before it hashes anything in the set.
-[`genesis-face/README.md`](genesis-face/README.md) states what binds, what is
-illustrative, and the one value that structurally cannot recompute.
-
----
 
 ## Re-freezing
 
-All three sets are frozen deliberately and never as a side effect. `v1-fixture/` is
+Both sets are frozen deliberately and never as a side effect. `v1-fixture/` is
 production's to re-pin, not this repository's — the whole value of the set is
 that the kernel did not compute it. `v1.2-manifest/` is regenerated from a
 build of `substrate/`; if you regenerate it, read the diff first and say why in
-the commit message. `genesis-face/` moves only when the §7 contract itself
-moves, and its own README says so in the same words. A vector set that quietly
 re-freezes itself whenever it disagrees with the code is not a vector set.
