@@ -83,6 +83,14 @@ Three Merkle roots over the same lattice, answering three different questions:
 | **composition** | WHERE, HOW MANY TIMES, AND HOW — the page's placements, in order, the page's own furniture, and the registry its descriptors name | a placement-coordinate: the identity placed, the coordinate it was placed at, and a root over the atoms it carried with the mode each was carried in; then two trailing leaves, one over the page's furniture root and one over its `registry_hash` | a block is moved, repeated or dropped, a placement changes what it prints or how, a word of the page's own furniture changes, or the registry the page names is swapped — **never** on a content edit |
 | **geometry** | THE SHAPE, incl. negative space | a site-coordinate valued by occupancy state | a site is added/removed, or a hole is filled/sealed — **never** on a content edit |
 
+**What a page root names.** The page root is the Merkle root of the page's block sequence
+in canonical order, and nothing else: it is the identity of the collection the page carries,
+not of the page. Two pages that carry the same collection share it — the reference artefact
+has one such pair, two project pages that each show the other in a related-work strip, so
+their attested block sequences coincide. That is the content spine doing what it says. The
+identity of the page *as arranged* is the composition root, which differs between them, and
+a face or an index that names a page should name it by its composition root, or by both.
+
 The geometry spine is *matter-invariant*: editing an atom leaves the coordinate
 and its state untouched. So is the composition spine — moving a block changes
 neither the block nor the page root, and editing the block changes neither
