@@ -7,14 +7,11 @@ of permission categories — while the prose describing them agreed perfectly.
 Byte-exact vectors that any implementation must reproduce are the only binding
 that does not rot.
 
-`node sst-kernel.mjs vectors` runs the three FORMAT sets below. They have
-different provenances and prove different things. **Which is which matters, so it
-is stated here rather than implied.** A further set,
-[`genesis-face/`](genesis-face/), freezes a layer built on the format rather
-than the format itself; the kernel does not run it and it carries its own
-checker.
+`node sst-kernel.mjs vectors` runs the three sets below. They have different
+provenances and prove different things. **Which is which matters, so it is
+stated here rather than implied.**
 
-The third format set adds a kind of vector the first two do not have: a **refusal
+The third set adds a kind of vector the first two do not have: a **refusal
 set**, which pins what the gates must REJECT rather than what the primitives must
 reproduce. A vector that only ever passes cannot tell you a gate has quietly
 stopped checking.
@@ -398,39 +395,9 @@ worse than no vector.
 
 ---
 
-## `genesis-face/` — the machine channel of a genesis face, frozen by this kernel
-
-**Provenance: computed by THIS repository, over a synthetic example. A freeze,
-not an agreement**, on the same terms as `v1.2-manifest/`. It is a set about the
-KIT rather than about the format: `kit/AGENT-GENESIS.md` §7 describes a genesis
-face's machine channel — the page manifest, the proto-charter, the emission
-record — and described it in prose alone until the first stranger to run the
-document cold had to invent all three shapes for himself.
-
-What it pins: the `@type` vocabulary and required fields of those three
-records, plus the face declaration that ties them together; and a reproduction
-rule under which every identity in the set recomputes from the set alone — atom
-ids from their canonical text, a projected block root from exactly the atoms a
-face rendered, `projected_from` from every atom the crystal block holds, the
-page root from the block hashes, the crystal root from the bill of materials.
-
-It is **not** run by `node sst-kernel.mjs vectors`: the kernel is the format,
-and a kit layer has no business inside it. Run it on its own —
-
-```
-node vectors/genesis-face/check-genesis-face.mjs
-```
-
-— which reproduces §4.1's 18 frozen vectors with its own transcription of the
-primitives before it hashes anything in the set.
-[`genesis-face/README.md`](genesis-face/README.md) states what binds, what is
-illustrative, and the one value that structurally cannot recompute.
-
----
-
 ## Re-freezing
 
-All four sets are frozen deliberately and never as a side effect. `v1-fixture/` is
+All three sets are frozen deliberately and never as a side effect. `v1-fixture/` is
 production's to re-pin, not this repository's — the whole value of the set is
 that the kernel did not compute it. `v1.2-manifest/` is regenerated from the
 substrate frozen inside it, which is another way of saying it is not regenerated:
@@ -446,10 +413,8 @@ again: regenerating a refusal file means regenerating the page it edits, and a
 gate that has stopped refusing what it is frozen to refuse is a format change to
 be argued for, never a vector to be re-cut — and if the argument is won, as it was
 for `edited-block-order.html`, the vector is DELETED with the reason recorded, not
-softened until it passes. `genesis-face/` moves only when the §7
-contract itself moves, and its own README says so in the same words. A vector set
-that quietly re-freezes itself whenever it disagrees with the code is not a vector
-set.
+softened until it passes. A vector set that quietly re-freezes itself whenever it
+disagrees with the code is not a vector set.
 
 ## A note on versions
 

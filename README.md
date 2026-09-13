@@ -70,7 +70,7 @@ the paid layer is organisational only, and that split is said here rather than l
 | `AI-REVIEWER.md` | the review protocol — declare what you can do, follow that branch's sequence, report in the shape |
 | `AGENTS.md` | twelve lines agent tooling reads by convention; it points at the protocol |
 | `substrate/` | the crystal the kernel builds from, and the traps built into it |
-| `vectors/` | the frozen conformance vectors — three format sets, one of them a refusal set, plus `genesis-face/` with its own checker |
+| `vectors/` | the frozen conformance vectors — three sets, one of them a refusal set |
 | `charter.yaml` | this repository's own terms, in the format's own instrument (PROPOSED) |
 | `R4-WORD-GRANULARITY.md` | the word-granularity falsifier, as a protocol |
 | `kit/` | the agent-genesis pipeline, the validator pattern catalogue, and the rig |

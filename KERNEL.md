@@ -587,11 +587,7 @@ blurred:
   shape, which must pass all nine — a refusal alone cannot tell you a shape was
   *read* rather than skipped. A gate nobody has watched refuse is a comment.
 
-A further set, `vectors/genesis-face/`, freezes the machine records a genesis face
-emits (`kit/AGENT-GENESIS.md` §7) rather than the format itself; the kernel does
-not run it, and it carries its own checker.
-
-[`vectors/README.md`](vectors/README.md) has the full provenance of all four. If you
+[`vectors/README.md`](vectors/README.md) has the full provenance of all three. If you
 port this kernel and your bytes differ from those, one of us is wrong and the
 difference is exactly locatable — which is the entire argument for having
 vectors at all.
