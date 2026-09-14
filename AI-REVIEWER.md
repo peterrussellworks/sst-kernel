@@ -253,19 +253,22 @@ output verbatim; do not paraphrase a pass.
 ✗ check(s) 6 failed: tampered, out-of-spec, or transitional.
 ```
 
-   Every other check passes, and the process exits 1. It is one of thirty-two
-   frozen vectors — thirty-two copies of that page, each with one edit, each
+   Every other check passes, and the process exits 1. It is one of thirty-four
+   frozen vectors — all but one of them a copy of that page with one edit, each
    declaring the exact list of checks that must catch it, and step 7's
-   `vectors` ran them all. Thirty-one are refusals: most of those edits passed
+   `vectors` ran them all. Thirty-two are refusals: most of those edits passed
    every gate of the previous format version, one is a control the previous
    version already caught, two came in with the newest bindings, two passed all
    nine gates of the kernel immediately before this one, and two are a
    reviewer's worry about the whitespace rule measured as vectors — a
    zero-width space and a bidirectional override, each outside JavaScript's
-   `\s` and inside an atom. The thirty-second must **pass** — the same
-   injected paragraph as the refusal beside it, declared and with both roots
-   recomputed, so that only a comparison with the origin's published root catches
-   it. *Why:* step 6 showed a gate refusing a page you made; this shows the same
+   `\s` and inside an atom. Two must **pass**. One is the same injected
+   paragraph as the refusal beside it, declared and with both roots recomputed,
+   so that only a comparison with the origin's published root catches it. The
+   other is not an edit at all but a shape — one identity at two coordinates of
+   one page under two different roles — frozen because a verifier can refuse a
+   page for being what the format exists to make provable, and nothing else in
+   this set would notice. *Why:* step 6 showed a gate refusing a page you made; this shows the same
    gates holding on a page whose provenance is not yours, then naming — by block,
    and by the sentence itself — what a stranger added to it. Watching them fail,
    and that one pass, is the most informative minute in this repository.
@@ -536,8 +539,11 @@ recorded honestly beats a step quietly skipped.
    sites and the charter still agree with each other while the page says
    something else? Gate 8 in particular now asks three things and no more: the
    geometry root recomputes from the published sites; at every placed coordinate
-   the roles the block published and the present sites declared there are the
-   same set, both ways; and no site names a coordinate the page does not place.
+   the roles the block placed *there* published and the present sites declared
+   there are the same set, both ways — or, where the page also places that
+   identity at another coordinate, merely the same NUMBER of them, since the
+   manifest's one entry per identity can label only one of the coordinates
+   sharing it; and no site names a coordinate the page does not place.
    A page that withholds a site publishes a slice narrower than the operator's
    substrate, on purpose — so the sharp question is whether a page can withhold
    something the reader needed and still look complete. The refusal vectors show

@@ -466,15 +466,26 @@ function coordinateSites(rows, page, section, block) {
  *  THIS page, and the page is the only thing the verifier has.
  *
  *  The whole-artefact sidecar stays where it is — it carries the cross-page root,
- *  which no single page can. */
-const geometrySlice = (rows, page, placements, publishedRoles) => {
+ *  which no single page can.
+ *
+ *  EACH PLACEMENT CONTRIBUTES ITS OWN SITES, from the block that was placed THERE
+ *  — never from the one bill entry the page lists for that identity. Under Data
+ *  Superposition one identity may sit at two coordinates of the same page under
+ *  different roles, and then the bill's single entry describes at most one of
+ *  them: a slice filtered through it would withhold every present site at the
+ *  other coordinate and declare the page shapeless exactly where its shape is
+ *  most interesting. The placed block knows which roles it published where,
+ *  because it was compiled from that coordinate's own rows. Where an identity is
+ *  placed once — every block on an ordinary page — the two are the same object
+ *  and this changes nothing. */
+const geometrySlice = (rows, page, rendered) => {
   const sites = []; const seen = new Set();
-  for (const p of placements) {
-    const key = `${p.section}${US}${p.name}`;
+  for (const b of rendered) {
+    const key = `${b.section}${US}${b.name}`;
     if (seen.has(key)) continue; // a coordinate placed twice declares its sites once
     seen.add(key);
-    const published = publishedRoles.get(p.block) ?? new Set();
-    for (const site of coordinateSites(rows, page, p.section, p.name))
+    const published = new Set(b.atoms.map((a) => a.role));
+    for (const site of coordinateSites(rows, page, b.section, b.name))
       if (site.state !== 'present' || published.has(site.role)) sites.push(site);
   }
   return { root: pageGeometryRoot(page, sites), sites };
@@ -1022,11 +1033,11 @@ function buildManifest(renderedBody, blocks, { page, publishedPages, version, re
     blocks: entries,
     placements,
     furniture,
-    // The slice reads the roles the BILL declares for each identity, not the roles
-    // the rendered object happens to hold: gate 8 checks the slice against the bill
-    // entry, and where several coordinates share one identity the bill carries one
-    // entry for all of them. One source, so the two cannot disagree.
-    geometry: geometrySlice(rows, page, placements, new Map(entries.map((e) => [e.hash, new Set(e.atoms.map((a) => a.role))]))),
+    // The slice reads the roles each PLACED BLOCK publishes at its own coordinate,
+    // not the roles the one bill entry lists for that identity. The bill carries a
+    // single entry however many coordinates share an identity, so reading it here
+    // would hand every coordinate of a superposed twin the first one's roles.
+    geometry: geometrySlice(rows, page, rendered),
   };
 }
 
@@ -1930,6 +1941,19 @@ function runGates(html, log = console.log) {
   //     refused;
   //   · no site names a coordinate the page does not place.
   //
+  // PER PLACEMENT, NOT PER IDENTITY. The roles a coordinate carries are the ones
+  // the block placed THERE publishes, which is what §6.2 asks for. The manifest
+  // lists one entry per identity, so at a coordinate whose identity the page also
+  // places somewhere else — one sentence at two coordinates, under two roles, the
+  // superposition the format exists to make provable — that entry's roles and
+  // labels belong to at most one of the coordinates sharing it. Comparing them
+  // everywhere refuses the page for being what it is. So a SUPERPOSED coordinate
+  // is held to ARITY: the block prints as many roles there as the slice declares
+  // present sites, and the labels, which §2.5's P2 already calls metadata the
+  // entry carries rather than a claim the page proves, are not compared. Every
+  // coordinate whose identity the page places once — every block of an ordinary
+  // page — keeps the full check, labels and all.
+  //
   // THE PAGE'S GEOMETRY IS THE PAGE'S OWN SHAPE, not the substrate's. A projected
   // block publishes fewer roles than the substrate places at its coordinate, and
   // the slice says exactly that; the whole artefact's shape stays in the committed
@@ -1971,6 +1995,19 @@ function runGates(html, log = console.log) {
     (entry.name === undefined || entry.name === site.block) &&
     entry.block_type === site.block_type;
 
+  // WHICH IDENTITIES THIS PAGE SUPERPOSES — read from the transcript alone, which
+  // is the only face that says where anything was printed. An identity placed at
+  // two or more DISTINCT coordinates is superposed here; one printed twice at the
+  // same coordinate is not, because a site is a coordinate and not an occurrence,
+  // and the labels there are as comparable as any other page's.
+  const coordsOf = new Map();
+  for (const c of claimed) {
+    const key = `${c.section}${US}${c.name}`;
+    let seen = coordsOf.get(c.block);
+    if (!seen) { seen = new Set(); coordsOf.set(c.block, seen); }
+    seen.add(key);
+  }
+
   // Both directions at each placed coordinate: the block printed there carries
   // exactly the roles the present sites declare, and describes itself the way the
   // site does. Head-rendered blocks and the synthesized charter block are placed
@@ -1979,11 +2016,19 @@ function runGates(html, log = console.log) {
     const entry = entryByHash.get(p.block);
     if (!entry) continue; // absent from the bill ⇒ already a gate-3 forward failure
     const here = sites.filter((s) => s.section === p.section && s.block === p.name);
+    const present = new Set(here.filter((s) => s.state === 'present').map((s) => s.role));
+    const carried = new Set((entry.atoms ?? []).map((a) => a.role));
+    if ((coordsOf.get(p.block)?.size ?? 1) > 1) {
+      // A superposed coordinate: arity, and nothing that would compare a label
+      // the bill states for a different coordinate. A site added or dropped here
+      // still moves the count, which is the half of this check the page can prove.
+      if (carried.size !== present.size)
+        why8.push(`the block placed at ${p.section}/${p.name} carries ${carried.size} role(s), and ${present.size} present site(s) are declared there`);
+      continue;
+    }
     for (const site of here)
       if (!compatible(entry, site))
         why8.push(`the block placed at ${p.section}/${p.name} describes itself differently from the site declared there`);
-    const present = new Set(here.filter((s) => s.state === 'present').map((s) => s.role));
-    const carried = new Set((entry.atoms ?? []).map((a) => a.role));
     for (const role of carried)
       if (!present.has(role))
         why8.push(`the block placed at ${p.section}/${p.name} carries role "${role}" that no present site declares`);
@@ -2295,22 +2340,26 @@ function vectors() {
     const html = readFileSync(new URL(`vectors/v1.3-manifest/refusals/${c.file}`, import.meta.url), 'utf8');
     const got = runGates(html, () => {});
     if (JSON.stringify(got) !== JSON.stringify(c.refuses)) { fail(`refusal drift: ${c.file} failed [${got.join(', ')}], expected [${c.refuses.join(', ')}]`); continue; }
-    // ONE case in this set must PASS, and it is here because what it pins is the
-    // set's own boundary. It carries the same injected chrome paragraph as the
-    // refusal beside it, DECLARED — the furniture list extended and both roots
-    // recomputed — so the page is internally consistent and every gate says so.
-    // What catches it is that its composition root is not the one the origin
-    // published, and that is what this vector asserts: a passing page whose root
-    // has moved. If the injected text ever stopped moving the root, the page
-    // would be indistinguishable from the original and this vector would be the
-    // only thing to say so.
+    // SOME cases in this set must PASS, and each is here because of what passing
+    // pins. One carries the same injected chrome paragraph as the refusal beside
+    // it, DECLARED — the furniture list extended and both roots recomputed — so
+    // the page is internally consistent and every gate says so; what catches it
+    // is that its composition root is not the one the origin published, and the
+    // case declares `composition_root_moves` to assert exactly that. If the
+    // injected text ever stopped moving the root, the page would be
+    // indistinguishable from the original and this vector would be the only thing
+    // to say so. A passing case that is a SHAPE rather than an edit — a page
+    // built from its own substrate, carrying roots of its own — declares no such
+    // flag: there is no origin root for it to have moved from, and what it pins
+    // is that the gates admit the shape at all.
     if (c.composition_root_moves && manifestIn(html).composition_root === f13.page_manifest.composition_root)
       { fail(`${c.file}: every gate passes and the composition root did NOT move — the furniture is outside the root again`); continue; }
     refused++;
   }
   const mustPass = refusals.cases.filter((c) => c.refuses.length === 0).length;
+  const moved = refusals.cases.filter((c) => c.composition_root_moves).length;
   if (refused === refusals.cases.length)
-    console.log(`  ✓ ${refused - mustPass} refusal vectors each fail exactly the check they name, and ${mustPass} consistent rewrite passes every gate with its composition root moved`);
+    console.log(`  ✓ ${refused - mustPass} refusal vectors each fail exactly the check they name, and ${mustPass} consistent pages pass every gate (${moved} of them with a composition root the origin never published)`);
 
   console.log(ok
     ? `\n✓ sst-kernel reproduces the v1-fixture identity vectors (${expected.format}) and its own ${frozen.format} and ${f13.format} manifest vectors.`

@@ -230,12 +230,12 @@ it serves. Reinstate either reading and this freeze moves, which is the point of
 freezing it.
 
 And, beside them, `page.html` — the exact bytes the kernel builds. That is not
-decoration: thirty-one of the thirty-two files in `refusals/` are that page
+decoration: thirty-one of the thirty-four files in `refusals/` are that page
 with one edit, so a page that drifted would turn the refusal set into a test of nothing.
 `vectors` rebuilds it byte-for-byte, and checks it passes all nine gates, before
 it trusts a single refusal.
 
-`page-sst-charter-field.html` is the thirty-second file's subject and a vector in
+`page-sst-charter-field.html` is another file's subject and a vector in
 its own right: the same terms served in the OTHER charter shape — an entity document
 carrying an `sst_charter` field, which is what the reference implementation serves
 — with its attestation block re-derived by the same canonical rule. The kernel
@@ -251,14 +251,15 @@ verifier must reject, which is the half a passing vector cannot reach: a gate ca
 be deleted, weakened, or accidentally short-circuited without a single frozen
 hash moving.
 
-Thirty-two files, each a frozen page with ONE edit, each declaring in
-`expected.json` the exact list of checks `verify` must report — so a gate that
-stops refusing, starts refusing something else, or starts refusing two things at
-once all show up as drift rather than as a quiet pass.
+Thirty-four files — all but one of them a frozen page with ONE edit — each
+declaring in `expected.json` the exact list of checks `verify` must report, so a
+gate that stops refusing, starts refusing something else, or starts refusing two
+things at once all show up as drift rather than as a quiet pass.
 
-Thirty-one of them are refusals. The thirty-second,
-`consistent-furniture-rewrite.html`, must **pass**, and it is in this set because
-what it pins is the set's own boundary — see the note below the table.
+Thirty-two of them are refusals. Two must **pass**, and both are in this set
+because of what passing pins: `consistent-furniture-rewrite.html` pins the set's
+own boundary, and `superposed-twin-different-roles.html` pins a shape the gates
+must admit rather than an edit they must catch — see the notes below the table.
 
 | file | edit | must fail |
 |---|---|---|
@@ -270,6 +271,8 @@ what it pins is the set's own boundary — see the note below the table.
 | `removed-geometry-site.html` | the page's one declared vacancy deleted from the site list, the declared root left as it was | gate 8 |
 | `dropped-published-role.html` | a present site deleted for a role the block placed there does publish, with the declared root recomputed over the shorter list | gate 8 |
 | `withheld-site-claimed-present.html` | the projected block's withheld site claimed present in the slice — the sidecar's value for that coordinate — with the declared root recomputed | gate 8 |
+| `superposed-twin-different-roles.html` | not an edit — one identity at two coordinates of one page, under two different roles | *nothing — it must pass* |
+| `superposed-twin-site-missing.html` | that page with the second coordinate's one present site deleted from the slice, the declared root recomputed over the shorter list | gate 8 |
 | `flipped-charter-permission.html` | one permission flipped in the served charter, the attested copy left alone | gate 9 |
 | `deleted-charter.html` | the charter declaration deleted outright | gate 9 |
 | `second-charter.html` | a second charter object appended after the first, granting everything the first withholds | gate 9 |
@@ -295,7 +298,7 @@ what it pins is the set's own boundary — see the note below the table.
 | `registry-hash-edited.html` | the registry the descriptors name edited in its last character, the composition root left alone | gate 6 + gate 7 |
 | `consistent-furniture-rewrite.html` | the chrome paragraph again, DECLARED — furniture list extended, both roots recomputed | *nothing — it must pass, with a composition root that is not the frozen page's* |
 
-The four geometry cases are matched pairs on purpose. Removing a site with the
+The first four geometry cases are matched pairs on purpose. Removing a site with the
 root left alone is caught by the root; adding one with the root *recomputed* can
 only be caught by the cross-check against the placements, so between them they
 prove both halves of gate 8 rather than the arithmetic twice. The other pair takes
@@ -310,6 +313,20 @@ clean page while the terms a reader is shown are ambiguous. The flipped charter
 in the second shape is a pair with `page-sst-charter-field.html` for the same
 reason: the refusal names a hash mismatch, not a missing charter, and that is what
 shows the shape was read.
+
+**The superposed pair is a shape rather than an edit, and it is the one case here
+that had to be BUILT rather than mutated.** `superposed-twin-different-roles.html`
+places one identity at two coordinates of one page under two different roles — the
+same sentence set as a body paragraph at one coordinate and as a heading at the
+other. A manifest lists an identity once, so its single entry carries at most one
+of the two labels, and a verifier deriving a coordinate's roles from that entry
+refused this page on gate 8 for being exactly what the format exists to make
+provable. It is built from the frozen substrate with a single lattice cell changed
+— that second coordinate's role — so it is an ordinary page in every other
+respect, and it must pass all nine gates. `superposed-twin-site-missing.html` is
+its refusal: the one present site at that coordinate deleted from the slice with
+the geometry root recomputed, so the labels being uncomparable there leaves the
+COUNT as the only thing that can still refuse it — which it does.
 
 **The nine render-mode cases are chosen the same way, one per thing that could
 quietly stop being checked.** Each surface gets the failure that is invisible to
@@ -373,7 +390,8 @@ claim ladder's second rung frozen as bytes. If the furniture ever fell back out 
 the composition root, this page would become indistinguishable from the original
 and this vector would be the only thing left to say so.
 
-**The provenance of all but the control and the two newest is worth stating.**
+**The provenance of all but the control, the two furniture cases and the
+superposed pair is worth stating.**
 They are not hypotheticals written to make new gates look useful. Two of them come from a
 second stranger red team of this branch, which found the two furniture holes by
 running edits against the branch's own built page and watching all nine gates

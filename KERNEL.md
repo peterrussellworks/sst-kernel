@@ -100,7 +100,11 @@ it is why three roots are three roots rather than one.
 The page publishes its own geometry slice, and the slice is defined by what the
 page PLACES and what it PUBLISHES: for every coordinate it prints, the roles it
 publishes there and the vacancies that coordinate declares, with the root that
-recomputes from them. It is deliberately not a *lattice page's* slice, because a rendered page is
+recomputes from them. PER PLACEMENT, not per identity: the roles at a coordinate
+are the ones the block placed *there* publishes, so a page that prints one
+sentence at two coordinates under two different roles — Data Superposition, which
+is the property the format exists to make provable — declares both, instead of
+handing the second coordinate the first one's labels and refusing itself. It is deliberately not a *lattice page's* slice, because a rendered page is
 not a lattice page: one page draws its blocks from many, and a lattice page
 declares sites (a section still in draft) that no page renders. The whole-artefact
 `dist/geometry-manifest.json` stays a committed **sidecar** because it carries the
@@ -123,7 +127,7 @@ one.
 | 6 | **completeness** — every atom a placement declares is found on the surface it declares, in the order it declares, and once every declared element is accounted for — an attribute-mode element accounting for its attribute and never for what it shows — the wrapper holds *no visible text besides*; and, on a v1.3 page, the same question of the whole page — the furniture it carries is the furniture the manifest declares, the declared furniture root is the root over what the page shows, and nothing visible is left over |
 | — | **the §6.2 DOM-text rule** — gate 5's DOM-side counterpart: every *visible* atom's text re-hashes to its id (or, for a projected atom, the named projection recomputes) |
 | 7 | **composition** — the page renders exactly the declared placements, in document order; the declared furniture root recomputes from the declared furniture list; and the composition root recomputes from the placement leaves plus two trailing leaves, one over the page's furniture root and one over the registry its descriptors name |
-| 8 | **geometry** — the page's geometry root recomputes from the sites it publishes; at every coordinate it places, the roles the block published there and the present sites declared there are the same set, *both ways*; and no site names a coordinate the page does not place |
+| 8 | **geometry** — the page's geometry root recomputes from the sites it publishes; at every coordinate it places, the roles the block placed *there* published and the present sites declared there are the same set, *both ways* — or, where that identity also sits at another coordinate of the same page, the same NUMBER of them, because the manifest's one entry for an identity can label only one of the coordinates sharing it; and no site names a coordinate the page does not place |
 | 9 | **the charter** — the page serves *exactly one* charter object, and its served terms hash to the atom that charter names, inside a block the manifest carries, and therefore under the page root |
 
 **The artefact chooses the gate set, not the verifier.** A page declares its
@@ -405,6 +409,15 @@ What remains outside, and it is worth naming precisely:
   carries the whole artefact's shape, where the withheld site is still present.
   A slice showing fewer present sites than the sidecar is **projection, not
   loss**, and gate 8 reads the page's.
+- **At a superposed coordinate the roles are counted, not compared.** Where one
+  identity sits at two coordinates of the same page — one sentence, two roles —
+  the manifest carries a single entry for it, and that entry's `role`, `section`,
+  `name` and `block_type` describe at most one of the coordinates sharing it. So
+  gate 8 holds such a coordinate to ARITY: as many roles printed there as present
+  sites declared there. A site added or dropped there still moves the count and is
+  refused; a role *renamed* there, with the geometry root recomputed, is not —
+  the same relabelling limit as above, caught only against the origin's own roots.
+  Every coordinate whose identity the page places once keeps the full comparison.
 - **A declared render mode is checked, but the surfaces are not equal.** Gate 6
   proves that every atom a placement declares is present in the form it declares
   and that nothing else visible is in the wrapper. It does not make an attribute
