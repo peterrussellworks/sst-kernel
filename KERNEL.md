@@ -45,7 +45,11 @@ source and your screen. SST replaces the claim with a *measurement*:
    **Trust model**, and no higher. What a face *withholds* is a different
    question: matching a published face against the material behind it needs the
    operator to share a slice of the crystal, and until then a reader has the
-   domain, the artefacts on it, and the roots.
+   domain, the artefacts on it, and the roots. A projection may be a PDF, too:
+   the reference artefact's PDF faces carry their machine face inside the file
+   itself — an embedded manifest and rights metadata — so a reader can check the
+   pages against it and both against the origin. The kernel does not read PDFs;
+   a verifier with a PDF text extractor lives outside this one-file kernel.
 
 The demo artefact's content **is** this explanation: the page describes the
 mechanism that proves the page. Run `tamper` to watch the content proof work (it
