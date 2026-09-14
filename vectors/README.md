@@ -230,7 +230,7 @@ it serves. Reinstate either reading and this freeze moves, which is the point of
 freezing it.
 
 And, beside them, `page.html` — the exact bytes the kernel builds. That is not
-decoration: thirty-one of the thirty-four files in `refusals/` are that page
+decoration: thirty-two of the thirty-five files in `refusals/` are that page
 with one edit, so a page that drifted would turn the refusal set into a test of nothing.
 `vectors` rebuilds it byte-for-byte, and checks it passes all nine gates, before
 it trusts a single refusal.
@@ -251,18 +251,19 @@ verifier must reject, which is the half a passing vector cannot reach: a gate ca
 be deleted, weakened, or accidentally short-circuited without a single frozen
 hash moving.
 
-Thirty-four files — all but one of them a frozen page with ONE edit — each
+Thirty-five files — all but one of them a frozen page with ONE edit — each
 declaring in `expected.json` the exact list of checks `verify` must report, so a
 gate that stops refusing, starts refusing something else, or starts refusing two
 things at once all show up as drift rather than as a quiet pass.
 
-Thirty-two of them are refusals. Two must **pass**, and both are in this set
+Thirty-three of them are refusals. Two must **pass**, and both are in this set
 because of what passing pins: `consistent-furniture-rewrite.html` pins the set's
 own boundary, and `superposed-twin-different-roles.html` pins a shape the gates
 must admit rather than an edit they must catch — see the notes below the table.
 
 | file | edit | must fail |
 |---|---|---|
+| `head-block-not-charter.html` | an ordinary body block deleted from the page and from the transcript, both roots recomputed, its manifest entry left behind under a section the head exemption does not cover | gate 3 |
 | `reordered-blocks.html` | the first two rendered blocks swapped | gate 7 |
 | `duplicated-block.html` | one block rendered a second time | gate 7 |
 | `dropped-superposed-placement.html` | one of the two placements of a superposed identity deleted | gate 7 |
@@ -313,6 +314,20 @@ clean page while the terms a reader is shown are ambiguous. The flipped charter
 in the second shape is a pair with `page-sst-charter-field.html` for the same
 reason: the refusal names a hash mismatch, not a missing charter, and that is what
 shows the shape was read.
+
+**`head-block-not-charter.html` pins the boundary of gate 3's one exemption.**
+A block whose atoms become a `<title>`, a `<meta>` or the operator's terms cannot
+be evidenced in the DOM at all, so the manifest attests it alone — the page title
+and description, and the whole `charter` section, which is how an artefact
+actually serves its terms: the authorship claim, the licence, the provenance, one
+block per permission category. This case takes an ordinary body block, removes it
+from the page and from the placement transcript with both roots recomputed, and
+leaves its manifest entry in place under the section it always had. Relabel that
+one entry's section to `charter` and the same bytes pass every gate; that is the
+whole boundary, and it is why the exemption is a fixed coordinate rather than a
+list the page declares. What the exempt blocks never escape is the hashing: gate 5
+re-hashes each of their atoms from the manifest, gate 4 folds them into the page
+root, gate 9 binds the served terms to an atom inside one of them.
 
 **The superposed pair is a shape rather than an edit, and it is the one case here
 that had to be BUILT rather than mutated.** `superposed-twin-different-roles.html`

@@ -130,11 +130,10 @@ const PUBLISHED_PAGES = new Set([PAGE]);
 
 /** The §2.5 head-rendered exceptions: blocks whose atoms become elements that
  *  cannot carry a data attribute (`<title>`, `<meta>`, the charter `<script>`).
- *  ONE table, read twice — by the emitter, to decide what renders into `<head>`,
- *  and by gate 3, to exempt those blocks from the reverse-parity check. Keyed on
- *  `section`/`name` ALONE, never `page`: under §2.5's optional provenance labels
- *  a superposed head block has no `page` to match, and keying on one would
- *  silently drop its exemption (P5.3, ruled 2026-08-24). */
+ *  THE EMITTER'S table — what this kernel puts in `<head>`, and in what shape.
+ *  Keyed on `section`/`name` ALONE, never `page`: under §2.5's optional
+ *  provenance labels a superposed head block has no `page` to match, and keying
+ *  on one would silently drop its exemption (P5.3, ruled 2026-08-24). */
 /** The charter attestation site. §2.5's sole structural departure: this block is
  *  SYNTHESIZED from the charter, not compiled from a lattice row, so it has no
  *  lattice position (it is appended after every substrate block) and no geometry
@@ -146,6 +145,30 @@ const HEAD_BLOCKS = [
 ];
 const isHeadBlock = (b) =>
   HEAD_BLOCKS.some((h) => h.section === b.section && h.name === b.name);
+
+/** GATE 3's exemption, which is WIDER than the table above and deliberately so.
+ *  A real artefact does not serve its terms as one synthesized block. It serves a
+ *  FAMILY of them — the authorship claim, the licence, the provenance, one block
+ *  per permission category — and every one becomes part of a `<script>` in the
+ *  head, an element that can carry a data attribute no more than a `<meta>` can.
+ *  Measured on a published artefact of this format, nine such blocks were refused
+ *  by the DOM-presence half of gate 3 while every other gate passed: the licence
+ *  and the authorship claim, the least provable things on a page whose whole
+ *  argument is that an operator's terms travel with the work.
+ *
+ *  So the exemption is the whole `charter` SECTION — machine data not addressed
+ *  to a reader — and not a list the page declares, which would let a page exempt
+ *  whatever it named.
+ *
+ *  What an exempt block escapes is ONE question: whether its identity also shows
+ *  up in the DOM. Gate 5 still re-hashes every one of its atoms from the manifest
+ *  and recomputes its root from them, gate 4 still folds that root into the page
+ *  root, and gate 9 still binds the served terms to an atom inside one of them.
+ *  Nothing here is unhashed; something here is unrendered.
+ *
+ *  A superset of the emitter's table by construction, so a block this kernel puts
+ *  in the head can never be one gate 3 then demands in the body. */
+const isHeadExempt = (b) => isHeadBlock(b) || b.section === 'charter';
 
 // ── Reserved sentinels (SPEC §4.7.2) ──────────────────────────────────────
 // A vacant lattice site is NOT a missing row — it is a row whose atom_ref is one
@@ -1765,7 +1788,11 @@ function runGates(html, log = console.log) {
   //     the charter <script>, elements that cannot carry a data attribute at
   //     all. The predicate keys on section/name ALONE (P5.3) — a superposed
   //     head block has no `page` label to match, and keying on one would drop
-  //     the exemption from exactly the block that needs it most.
+  //     the exemption from exactly the block that needs it most — and it covers
+  //     the whole `charter` section, because an artefact serves its terms as a
+  //     family of head blocks rather than as one. They stay hashed: gate 5
+  //     re-hashes each of them from the manifest, gate 4 folds them into the page
+  //     root, gate 9 binds the served terms to one. See `isHeadExempt`.
   //
   // Without the exemption this verifier failed gate 3 on every page with a
   // head-rendered SEO block — including the framework's own conformance
@@ -1778,7 +1805,7 @@ function runGates(html, log = console.log) {
   const forward = domBlocks.every((h) => mBlocks.has(h)) && domAtoms.every((h) => mAtoms.has(h));
   const reverse = manifest.blocks.every(
     (b) =>
-      isHeadBlock(b) ||
+      isHeadExempt(b) ||
       domBlockSet.has(b.hash) ||
       b.atoms.some((a) => unclaimedAtoms.has(a.hash))
   );

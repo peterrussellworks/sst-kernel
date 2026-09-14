@@ -253,10 +253,10 @@ output verbatim; do not paraphrase a pass.
 ✗ check(s) 6 failed: tampered, out-of-spec, or transitional.
 ```
 
-   Every other check passes, and the process exits 1. It is one of thirty-four
+   Every other check passes, and the process exits 1. It is one of thirty-five
    frozen vectors — all but one of them a copy of that page with one edit, each
    declaring the exact list of checks that must catch it, and step 7's
-   `vectors` ran them all. Thirty-two are refusals: most of those edits passed
+   `vectors` ran them all. Thirty-three are refusals: most of those edits passed
    every gate of the previous format version, one is a control the previous
    version already caught, two came in with the newest bindings, two passed all
    nine gates of the kernel immediately before this one, and two are a

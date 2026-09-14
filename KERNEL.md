@@ -121,7 +121,7 @@ one.
 |---|---|
 | 1 | the DOM carries the evidence trail (`data-block-hash`, `data-atom-hash`) |
 | 2 | the machine face exists (JSON-LD manifest in `<head>`) |
-| 3 | parity, both directions — the same identity SET on both faces |
+| 3 | **parity**, both directions — the same identity SET on both faces, with one exemption in reverse: a block whose atoms become elements that can carry no data attribute at all — the page title, the meta description, and the operator's terms, which are a whole section of blocks rather than one — is attested by the manifest alone |
 | 4 | the declared page root recomputes from the block list |
 | 5 | the **manifest** re-hashes — every manifest atom's content reproduces its id, every block root recomputes from its atoms |
 | 6 | **completeness** — every atom a placement declares is found on the surface it declares, in the order it declares, and once every declared element is accounted for — an attribute-mode element accounting for its attribute and never for what it shows — the wrapper holds *no visible text besides*; and, on a v1.3 page, the same question of the whole page — the furniture it carries is the furniture the manifest declares, the declared furniture root is the root over what the page shows, and nothing visible is left over |
@@ -136,6 +136,20 @@ is checked by the six gates and the DOM-text rule it was built to meet, and gets
 them unchanged. The one thing a version string must not become is a switch that
 turns checks off, so a manifest declaring an older version while carrying the
 newer declarations is itself a refusal.
+
+**The one exemption in gate 3, and what it does not exempt.** A `<title>`, a
+`<meta>`, a `<script>` of terms: none of them can carry a data attribute, so the
+blocks that become them cannot be evidenced in the DOM the way a paragraph is, and
+gate 3's reverse direction lets the manifest attest them alone. That covers the
+page title and description, and the whole `charter` section — because an artefact
+does not serve its terms as one block but as a family of them, the authorship
+claim, the licence, the provenance, one per permission category. It is the section
+and not a list the page declares, which would let a page exempt whatever it named.
+What such a block escapes is one question only: whether its identity also appears
+in the DOM. Gate 5 still re-hashes each of its atoms from the manifest and
+recomputes its root, gate 4 still folds that root into the page root, and gate 9
+still binds the served terms to an atom inside one of them. Nothing here is
+unhashed; something here is unrendered.
 
 Gate 5 is the **manifest** re-hash; it never reads the rendered visible text, so
 a page whose visible text was mutated (attributes + manifest intact) still passes
@@ -409,6 +423,15 @@ What remains outside, and it is worth naming precisely:
   carries the whole artefact's shape, where the withheld site is still present.
   A slice showing fewer present sites than the sidecar is **projection, not
   loss**, and gate 8 reads the page's.
+- **A block relabelled into the charter section leaves the DOM-presence check.**
+  Gate 3's exemption is read from the block's own section label, and that label is
+  metadata rather than a hash input, so a page that relabels an ordinary block
+  into `charter` may then stop rendering it — and, with its placement dropped and
+  both roots recomputed, pass every gate. It is the same relabelling limit as
+  above and it is caught the same way, against the origin's own roots; the
+  alternative, a list of exempt blocks declared by the page, moves the decision
+  from a fixed coordinate to whatever the page cares to name, which is weaker
+  rather than stronger.
 - **At a superposed coordinate the roles are counted, not compared.** Where one
   identity sits at two coordinates of the same page — one sentence, two roles —
   the manifest carries a single entry for it, and that entry's `role`, `section`,
