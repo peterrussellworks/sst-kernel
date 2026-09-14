@@ -1802,14 +1802,41 @@ function runGates(html, log = console.log) {
   const unclaimedAtoms = new Set(evidence.atoms.filter((a) => a.claimedBy === null).map((a) => a.hash));
   const mBlocks = new Set(manifest.blocks.map((b) => b.hash));
   const mAtoms = new Set(manifest.blocks.flatMap((b) => b.atoms.map((a) => a.hash)));
+  const evidenced = (b) =>
+    isHeadExempt(b) ||
+    domBlockSet.has(b.hash) ||
+    b.atoms.some((a) => unclaimedAtoms.has(a.hash));
   const forward = domBlocks.every((h) => mBlocks.has(h)) && domAtoms.every((h) => mAtoms.has(h));
-  const reverse = manifest.blocks.every(
-    (b) =>
-      isHeadExempt(b) ||
-      domBlockSet.has(b.hash) ||
-      b.atoms.some((a) => unclaimedAtoms.has(a.hash))
-  );
+  const reverse = manifest.blocks.every(evidenced);
   gate(3, forward && reverse, 'DOM ⊆ manifest AND manifest ⊆ DOM');
+
+  // A verdict on its own is not a finding. PASS/FAIL says the two faces hold
+  // different identity sets and never says WHICH, and the sets are large: on a
+  // published artefact of this format the answer was nine blocks of one section,
+  // and the only way to learn which was to instrument a copy of this verifier.
+  // So a failure names every offending identity, in both directions, from the SAME
+  // predicates the verdict above was reached with — a second opinion computed a
+  // second way could disagree with the gate it explains. An exempt block is not
+  // named because it is not an offender. Detail only: nothing here moves a verdict.
+  if (!(forward && reverse)) {
+    const placed = new Map();
+    for (const p of Array.isArray(manifest.placements) ? manifest.placements : [])
+      if (p && typeof p === 'object' && !placed.has(p.block)) placed.set(p.block, p);
+    // The coordinate as the page itself states it: the bill's own labels where it
+    // states them, the transcript's where the bill omits one (P2 lets an entry
+    // omit a coordinate field its candidate rows disagree about), and `?` where
+    // neither face says — a block absent from the bill has no labels there at all.
+    const coord = (hash, entry) => {
+      const p = placed.get(hash);
+      return `${entry?.section ?? p?.section ?? '?'}/${entry?.name ?? p?.name ?? '?'}`;
+    };
+    for (const h of new Set(domBlocks))
+      if (!mBlocks.has(h)) log(`         · block …${h.slice(0, 8)} (${coord(h)}) is in the DOM and not in the manifest`);
+    for (const h of new Set(domAtoms))
+      if (!mAtoms.has(h)) log(`         · atom …${h.slice(0, 8)} is in the DOM and not in the manifest`);
+    for (const b of manifest.blocks)
+      if (!evidenced(b)) log(`         · block …${b.hash.slice(0, 8)} (${coord(b.hash, b)}) is in the manifest and not in the DOM`);
+  }
 
   // Gate 4: the declared page root really is the root of the block list.
   gate(

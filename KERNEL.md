@@ -153,7 +153,9 @@ What such a block escapes is one question only: whether its identity also appear
 in the DOM. Gate 5 still re-hashes each of its atoms from the manifest and
 recomputes its root, gate 4 still folds that root into the page root, and gate 9
 still binds the served terms to an atom inside one of them. Nothing here is
-unhashed; something here is unrendered.
+unhashed; something here is unrendered. A gate 3 failure names the offenders: one
+line per block the two faces disagree about, in each direction, with the
+coordinate the page states for it — an exempt block is never among them.
 
 Gate 5 is the **manifest** re-hash; it never reads the rendered visible text, so
 a page whose visible text was mutated (attributes + manifest intact) still passes
