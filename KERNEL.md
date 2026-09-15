@@ -620,24 +620,31 @@ blurred:
   still emits the v1.2 shape on demand, and this set is what proves it.
 - **`vectors/v1.3-manifest/`** — the v1.3 shape on the same terms, plus the
   frozen page itself and something neither other set has: a **refusal set**.
-  Thirty-two files under `refusals/`, each the frozen page with one edit, each
-  naming the exact list of checks `verify` must report. Thirty-one are refusals.
-  Most of them passed all six of the previous version's gates untouched, which is
-  why they exist; the control is an edit the previous version already caught and
-  must still catch in the same place; two of them are the cases the newest
-  bindings brought with them — a swapped registry name, and an inline script
-  inside a block wrapper; two are nearer still, a sentence hidden in an
-  attribute-mode element's own children, which passed all nine gates until gate 6
-  stopped cutting that element's whole span; and two are a reviewer's worry about
-  gate 6's whitespace rule, measured: a zero-width space and a bidirectional
-  override, each sitting outside JavaScript's `\s` and inside an atom. The
-  thirty-second must **pass**: the same
-  injected paragraph as the refusal beside it, *declared*, with both roots
-  recomputed — a page with internal integrity and a composition root that is not
-  the origin's, which is the claim ladder's second rung frozen as a vector. Beside
-  them sits a second frozen page serving the same terms in the other charter
-  shape, which must pass all nine — a refusal alone cannot tell you a shape was
-  *read* rather than skipped. A gate nobody has watched refuse is a comment.
+  Thirty-five files under `refusals/`, all but one of them a frozen page with one
+  edit, each naming the exact list of checks `verify` must report. Thirty-three
+  are refusals. Most of them passed all six of the previous version's gates
+  untouched, which is why they exist; the control is an edit the previous version
+  already caught and must still catch in the same place; two of them are the
+  cases the newest bindings brought with them — a swapped registry name, and an
+  inline script inside a block wrapper; two are nearer still, a sentence hidden
+  in an attribute-mode element's own children, which passed all nine gates until
+  gate 6 stopped cutting that element's whole span; two are a reviewer's worry
+  about gate 6's whitespace rule, measured: a zero-width space and a
+  bidirectional override, each sitting outside JavaScript's `\s` and inside an
+  atom; and two come from a page of its own rather than from the frozen one, a
+  superposed identity placed at two coordinates and that same page with one of
+  its present sites deleted. Two must **pass**, and they pin different halves of
+  the boundary. One is the same injected paragraph as the refusal beside it,
+  *declared*, with both roots recomputed — a page with internal integrity and a
+  composition root that is not the origin's, which is the claim ladder's second
+  rung frozen as a vector. The other is that superposed page: one identity at two
+  coordinates under two different roles, which the single manifest entry can name
+  only once, and which a verifier deriving a coordinate's roles from that entry
+  refuses on gate 8 for being the very thing the format exists to make provable.
+  Beside them sits a second frozen page serving the same terms in the other
+  charter shape, which must pass all nine — a refusal alone cannot tell you a
+  shape was *read* rather than skipped. A gate nobody has watched refuse is a
+  comment.
 
 [`vectors/README.md`](vectors/README.md) has the full provenance of all three. If you
 port this kernel and your bytes differ from those, one of us is wrong and the
