@@ -53,9 +53,10 @@ source and your screen. SST replaces the claim with a *measurement*:
 
 The demo artefact's content **is** this explanation: the page describes the
 mechanism that proves the page. Run `tamper` to watch the content proof work (it
-reports exactly which sentence broke, and which block); run `seal` to watch the
-geometry proof work (seal a vacancy and the geometry root moves while the content
-root holds — two independent spines, two concerns).
+reports exactly which sentence broke, and which block, and exits 1 — it ends in a
+`verify` of the tampered copy, and that refusal is the demonstration); run `seal`
+to watch the geometry proof work (seal a vacancy and the geometry root moves
+while the content root holds — two independent spines, two concerns).
 
 ## The substrate
 

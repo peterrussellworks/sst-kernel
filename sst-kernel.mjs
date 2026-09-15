@@ -2165,7 +2165,7 @@ function tamper() {
   if (mutatedBody === body) throw new Error('tamper target not found — did the build change?');
   writeFileSync('dist/tampered.html', head + '</head>' + mutatedBody);
   console.log('flipped one character of visible text → dist/tampered.html\n');
-  verify('dist/tampered.html');
+  return verify('dist/tampered.html');   // the verdict on the copy IS this demo's result
 }
 
 // ─────────── 6b. THE SEAL DEMO (the geometry counterpart of tamper) ───────────
@@ -2475,7 +2475,11 @@ if (cmd === 'build') build();
 // verify's exit code IS its verdict — a sceptic pipes this into CI. Reporting
 // FAIL on stdout while exiting 0 would make the verifier agree with everything.
 else if (cmd === 'verify') process.exit(verify(process.argv[3]) ? 0 : 1);
-else if (cmd === 'tamper') tamper();
+// tamper ends in a verify, so its exit code is that verify's verdict on the
+// tampered copy: 1, because the gates refuse it, and the refusal is the whole
+// demonstration. A '✗ check(s) ... failed' on stdout beside an exit 0 would say
+// the opposite of what it just showed.
+else if (cmd === 'tamper') process.exit(tamper() ? 0 : 1);
 else if (cmd === 'seal') process.exit(seal() ? 0 : 1);
 else if (cmd === 'vectors') process.exit(vectors() ? 0 : 1);
 else if (cmd === 'root') rootOf(process.argv[3]);
