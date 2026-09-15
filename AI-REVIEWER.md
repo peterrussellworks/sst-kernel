@@ -319,8 +319,11 @@ reviewer who skipped the live artefact has reviewed half of this.
     - the other object is the entity carrying `sst_charter`, whose `format`
       field reads `SST Dual-Native v1.3`;
     - `furniture_root` and `registry_hash` — the two trailing leaves this
-      branch folds into the composition root — are **absent** from the live
-      pages. That is step 13's subject, and it is not a defect you have found.
+      branch folds into the composition root — are **present** on the pages
+      the origin serves, beside the `furniture` list the first of them is
+      computed over. Say which of the three you found. Whether they hold is
+      step 13's subject: that takes a saved page and this kernel, and reading
+      a field is not checking it.
 
     Do not quote a hash as though it were a constant. This is a working site and
     its crystal state moves with every publish, so whatever you do quote, quote
