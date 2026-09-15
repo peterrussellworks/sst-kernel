@@ -118,7 +118,7 @@ third ask here, not the first.
    (which layer of the stack the gates are, and which layers are outside this
    kernel), the **Known limitations and open research questions**, and
    conformance.
-4. `sst-kernel.mjs` — about twenty-three hundred lines, nearly half of them
+4. `sst-kernel.mjs` — a few thousand lines, nearly half of them
    commentary, zero dependencies, the complete verification kernel. This is the
    whole crypto surface: normalization → SHA-256 atom ids → domain-separated
    Merkle roots → nine gates + a DOM-text rule. Read the comments as part of the
@@ -138,7 +138,7 @@ third ask here, not the first.
 ## 3. The sequence, per capability profile
 
 Nothing here asks you to run code you have not read. The kernel is one
-dependency-free file — 2,379 lines, nearly half commentary — readable before it
+dependency-free file — a few thousand lines, nearly half commentary — readable before it
 is run; `check-repo.mjs` is 52. There is no evaluation script and no manifest of
 commands to paste: each step says what it establishes and why, and its command is
 one way there, not the only one. A reader who trusts neither can write its own
