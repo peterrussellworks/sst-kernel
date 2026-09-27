@@ -91,7 +91,19 @@ the live fixture grows whenever a new rule needs exercising, and a v1.2 set buil
 from a moving substrate would have to be re-cut each time — which would quietly
 turn "the older shape is still emitted byte-for-byte" from a promise anyone can
 check into a sentence nobody can. Pinned, the promise is testable for good. The
-copy here is the substrate these bytes were frozen over.
+copy here is the substrate these bytes were frozen over, and that is checkable
+rather than asserted — `atoms.csv` and `lattice.csv` in this directory are
+byte-identical to `substrate/` at tag `v1.2.0`, which is where these values were
+cut:
+
+```
+diff <(git show v1.2.0:substrate/atoms.csv)   vectors/v1.2-manifest/atoms.csv
+diff <(git show v1.2.0:substrate/lattice.csv) vectors/v1.2-manifest/lattice.csv
+diff <(git show v1.2.0:vectors/v1.2-manifest/expected.json) vectors/v1.2-manifest/expected.json
+```
+
+All three are silent. If any of them ever is not, the sentence above this block
+is the one that broke.
 
 What it pins:
 
@@ -99,9 +111,8 @@ What it pins:
   and the three superposition twins' labels: one entry keeping `page` + `name`,
   one keeping `name` alone, one keeping `section` + `name` + `order` with no
   `page`. `substrate/README.md` says what each twin exists to catch.
-- the **geometry spine** — 15 sites, 10 blocks, across both the published page
-  and the draft one. One of those sites is *withheld* from the published page,
-  and the sidecar is where it is still counted.
+- the **geometry spine** — 14 sites, 10 blocks, across both the published page
+  and the draft one.
 
 **It becomes a cross-implementation check the day a second implementation
 reproduces it.** That is the invitation: port the kernel, point it at this
