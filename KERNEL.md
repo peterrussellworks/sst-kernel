@@ -353,6 +353,34 @@ in `sst-kernel.mjs`, and the conformance vectors pin both its input→output pai
 equal by reproducing that hash — and an entry present in one table and absent
 from the other is drift in either direction.
 
+**The table, in full — four entries, two of them composing.** `enum-label` lower-cases
+an enum and turns each `_` into a space; `rating-label` renders a number as the
+sentence a screen reader announces. Those are arity 1: one atom in, one string
+out, recomputable from the single atom the element names. The other two are
+arity `n`, and an arity-`n` transform is the only thing that licenses the
+composed-projection exception — one element bearing several atoms' identities,
+where the placement's declared list is the only record of which ones and in what
+order. `tag-label` composes taxonomy atoms into one chip line, upper-cased and
+joined by a spaced mid-dot. `sentence-join` composes sentence atoms into one
+string, empty sources dropped, joined by a single ASCII space.
+
+**Why `sentence-join` is in the table rather than in an emitter.** A
+`<meta name="description">` is one HTML attribute and, on a working artefact, two
+or three sentences. An atom is a sentence, so either the face lists the sentences
+as an ARRAY and names the transform that makes the attribute's value out of them,
+or the emitter joins them in code and the face publishes ONE atom for a string no
+sentence of the crystal equals — an identity nothing in the substrate can
+re-derive, which is the drift this format exists to make impossible. Declared,
+the join is arithmetic a verifier repeats: the atoms are the free parameters, the
+glue is the registry's, the glue is hashed into the registry leaf, and an edit to
+either is refused. The glue is one space and nothing else — no case change, no
+punctuation, no sentence made out of parts that were not sentences. Measured
+against the live reference artefact, that is what its descriptions are already
+joined by: `/about/`, `/portfolio/` and the project pages each carry two
+sentences separated by a single ASCII space and no double space anywhere, so the
+transform reproduces what the origin serves rather than proposing a new house
+style.
+
 **What none of this reaches, stated once.** `non-text` proves that the page
 claims this matter at this site and nothing more: matter is never served, so no
 reader re-hashes an image back to its hash. An attribute is markup a verifier

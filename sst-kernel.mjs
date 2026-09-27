@@ -1316,6 +1316,20 @@ const PROJECTIONS = {
     arity: 'n',
     apply: (xs) => xs.filter(Boolean).map((s) => s.toUpperCase().replace(/_/g, ' ')).join(' · '),
   },
+
+  // Several SENTENCE atoms composed into one string: the sentences in the order
+  // the placement declares them, empty sources dropped, joined by a single ASCII
+  // space. This is the case where one HTML ATTRIBUTE has to carry several atoms
+  // — a `<meta name="description">` is two or three sentences — and the
+  // alternative to declaring it is an emitter that joins them in code and a
+  // machine face that publishes ONE atom for a string no sentence of the crystal
+  // equals. That is the silent join this entry exists to refuse: with it the
+  // face lists the sentences as an ARRAY and names the transform that makes the
+  // attribute's value out of them, so a verifier recomputes the value rather
+  // than taking the emitter's word for it. The glue is one space and nothing
+  // else — no case change, no punctuation added, no sentence invented out of
+  // parts that were not sentences.
+  'sentence-join': { arity: 'n', apply: (xs) => xs.filter(Boolean).join(' ') },
 };
 // ═══ SHARED TRANSFORM REGISTRY — END ═══
 

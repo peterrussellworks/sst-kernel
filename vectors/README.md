@@ -131,9 +131,10 @@ the version axis is broken, not the vector.
 **Provenance: computed by THIS kernel. A freeze, not an agreement**, on the same
 terms as `v1.2-manifest/`, over the same substrate.
 
-**The composition root has moved three times, and the version has not.** Every
-time because v1.3 is still pre-release, and all three are recorded here rather
-than left in a commit message.
+**The composition root has moved three times by REDEFINITION and once because a
+value it covers moved, and the version has not.** Every time because v1.3 is
+still pre-release, and all four are recorded here rather than left in a commit
+message.
 
 1. The placement leaf was `sha256(block ␟ section ␟ name)` when this set was first
    frozen; it became `sha256(block ␟ section ␟ name ␟ R)`, where `R` is a Merkle
@@ -158,6 +159,21 @@ than left in a commit message.
    only against the verifier's own table. The placement leaves and the furniture
    leaf are byte-identical across the change; the leaf order is fixed as
    placements, then furniture, then registry.
+
+And then, once, WITHOUT a redefinition: the registry gained a fourth entry,
+`sentence-join`, so the region's hash moved from `83d23e12…` to `f2229284…` and
+the leaf built over it moved with it. That is the leaf doing exactly what it was
+added to do, and it is worth separating from the three above: nothing about the
+root's CONSTRUCTION changed, and no other value in this set moved. Every frozen
+page in this directory — `page.html`, `page-sst-charter-field.html` and all
+thirty-five refusal files — is byte-identical to its previous freeze after
+exactly two substitutions, the registry hash and that page's own composition
+root, which is checkable in one pass over the diff. The proof that the pin is
+load-bearing rather than bookkeeping is the previous freeze itself: verified by
+the kernel that now carries the fourth entry, it fails gate 6 by name, printing
+both hashes in full, while gate 7 passes — because the page is internally
+consistent with the table it named, which is precisely the division of labour
+between the two checks described above.
 
 No implementation has shipped v1.3 publicly — the reference artefact emits v1.3
 fields but has not been released under that name — so all three are changes to a
@@ -208,9 +224,19 @@ What it pins, in `expected.json`:
   this block's atoms, canonical order, verbatim". Both paths are frozen here on
   purpose: the omitted list is what every page written before the field existed
   says, and a change that made it mean anything else would move these bytes.
-- the **shared transform registry** — the input→output pairs for every entry, and
+- the **shared transform registry** — four entries, two of arity 1 and two of
+  arity `n`; the input→output pairs for every entry, and
   the SHA-256 of the registry's own source region in `sst-kernel.mjs` (between the
   two `SHARED TRANSFORM REGISTRY` markers, the marker lines themselves excluded).
+  Fourteen pairs across the four: the arity-1 cases, `tag-label`'s composed chip
+  line, and `sentence-join`'s — several sentence atoms made into the value of one
+  HTML attribute, which is the case a `<meta name="description">` is. Each n-ary
+  entry is pinned on the same four shapes: several sources, a run with an empty
+  source in it, one source alone, and none — so a transform that stopped dropping
+  empties, or that gave an empty list anything but the empty string, moves these
+  bytes. `sentence-join`'s first pair is the description the live reference
+  artefact serves on `/about/`, split at its sentence boundary, so the pair is a
+  string the origin actually publishes rather than one invented for the vector.
   The pairs answer "does this implementation compute what the registry says"; the
   hash answers "is this the same registry at all", which the pairs cannot — a
   table with one extra entry, or one differently worded that happens to agree on
@@ -450,7 +476,13 @@ substrate frozen inside it, which is another way of saying it is not regenerated
 growing the live fixture must not move it, and if it ever does, the version axis
 is broken and not the vector. `v1.3-manifest/` is regenerated from a build of
 `substrate/`; if you regenerate it, read the diff first and say why in the commit
-message. Its composition root has been redefined three times — the render
+message. **Adding an entry to the transform registry is a regeneration of this
+whole set**, and knowing that is the reason to do it before a version ships
+rather than after: the region's hash moves, so `registry_hash` moves, so the
+composition root's second trailing leaf moves, so every frozen page here has to
+be re-cut. The set stays honest through it by being mechanical — the only edits
+are the registry hash and each page's own composition root, and the diff is
+readable line by line to confirm that nothing else moved. Its composition root has been redefined three times — the render
 declaration folded into the placement leaf, then the furniture leaf appended, then
 the registry leaf after it — while v1.3 is still pre-release and no artefact has
 shipped under that name; after v1.3 ships,

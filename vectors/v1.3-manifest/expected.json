@@ -10,9 +10,9 @@
     "@type": "SstPageManifest",
     "page": "paper",
     "version": "1.3",
-    "registry_hash": "83d23e122b1342e53ec92aa1632721be2d0e5042dae50c64990d4986439fb88e",
+    "registry_hash": "f222928405f9472e96680b3f57090e3b92e2d61d463670f6f951c842a12fb5e1",
     "page_merkle_root": "56bf5439f7597dd3ea6b813764e002dfa4a1cef0fe858f4662177d1962086feb",
-    "composition_root": "ad8b0375f54d11ccd77f6172743abbaf73e09493faefd9ffb348b39ad1372295",
+    "composition_root": "c902933fdabf7cc641800689291d92867c8c2b5f0ea55bf359d899224b212668",
     "furniture_root": "5670680c8a3a29883e9e908e20a76c1b7a8d79f92694dcbbc52e43ce81d3191c",
     "block_count": 12,
     "atom_count": 26,
@@ -598,8 +598,8 @@
     }
   },
   "transform_registry": {
-    "note": "The closed registry of content→display transforms, shared byte-for-byte between this kernel and any other implementation of the format. `source_sha256` is SHA-256 over the region of sst-kernel.mjs between the two SHARED TRANSFORM REGISTRY markers, exclusive of the marker lines themselves — a vendored copy proves itself equal by reproducing it. The pairs pin what each entry computes; the hash pins that it is the same table, with no entry more and none differently worded. An entry present in one and absent from the other is drift in either direction.",
-    "source_sha256": "83d23e122b1342e53ec92aa1632721be2d0e5042dae50c64990d4986439fb88e",
+    "note": "The closed registry of content→display transforms, shared byte-for-byte between this kernel and any other implementation of the format. `source_sha256` is SHA-256 over the region of sst-kernel.mjs between the two SHARED TRANSFORM REGISTRY markers, exclusive of the marker lines themselves — a vendored copy proves itself equal by reproducing it. The pairs pin what each entry computes; the hash pins that it is the same table, with no entry more and none differently worded. An entry present in one and absent from the other is drift in either direction. Two of the four entries are n-ary: `tag-label`, which composes taxonomy atoms into one chip line, and `sentence-join`, which composes sentence atoms into one attribute value \u2014 a `<meta name=\"description\">` that carries several sentences lists them as an array and names this transform, rather than the emitter joining them in code and the face publishing one atom for a string no sentence of the crystal equals.",
+    "source_sha256": "f222928405f9472e96680b3f57090e3b92e2d61d463670f6f951c842a12fb5e1",
     "transforms": [
       {
         "name": "enum-label",
@@ -681,6 +681,39 @@
       },
       {
         "name": "tag-label",
+        "arity": "n",
+        "in": [],
+        "out": ""
+      },
+      {
+        "name": "sentence-join",
+        "arity": "n",
+        "in": [
+          "Thirty years of couture-grade tailoring and alterations in Windsor.",
+          "Wedding dress fitting, full wardrobe alterations, heritage restoration \u2014 every seam as if it had always been made that way."
+        ],
+        "out": "Thirty years of couture-grade tailoring and alterations in Windsor. Wedding dress fitting, full wardrobe alterations, heritage restoration \u2014 every seam as if it had always been made that way."
+      },
+      {
+        "name": "sentence-join",
+        "arity": "n",
+        "in": [
+          "The promise is worth exactly what its checks are worth.",
+          "",
+          "So the checks are published beside the claim."
+        ],
+        "out": "The promise is worth exactly what its checks are worth. So the checks are published beside the claim."
+      },
+      {
+        "name": "sentence-join",
+        "arity": "n",
+        "in": [
+          "One sentence, carried alone."
+        ],
+        "out": "One sentence, carried alone."
+      },
+      {
+        "name": "sentence-join",
         "arity": "n",
         "in": [],
         "out": ""
