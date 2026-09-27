@@ -1,5 +1,10 @@
 # substrate/ — the fixture the kernel builds, and the traps built into it
 
+This is an **example crystal, made visible on purpose**: the first-class object
+in this format is an operator's private substrate, and the only reason you can
+read one whole here is that this repository exists to teach the mechanism rather
+than to hold anything back.
+
 Two CSVs. That is the whole substrate.
 
 | file | carries | principle |
@@ -22,8 +27,9 @@ sharpest rules observable in a fixture this small.
 
 ## Three deliberate superposition twins
 
-Two lattice rows whose blocks hold identical atoms in identical order Merkle to
-**the same block id** — the same identity at two coordinates. That is Data
+Two lattice rows whose blocks hold identical atoms — *as published* — in
+identical order Merkle to **the same block id**: the same identity at two
+coordinates. That is Data
 Superposition, and it is where implementations quietly disagree. The frozen
 conformance fixture that preceded this one had **zero** superposed identities,
 so its vectors could not see this class of defect at all. These three can.
@@ -32,6 +38,12 @@ so its vectors could not see this class of defect at all. These three can.
 
 `superposition_1` is placed at `paper/superposition/note` **and**
 `paper/colophon/note`. The page renders it twice; the manifest lists it **once**.
+
+The colophon coordinate also declares a site the page withholds (below), so the
+two coordinates are twins only in what they PUBLISH. That is the correct reading
+and a trap in its own right: identity follows publication, so an implementation
+that Merkled the substrate's atoms rather than the published ones would give these
+two different ids and lose the superposition entirely.
 
 *What it catches.* An implementation that emits one manifest entry per rendered
 placement rather than per identity. Both readings look reasonable until you
@@ -98,6 +110,33 @@ The three reserved sentinels are `_PENDING_` (not filled yet), `_NA_OMITTED_`
 of them; the frozen `vectors/v1-fixture/` uses all three, so the geometry
 census exercises its full state enum somewhere.
 
+## One withheld site
+
+`paper/colophon/note` declares a `phone` role holding a real-shaped telephone
+number. The page never prints it and the manifest never carries it: the site is
+**withheld**, which is not a vacancy — the atom exists, the operator simply does
+not publish it. (The number is drawn from the range reserved for fiction, so
+nothing here belongs to anyone.)
+
+What the page publishes is then a **projection** of the substrate's block: its
+identity is the Merkle root over exactly the atoms published, and its geometry
+slice lists exactly the roles published plus the vacancies declared. The
+whole-artefact sidecar still records the site as `present`, because the artefact's
+shape is not the page's shape.
+
+*What it catches.* A verifier that reads the artefact's shape where it should read
+the page's. Gate 8 asks that the roles a placed block publishes and the present
+sites declared at that coordinate be the same set, both ways — so a slice valued
+by the substrate's occupancy declares a present site the page does not carry, and
+the gate refuses it. Withholding is not exotic: on the live reference artefact two
+chrome blocks are projected on every page it serves, several of their contact
+sites being withheld from the machine face by design. A rule that could not
+express that would refuse the artefact this format was written for.
+
+`vectors/v1.3-manifest/refusals/withheld-site-claimed-present.html` is this trap
+frozen: the page's slice with the withheld site claimed present, its declared
+geometry root recomputed so that arithmetic alone cannot catch it.
+
 ## The dialect
 
 UTF-8, no BOM · LF line endings · header row · **row order is significant**
@@ -115,6 +154,7 @@ node sst-kernel.mjs vectors
 ```
 
 fails the moment the built manifest stops matching
-`vectors/v1.2-manifest/expected.json` byte for byte. Re-freezing is a deliberate
-act, never a side effect — regenerate it, read the diff, and say why in the
-commit message.
+`vectors/v1.2-manifest/expected.json` or `vectors/v1.3-manifest/expected.json`
+byte for byte — the kernel emits both shapes from this substrate, and both are
+frozen. Re-freezing is a deliberate act, never a side effect — regenerate it,
+read the diff, and say why in the commit message.

@@ -8,21 +8,57 @@ bureaucracy but the format's own logic applied to itself.
 
 ## Findings are welcome
 
-A bug, an unclear paragraph, a cold run of the genesis kit (now in its own repository) that didn't go
-the way the document predicted, a vector that doesn't reproduce on your machine,
-a claim in `README.md` or `WHITEPAPER.md` that overstates what the gates actually
-prove — these are wanted reports, not tolerated ones. Open an issue and say
-exactly what you ran and what you observed, the same discipline this repository
-asks of its own agents (`AGENT-GENESIS.md` §10: "a run that reports a pass it did
-not observe has broken the only thing this document is for"). A report that says
-"this failed, here is the exact output" is more useful than a patch that papers
-over the symptom.
+A bug, an unclear paragraph, a vector that doesn't reproduce on your machine,
+a claim in `KERNEL.md` or `WHITEPAPER.md` that overstates what the gates actually
+prove — these are wanted reports, not tolerated ones. An edit to a page that all
+nine gates accept and that a reader would call tampering is the most valuable
+report of all: the two furniture holes were found that way, by a stranger running
+edits against the built page rather than reading about it. `KERNEL.md`'s **Known
+limitations and open research questions** is the list to attack first, and its
+being a list is an invitation. Open an issue and say exactly what you ran and
+what you observed, the same discipline this repository asks of its own agents: a
+run that reports a pass it did not observe has broken the only thing a report is
+for. A report that says "this failed, here is the exact output" is more useful
+than a patch that papers over the symptom.
+
+A considered reading is a contribution too. An issue that names a use case the
+documents do not foresee, an implication of publishing this way that they have not
+followed through, or a way the format could mislead or be misused, is wanted as
+much as a refusal that should have fired and didn't — the design questions here
+are at least as open as the code ones. Title it `consideration:` and then the
+thing itself — `consideration: a face that withholds, in a regulated
+disclosure` — and say who would be affected and how, with the same specificity a
+bug report would get.
 
 ## Format changes: not by pull request
 
 `vectors/` is frozen, and `sst-kernel.mjs`'s identity primitives — atom hashing,
-Merkle composition, the six gates, the geometry spine — are what the vectors hold
-to account. A pull request that changes anything under `vectors/`, or changes what
+Merkle composition, the gate set, the geometry and composition spines, and the two
+trailing leaves the composition spine now carries — the page's furniture root, and
+the `registry_hash` naming the table its render descriptors refer to — are what the
+vectors hold to account. The gate set is the nine gates plus the DOM-text rule,
+and what each one covers is stated in `KERNEL.md`; a change to what any of them
+accepts or refuses is a format change, including the page-level residue rule gate
+6 gained with the furniture root. So is the shared transform registry, the closed table
+of content→display transforms between the two marker comments in
+`sst-kernel.mjs`: its bytes are hashed as a vector precisely so that a second
+implementation can vendor them and prove the copy equal, which an edit here would
+silently break for everyone who already has. Adding a transform is a format
+change like any other, and it happens the way the rest of them do, below. That includes the refusal vectors: a change that
+makes a gate stop refusing what it is frozen to refuse is a format change, not a
+fix.
+
+One rule is worth naming here, because it is the one most likely to arrive as a
+patch. **Gate 6's per-wrapper residue rule is strict about inert elements on
+purpose**: the page-level rule reads `<script>`, `<style>` and `<template>` as
+showing nothing, and the per-wrapper rule does not. An inline script or style
+inside a block wrapper is residue, and the page is refused. That is a conformance
+rule for emitters — a block wrapper carries content and nothing else, and scripts
+and styles belong outside one — not a gap in the check, and
+`refusals/script-inside-wrapper.html` freezes it. Relaxing the wrapper to admit
+them widens the single span in which the format asks an emitter to keep a
+completeness claim clean, so it is a format change to be argued for as an issue,
+never a one-line fix. A pull request that changes anything under `vectors/`, or changes what
 those primitives compute, will be declined on principle, not on quality. It does
 not matter how correct, well-tested, or well-argued the change is.
 
@@ -36,9 +72,11 @@ the repository's own record. A pull request is a request for someone else to
 adjudicate; a frozen vector is the adjudication already made. Propose the change
 as an issue — argue for it in prose — and it will be considered on those terms.
 
-## The kit: propose, the operator adopts
+## The kit and the rig
 
-The genesis kit, the rig and the validator pattern catalogue live in a separate repository, to be published separately; findings about them go there.
+The kit that turns a folder of real work into a private, verifiable crystal, and
+the rig that grows the crystal afterwards, live in their own repository and will
+be published separately. Findings about either belong there, not here.
 
 ## Conduct
 

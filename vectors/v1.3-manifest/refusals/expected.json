@@ -1,0 +1,258 @@
+{
+  "@type": "SstRefusalVectors",
+  "format": "SST Dual-Native v1.3",
+  "fixture": "vectors/v1.3-manifest/page.html",
+  "frozen_by": "sst-kernel.mjs in this repository. A freeze, not a cross-implementation agreement — see vectors/README.md.",
+  "note": "A gate nobody has watched refuse is a comment. Each file below is the frozen page with ONE edit, and each names the check that must catch it; `refuses` is the exact list `verify` reports, so a gate that stops refusing, starts refusing something else, or starts refusing two things at once moves these values. Thirty-three of the thirty-five are refusals; two must PASS. consistent-furniture-rewrite.html pins the set's own boundary — the same injected paragraph as the refusal beside it, declared, with both roots recomputed, so only a comparison with the origin's published root catches it. superposed-twin-different-roles.html pins a SHAPE rather than an edit: one identity at two coordinates of one page under two different roles, which the bill can label only once, and which a verifier reading geometry per identity refuses for being what it is. Its refusing sibling deletes that second coordinate's one present site and recomputes the geometry root, leaving the count as the only thing that can still refuse it. All but the control, the two later additions and the superposed pair passed every gate of the previous format version unchanged — that is why they exist. The control is an edit the previous version already caught, which must still be caught in the same place. Thirty-two of the thirty-five edit page.html; sst-charter-field-flipped.html edits page-sst-charter-field.html, which serves the same terms in the second charter shape and must itself pass all nine; superposed-twin-different-roles.html is a page of its own, built from the frozen substrate with a single lattice cell changed — the second coordinate's role — so that it is ordinary in every other respect, and superposed-twin-site-missing.html edits that. The ten render-mode cases each take one surface or one rule: the stamp gone from a non-text atom, a letter changed inside an attribute, a composed label that no longer follows from its atoms, a partial placement claiming what the wrapper does not show, two atoms swapped inside one wrapper, a chrome marker on a stamped element, a placement naming an atom its block does not hold, and — the mirror of that last pair — a render descriptor edited with the composition root left alone, which changes nothing a reader sees and is refused by the root rather than by the wrapper. The attribute-surface pair is later than the rest and its provenance is nearer: both files passed all nine gates of the kernel immediately before them, because gate 6 removed a bearing element's whole span whatever its mode, and so never asked what an attribute-mode element SHOWS. They are the same sentence twice, once as a text node and once drawn inside an icon, because the mode is what the rule turns on and the markup is not. The three furniture cases take the two holes the furniture root closed and the one way to move a declared span: an undeclared chrome-marked paragraph inside a wrapper, an undeclared free paragraph between two wrappers, and a declared span edited in both faces with the roots left as they were. head-block-not-charter.html takes the head-block exemption's boundary: gate 3 lets a block be attested by the manifest alone where its atoms become elements that can carry no data attribute — the page title, the meta description, the operator's terms — and the terms are a whole section rather than one block, so the exemption is that section. This case removes an ordinary body block from the page and from the transcript, roots recomputed, leaving its manifest entry behind under the section it always had; one label separates it from a page that passes. registry-hash-edited.html takes the composition root's second trailing leaf, and script-inside-wrapper.html takes the per-wrapper residue rule's strictness, which is a conformance rule rather than a limitation: the page-level rule reads inert elements as showing nothing, and the per-wrapper rule still refuses one. Where a case would otherwise fail two checks at once, the root it disturbs is recomputed before freezing, so each still fails exactly the checks it names.",
+  "cases": [
+    {
+      "file": "head-block-not-charter.html",
+      "mutation": "an ordinary body block deleted from the page and from the placement transcript, both roots recomputed, with its manifest entry left in place — a block the machine face now claims and the human face does not show, under a section the head-block exemption does not cover. Relabel that one entry's section to charter and the same bytes pass every gate, which is the boundary this case pins",
+      "refuses": [
+        3
+      ]
+    },
+    {
+      "file": "reordered-blocks.html",
+      "mutation": "the first two rendered blocks swapped in the DOM",
+      "refuses": [
+        7
+      ]
+    },
+    {
+      "file": "duplicated-block.html",
+      "mutation": "one block rendered a second time",
+      "refuses": [
+        7
+      ]
+    },
+    {
+      "file": "dropped-superposed-placement.html",
+      "mutation": "one of the two placements of a superposed identity deleted — the identity still renders once, so the two faces still agree as sets",
+      "refuses": [
+        7
+      ]
+    },
+    {
+      "file": "edited-atom-role.html",
+      "mutation": "an atom's declared role changed in the block list, leaving the geometry site that declares the same role untouched",
+      "refuses": [
+        8
+      ]
+    },
+    {
+      "file": "added-geometry-site.html",
+      "mutation": "a present site added at a coordinate the page does place, for a role the block printed there does not carry — with the declared geometry root recomputed over the longer list, so only the cross-check can catch it",
+      "refuses": [
+        8
+      ]
+    },
+    {
+      "file": "removed-geometry-site.html",
+      "mutation": "the page’s one declared vacancy deleted from the site list, leaving the declared geometry root as it was — the silently removed hole",
+      "refuses": [
+        8
+      ]
+    },
+    {
+      "file": "dropped-published-role.html",
+      "mutation": "a present site deleted from the site list for a role the block placed there does publish — with the declared geometry root recomputed over the shorter list, so the reverse direction of the cross-check is the only thing left to catch it",
+      "refuses": [
+        8
+      ]
+    },
+    {
+      "file": "withheld-site-claimed-present.html",
+      "mutation": "the withheld site of the page’s one projected block claimed present in the slice — the value the committed sidecar holds for that coordinate, which is exactly what a page’s slice may not import. The geometry root is recomputed, so only the cross-check against the placed block refuses it",
+      "refuses": [
+        8
+      ]
+    },
+    {
+      "file": "superposed-twin-different-roles.html",
+      "mutation": "not an edit but a shape: one identity placed at two coordinates of one page under two different roles, so the single bill entry the manifest carries for it can state at most one of the two. Must PASS every gate — a verifier deriving a coordinate's roles from that entry rather than from the block placed there refuses this page on gate 8 for being what it is",
+      "refuses": [],
+      "passes": true
+    },
+    {
+      "file": "superposed-twin-site-missing.html",
+      "mutation": "the superposed twin with the present site at its second coordinate deleted from the slice and the geometry root recomputed over the shorter list. The labels at a superposed coordinate are not comparable, so the count is the only thing left to refuse it",
+      "refuses": [
+        8
+      ]
+    },
+    {
+      "file": "flipped-charter-permission.html",
+      "mutation": "one permission flipped in the served charter, leaving the attested copy untouched",
+      "refuses": [
+        9
+      ]
+    },
+    {
+      "file": "deleted-charter.html",
+      "mutation": "the charter declaration deleted outright",
+      "refuses": [
+        9
+      ]
+    },
+    {
+      "file": "second-charter.html",
+      "mutation": "a second charter object appended after the first, granting everything the first withholds. The first still hashes to the atom it names, so a verifier that stopped at the first charter it found would report a clean page while the terms a reader is shown are ambiguous",
+      "refuses": [
+        9
+      ]
+    },
+    {
+      "file": "edited-visible-text.html",
+      "mutation": "the control — one letter of visible text, which the previous format version already refused",
+      "refuses": [
+        6,
+        "DOM-text"
+      ]
+    },
+    {
+      "file": "zero-width-inside-atom.html",
+      "mutation": "a zero-width space (U+200B) inserted inside the same heading atom the control edits, between \"miniat\" and \"ure\" — invisible on screen and outside the class of characters JavaScript's \\s matches, so normalization does not absorb it and the visible text re-hashes to a different id",
+      "refuses": [
+        6,
+        "DOM-text"
+      ]
+    },
+    {
+      "file": "bidi-override-inside-atom.html",
+      "mutation": "a right-to-left override (U+202E) inserted at the same position in the same atom — its pair, because a boundary drawn around \\s should hold for every code point outside it and not merely for the one a reviewer happened to try first",
+      "refuses": [
+        6,
+        "DOM-text"
+      ]
+    },
+    {
+      "file": "injected-visible-text.html",
+      "mutation": "a sentence injected inside a block wrapper, carrying no hash for gates 1-5 or the DOM-text rule to check",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "script-inside-wrapper.html",
+      "mutation": "an inline <script> added inside a block wrapper, carrying no atom stamp. The page-level rule reads inert elements as showing nothing, so the script declares no furniture and moves no root; the per-wrapper rule is strict by design and refuses it as text the block holds besides its atoms. A block wrapper carries content and nothing else — scripts and styles belong outside one",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "missing-non-text-stamp.html",
+      "mutation": "the stamp removed from the element bearing a non-text atom, so the placement’s claim that this matter is carried here has no evidence left",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "attribute-value-changed.html",
+      "mutation": "one letter changed in the attribute an atom is carried in — invisible to every gate that reads element text",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "attribute-mode-child-text.html",
+      "mutation": "a sentence added as a CHILD TEXT NODE of an attribute-mode element — the element keeps its stamp, its attribute still reads the atom, the manifest is untouched and the composition root does not move. Gate 6 cut the whole bearing element's span for every mode, so this text was accounted for by an atom that never carried it",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "attribute-mode-svg-text.html",
+      "mutation": "THE SAME TEXT, drawn instead as an <svg><text> child of that element. Its pair, because a rule written about text nodes rather than about what the element SHOWS would catch one and not the other",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "transform-label-changed.html",
+      "mutation": "the composed label edited so it is no longer what the registry transform makes of the atoms the placement names",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "partial-placement-overclaims.html",
+      "mutation": "a partial placement claiming a third atom the wrapper does not show, with the composition root recomputed so only the wrapper itself can refuse it",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "reordered-atoms.html",
+      "mutation": "two atoms swapped INSIDE one block wrapper, each still carrying its own hash and each still re-hashing — the page renders the declared blocks in the declared order, and says something else",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "chrome-marked-atom.html",
+      "mutation": "an element marked as chrome while carrying an atom stamp — furniture the residue rule skips and attested content at once",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "placement-claims-foreign-atom.html",
+      "mutation": "a placement naming an atom its block does not hold, with the composition root recomputed",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "render-descriptor-tampered.html",
+      "mutation": "a render descriptor edited with the composition root left as it was. Nothing a reader sees changes and the surface check is indifferent to the edit, which is what makes it the case for folding the descriptor into the placement leaf",
+      "refuses": [
+        7
+      ]
+    },
+    {
+      "file": "sst-charter-field-flipped.html",
+      "mutation": "one permission flipped in a charter served in the second shape — an entity carrying an sst_charter field rather than a bare charter document. The refusal names the hash mismatch, not a missing charter, which is what proves the shape was read rather than skipped",
+      "refuses": [
+        9
+      ]
+    },
+    {
+      "file": "undeclared-chrome-furniture.html",
+      "mutation": "a chrome-marked paragraph of prose added inside a block wrapper, the roots left alone. Its span is cut from the wrapper’s residue, exactly as a plate number’s is, so before the furniture root nothing bounded its text and the page passed all nine gates",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "undeclared-free-text.html",
+      "mutation": "a visible paragraph added between two block wrappers, the roots left alone. It sits inside no wrapper’s own markup, so before the page-level residue rule no gate looked there at all",
+      "refuses": [
+        6
+      ]
+    },
+    {
+      "file": "edited-furniture-text.html",
+      "mutation": "a declared furniture span edited in both faces at once — the page and the furniture list agree, and the furniture root and the composition root are left as they were. Gate 6 refuses the page against the declared root, gate 7 refuses the declared list against it",
+      "refuses": [
+        6,
+        7
+      ]
+    },
+    {
+      "file": "registry-hash-edited.html",
+      "mutation": "the registry the render descriptors name edited in its LAST character, the composition root left alone. Both bindings fire and neither is redundant: gate 6 compares the named table with the one this verifier carries, gate 7 recomputes the root over the trailing registry leaf. Gate 6 reports first",
+      "refuses": [
+        6,
+        7
+      ]
+    },
+    {
+      "file": "consistent-furniture-rewrite.html",
+      "mutation": "THE SAME EDIT, declared. The injected chrome paragraph is added to the furniture list and both roots are recomputed, so the page is internally consistent and passes all nine gates — and its composition root is not the frozen page’s. This is the claim ladder’s second rung stated as a vector: internal integrity is what the gates prove, and an injected sentence is caught by comparing the page’s roots with the origin’s",
+      "refuses": [],
+      "passes": true,
+      "composition_root_moves": true
+    }
+  ]
+}
