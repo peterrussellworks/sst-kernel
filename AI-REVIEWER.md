@@ -325,6 +325,18 @@ reviewer who skipped the live artefact has reviewed half of this.
       step 13's subject: that takes a saved page and this kernel, and reading
       a field is not checking it.
 
+    **Read `blocks` as a bill and `placements` as the transcript, and do not
+    swap them.** A block's hash is the Merkle root over all of its atoms, so the
+    bill carries all of them whether or not this page printed each one; the
+    transcript is what says which reached the reader, and on which surface. On
+    the fifteen live pages reachable from the site's own navigation the bill
+    names 1,713 distinct atoms of which 808 carry no `data-atom-hash` element,
+    while the transcript names 912 of which 7 do not — and all 7 are the tail of
+    one composed label, several atoms borne by one element by declaration. If you
+    report "half this page's atoms are missing from the DOM", you have compared
+    against the bill; that finding is an artefact of the list you chose and not a
+    defect in the page. Say which list you measured.
+
     Do not quote a hash as though it were a constant. This is a working site and
     its crystal state moves with every publish, so whatever you do quote, quote
     the crystal state the itinerary names alongside it.
@@ -515,7 +527,15 @@ recorded honestly beats a step quietly skipped.
    made with all whitespace removed, which is what stops typesetting being
    reported as tampering — measured across the reference artefact's 47 pages,
    that rule alone accounts for 389 of the 1,491 blocks the previous gate
-   refused. Can two different readings be made to differ by whitespace alone?
+   refused. **Those two numbers are the author's, and the method is stated
+   because the measurement cannot be repeated from this repository**: they were
+   taken inside the private reference implementation by running the
+   pre-whitespace-rule comparison over every block of all 47 built pages and
+   counting the refusals, then the subset whose only difference from its atoms
+   was whitespace. Nothing here reproduces them, no vector pins them, and the
+   script that produced them is not public — treat them as a claim awaiting its
+   paper, like any `SPEC §` citation in these files.
+   Can two different readings be made to differ by whitespace alone?
    Earlier attacks are on the record: a stranger's static red team reproduced
    against the fixture, a word-granularity experiment (`R4-WORD-GRANULARITY.md`),
    and a subtraction variant tested and rejected because it admitted an

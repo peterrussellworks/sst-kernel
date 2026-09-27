@@ -96,6 +96,24 @@ their attested block sequences coincide. That is the content spine doing what it
 identity of the page *as arranged* is the composition root, which differs between them, and
 a face or an index that names a page should name it by its composition root, or by both.
 
+**The `blocks` list is a bill, and the `placements` list is the transcript — and
+the difference is large enough to be worth a number.** A block's identity is the
+Merkle root over ALL its atoms, so the manifest must carry all of them or the
+block root cannot be recomputed from the page alone; gates 4 and 5 need the whole
+list. But a placement may print a subset of a block's atoms, and may carry others
+on an attribute or as a composed run, so the bill routinely names atoms the page
+never stamps. Measured over the fifteen live pages of the reference artefact
+reachable from its own navigation: **1,713 distinct atoms in the `blocks` bill,
+of which 808 have no `data-atom-hash` element in the DOM** — 47%. Over the
+`placements` transcript the same measurement is **912 atoms, of which 7 are
+absent**, and all 7 are the tail of one composed `tag-label` run, which by SPEC
+§2.7 is several atoms borne by one element and is declared as such. So: to ask
+"is every atom this page shows attested", read the transcript. To ask "does this
+block root recompute", read the bill. A reader who reads the bill as a transcript
+finds half of it apparently missing from a page that is in fact correct — the
+false-alarm mirror of the false pass, and the reason gate 8 was moved off the
+bill and onto the placements.
+
 The geometry spine is *matter-invariant*: editing an atom leaves the coordinate
 and its state untouched. So is the composition spine — moving a block changes
 neither the block nor the page root, and editing the block changes neither
@@ -408,10 +426,11 @@ its declared id, every block root and the page root recompute from that content,
 and the page carries no visible text besides its atoms and its declared furniture
 — and then three things that used to be declared and unchecked: the *sequence and multiplicity* of the page's
 placements, against a transcript whose own root recomputes; the *descriptive
-fields* `role`, `section`, `name` and `block_type`, against the geometry sites
-that hash all four; and the *charter*, whose served terms hash to an atom inside
-a block the page root covers. Every one of those coordinates is attested by the
-page's own roots, not by a record outside it, so relabelling which coordinate a
+fields* `role`, `section`, `name` and `block_type` of every block the page
+PLACES, against the geometry sites that hash all four — the head-only blocks
+excepted, for the reason below; and the *charter*, whose served terms hash to an
+atom inside a block the page root covers. Every one of those coordinates is
+attested by the page's own roots, not by a record outside it, so relabelling which coordinate a
 block occupies — consistently, across `manifest.blocks`, `placements` and
 `geometry.sites` — recomputes every root and passes every gate; the same limit
 as any self-consistency check here, it is caught only against the origin's own
@@ -429,7 +448,34 @@ What remains outside, and it is worth naming precisely:
   page's own shape and says only what the page publishes; the committed sidecar
   carries the whole artefact's shape, where the withheld site is still present.
   A slice showing fewer present sites than the sidecar is **projection, not
-  loss**, and gate 8 reads the page's.
+  loss**, and gate 8 reads the page's. **The sidecar is a build output, not a
+  guaranteed public one**, and for the live reference artefact it is not
+  published: `/geometry-manifest.json`, `/data.json` and `/sst-geometry.json`
+  are each a 404 on danielarussell.com, and the file lives in a private
+  repository. So a stranger holding only that artefact's pages cannot run this
+  comparison at all — the remedy named here is available to the operator, and,
+  for any artefact, to whoever is served the sidecar. `node sst-kernel.mjs
+  build` writes one beside the page, which is where a reader can see the shape
+  of the thing being described.
+- **A head-only block's descriptive labels enter no root.** A block is hashed
+  into a geometry site by the placement that puts it somewhere; a block the page
+  places nowhere therefore has no site, and its `role`, `section`, `name`,
+  `order` and `block_type` are declared and checked by nothing. On this kernel's
+  fixture and on the live reference artefact alike that is exactly two blocks of
+  the twelve — `meta/seo`, whose atoms become the `<title>` and the
+  `<meta name="description">`, and `charter/attestation` — the same two gate 3
+  exempts from the DOM-presence check, and for the same reason: they are not in
+  the body to be placed. Measured: edit `order` and `block_type` on the SEO
+  block and `name`, `order` and `block_type` on the attestation block in a
+  served page, recompute nothing, and all nine gates plus the DOM-text rule
+  PASS. Nothing forgeable moves — the title's *text* still re-hashes under gate
+  5 and the charter's *terms* still hash under gate 9, so no content claim is
+  reachable this way; what is unattested is the metadata describing the two
+  blocks. Moving one of them OUT of its exempt coordinate is a different edit
+  and is caught: relabel the SEO block's section and gate 3 refuses the page by
+  name. Closing the rest would mean a `head_block_labels` leaf in the
+  composition root with its own refusal vector; that is a format decision, free
+  while v1.3 is pre-release and a break afterwards, and it is not taken here.
 - **A block relabelled into the charter section leaves the DOM-presence check.**
   Gate 3's exemption is read from the block's own section label, and that label is
   metadata rather than a hash input, so a page that relabels an ordinary block
@@ -463,7 +509,17 @@ What remains outside, and it is worth naming precisely:
   position on the page. Nothing the page shows can contradict it, so no gate reads
   it, and an edit to it is refused by nothing. Read it as a description the
   artefact offers, like a notes column, never as evidence of where anything was
-  printed. Where a block *was* printed is a different field and gate 7 does cover
+  printed. **This kernel's own emitter numbers it page-locally**
+  (`sst-kernel.mjs:235`), which on a fixture that puts one block in each of
+  eleven sections happens to print 0…11 — so the demonstrator's `order` column
+  and the reference artefact's are counting two different things, and the
+  reference artefact's is the canonical one. That the difference is invisible to
+  every gate is the point of the bullet, not an excuse for it: a field no root
+  covers is a field two implementations can disagree about in public without
+  anything failing, which is the strongest argument available for reading it as
+  a notes column. It is left as it is here rather than aligned, because aligning
+  it moves the frozen v1.3 manifest bytes for a field that carries no claim.
+  Where a block *was* printed is a different field and gate 7 does cover
   it: the placement's own `section` and `name`, hashed into the composition root,
   where an edit to either moves the root.
 - **An older artefact keeps the older boundary.** A page declaring v1.1 or v1.2
@@ -471,7 +527,8 @@ What remains outside, and it is worth naming precisely:
   reordered or repeated blocks, edited descriptive fields, and a flipped or
   deleted charter all pass, because that is what those versions promised. The
   cross-page geometry root lives in the committed sidecar,
-  `dist/geometry-manifest.json`, at every version.
+  `dist/geometry-manifest.json`, at every version — with the availability
+  caveat above.
 
 **What the gates do NOT prove:**
 

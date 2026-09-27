@@ -9,7 +9,7 @@
 // builds a Dual-Native artefact and then verifies it the way a stranger
 // would — from the published HTML alone.
 //
-//   node sst-kernel.mjs build            substrate → dist/index.html
+//   node sst-kernel.mjs build            substrate → dist/index.html + dist/geometry-manifest.json
 //   node sst-kernel.mjs verify [file]    run the gates on the HTML alone
 //   node sst-kernel.mjs tamper           flip one character, watch a gate fail
 //   node sst-kernel.mjs seal             seal a vacancy, watch the roots stay orthogonal
@@ -19,6 +19,14 @@
 // NOT sst.dev. This "SST" is Single Source of Truth, a content-provenance
 // format; sst.dev is an unrelated serverless-infrastructure framework that
 // shares the acronym. See AI-REVIEWER.md.
+//
+// WHERE THE COMMENTS BELOW CITE `SPEC §…`, OR A RULING IDENTIFIER SUCH AS `P2`,
+// they point at a specification that is not in this repository and not yet
+// public — 9 SPEC citations and 16 ruling identifiers in this file. They are
+// provenance notes, not a place to look something up. Nothing here depends on
+// reading them: every rule this file applies is stated in the comment beside
+// it, specified in KERNEL.md, and frozen in vectors/. Anything you cannot check
+// from those three, treat as a claim awaiting its paper.
 //
 // THE IDEA IN FOUR SENTENCES
 // 1. Content is atomized: each sentence is an atom whose identity is the

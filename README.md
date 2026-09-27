@@ -11,6 +11,8 @@ If the crystal is always private and the faces are public, how does a reader kno
 
 What that proves, and what it does not, is stated once and precisely in [`KERNEL.md`](KERNEL.md). In short: from a face alone, that what it shows is the atoms, unchanged, complete within itself, with the operator's terms bound in; with the operator's own domain, that these are the roots the operator published; and not proven, not claimed, who authored the crystal or whether a face shows everything the crystal holds. That last question is open research, and the one the author most wants examined.
 
+A face that carries both at once — the rendered page a person reads and, derived from those same bytes, the machine face a verifier reads — is **Dual-Native**, which is the word `verify` prints when the two agree: `✓ Dual-Native: this artefact proves itself.`
+
 This repository is a demonstrator. It hands you a crystal you can read whole, lets you assemble a page from it and watch the identities fall out, and points you at the live reference artefact: a working atelier's website, projected from a crystal you will never see.
 
 ## Read in the order that suits you
@@ -48,7 +50,12 @@ node sst-kernel.mjs root FILE # recompute a published root by hand from the list
 ```
 
 Nothing here asks you to run code you have not read: the kernel is one file, and `KERNEL.md` states the
-algorithm so you can write your own verifier and meet it against `vectors/`. No dependencies; Node's
+algorithm so you can write your own verifier and meet it against `vectors/`. **Where a comment or a
+document cites `SPEC §…`, or a ruling identifier such as `P2`, it is pointing at a specification that is
+not in this repository and not yet public** — 31 such citations across these files, 9 of them inside
+`sst-kernel.mjs`. `WHITEPAPER.md` says what to do about that and the instruction is the right one:
+everything load-bearing is stated here or frozen in `vectors/`, and anything you cannot check from those,
+treat as a claim awaiting its paper. No dependencies; Node's
 standard library only; nothing is installed, downloaded or sent anywhere. Remove `dist/` afterwards —
 `check-repo.mjs` refuses a tree with entries the table below does not name.
 
@@ -64,13 +71,13 @@ that split is said here rather than left to a pricing page.
 
 | path | what |
 |---|---|
-| `sst-kernel.mjs` | the whole implementation — build, verify, tamper, seal, vectors |
+| `sst-kernel.mjs` | the whole implementation — build, verify, tamper, seal, vectors, root |
 | `KERNEL.md` | the mechanism, specified: spines, gates, proof boundary, limitations, conformance |
 | `WHITEPAPER.md` | the concept — what SST is and why, the formal model, the conformance story |
 | `AI-REVIEWER.md` | the review protocol — declare what you can do, follow that profile's sequence, report in the shape |
 | `AGENTS.md` | the short pointer file agent tooling reads by convention; it points at the protocol |
 | `substrate/` | the crystal the kernel builds from, and the traps built into it |
-| `vectors/` | the frozen conformance vectors — three sets, one of them a refusal set |
+| `vectors/` | the frozen conformance vectors — three sets, the third of which also carries a refusal set |
 | `charter.yaml` | this repository's own terms, in the format's own instrument (PROPOSED) |
 | `R4-WORD-GRANULARITY.md` | the word-granularity falsifier, as a protocol |
 | `check-repo.mjs` | checks this table against the tree — every row a file, every file a row |
