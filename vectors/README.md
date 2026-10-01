@@ -132,8 +132,8 @@ the version axis is broken, not the vector.
 terms as `v1.2-manifest/`, over the same substrate.
 
 **The composition root has moved three times by REDEFINITION and once because a
-value it covers moved, and the version has not.** Every time because v1.3 is
-still pre-release, and all four are recorded here rather than left in a commit
+value it covers moved, and the version has not.** Every time before `v1.3.0`
+was tagged, and all four are recorded here rather than left in a commit
 message.
 
 1. The placement leaf was `sha256(block ␟ section ␟ name)` when this set was first
@@ -175,13 +175,13 @@ both hashes in full, while gate 7 passes — because the page is internally
 consistent with the table it named, which is precisely the division of labour
 between the two checks described above.
 
-No implementation has shipped v1.3 publicly — the reference artefact emits v1.3
-fields but has not been released under that name — so all three are changes to a
-draft, not breaks of a promise. Every atom, block and page root is byte-identical
+All three were made before `v1.3.0` was released, while the reference artefact
+emitted v1.3 fields under a draft, so they were changes to a draft, not breaks of
+a promise. Every atom, block and page root is byte-identical
 across them; only `composition_root` and, the second time, the new `furniture`,
 `furniture_root` and `registry_hash` fields moved these bytes — the third time,
-`composition_root` alone. The moment v1.3 ships, that leaf list is as frozen as
-any other value here.
+`composition_root` alone. From the `v1.3.0` release on, that leaf list is as
+frozen as any other value here.
 
 The kernel's own fixture also grew — four blocks and eleven atoms — so that every
 render mode is exercised by something the kernel actually builds rather than
@@ -445,8 +445,8 @@ and this vector would be the only thing left to say so.
 **The provenance of all but the control, the two furniture cases and the
 superposed pair is worth stating.**
 They are not hypotheticals written to make new gates look useful. Two of them come from a
-second stranger red team of this branch, which found the two furniture holes by
-running edits against the branch's own built page and watching all nine gates
+second stranger red team of the v1.3 draft, which found the two furniture holes by
+running edits against its own built page and watching all nine gates
 pass. The rest come from the first: a static read of
 `sst-kernel.mjs` by a stranger's model produced seven claims about what `verify`
 did not check; every one was executed against the kernel's own built page, and
@@ -484,8 +484,7 @@ be re-cut. The set stays honest through it by being mechanical — the only edit
 are the registry hash and each page's own composition root, and the diff is
 readable line by line to confirm that nothing else moved. Its composition root has been redefined three times — the render
 declaration folded into the placement leaf, then the furniture leaf appended, then
-the registry leaf after it — while v1.3 is still pre-release and no artefact has
-shipped under that name; after v1.3 ships,
+the registry leaf after it — all before `v1.3.0` was tagged; from the tag on,
 that value is as frozen as any other and a change to it is a new version. `v1.3-manifest/refusals/` is stricter
 again: regenerating a refusal file means regenerating the page it edits, and a
 gate that has stopped refusing what it is frozen to refuse is a format change to
@@ -502,13 +501,11 @@ why `v1-fixture/`'s v1.1 identities reproduce unchanged under a v1.3 kernel, and
 why `v1.2-manifest/` must keep reproducing too. That reading is proposed rather
 than settled; the alternative is a separate version number for the gate set.
 
-v1.1 and v1.2 are shipped and their vectors are promises. **v1.3 is not shipped**
-— it is the version this kernel emits and the version the reference artefact's
-build now writes, but nothing has been released under that name — so its shape is
-still being settled, and one value in it has already been redefined three times:
+v1.1, v1.2 and v1.3 are released and their vectors are promises. Before `v1.3.0`
+was released, one value in v1.3 was redefined three times:
 the composition root folds each placement's render declaration into its leaf, and
 now also carries two trailing leaves, one over the page's furniture and one over
 the registry its descriptors name. That is stated here rather
-than buried in a commit, because the same edit after v1.3 ships would be a format
+than buried in a commit, because the same edit after the release would be a format
 break rather than a draft revision, and the difference is the release, not the
 arithmetic.

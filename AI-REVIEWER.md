@@ -49,7 +49,7 @@ unsolicited runbook is still not a review — but naming the sequence and asking
 to run it is required.**
 
 That last sentence is here because of what happened without it. In September
-2026 two models were pointed at this branch. Both read `README.md` and stopped;
+2026 two models were pointed at this repository's v1.3 draft. Both read `README.md` and stopped;
 when told this file existed, both answered with a list of commands for their
 operator to type, and neither followed the link to the live artefact until asked
 twice. A runbook is not a review. If you cannot run something, the honest output
@@ -318,8 +318,8 @@ reviewer who skipped the live artefact has reviewed half of this.
       `geometry` (a `root` and a list of `sites`);
     - the other object is the entity carrying `sst_charter`, whose `format`
       field reads `SST Dual-Native v1.3`;
-    - `furniture_root` and `registry_hash` — the two trailing leaves this
-      branch folds into the composition root — are **present** on the pages
+    - `furniture_root` and `registry_hash` — the two trailing leaves v1.3
+      folds into the composition root — are **present** on the pages
       the origin serves, beside the `furniture` list the first of them is
       computed over. Say which of the three you found. Whether they hold is
       step 13's subject: that takes a saved page and this kernel, and reading
@@ -382,7 +382,7 @@ leaves no trace on either, so no comparison you can run here reaches it. That is
 
 ### Full — steps 13–14
 
-13. Save a live page to disk and run this branch's kernel over it:
+13. Save a live page to disk and run this kernel over it:
 
     ```
     node sst-kernel.mjs verify /path/to/the/saved/page.html
@@ -392,16 +392,40 @@ leaves no trace on either, so no comparison you can run here reaches it. That is
     there is no URL form of the verb; a reviewer before you reported running
     `verify <URL>`, which does not exist.
 
-    Expected, on this branch's kernel against a page the origin serves today:
-    all nine gates and the DOM-text rule pass, and the served manifest carries
-    `furniture`, `furniture_root` and `registry_hash` beside `composition_root`
-    and `geometry`. The origin publishes from the same emission this branch
-    verifies; the itinerary at `/ai-reviewer.txt` says which kernel branch to
-    use and why the `main` branch's older gate 6 reports residues here that this
-    one does not. That paragraph is the only version skew the origin admits to.
+    Expected, against a page the origin serves today: **all nine gates and the
+    DOM-text rule pass** — "✓ Dual-Native: this artefact proves itself." The
+    served manifest carries `furniture`, `furniture_root` and `registry_hash`
+    beside `composition_root` and `geometry`, and its `registry_hash` names this
+    kernel's own table, `f2229284…e1`. The author measured this on 2026-10-01
+    over all 47 pages of the reference artefact that carry a manifest: 47 pass.
+    The page list and the script are not in this repository — save a few pages
+    and run `verify` yourself.
+
+    One history note, because a saved page can outlive it. Until its republish
+    on 2026-10-01 the origin emitted against the table as it stood before its
+    fourth entry, `sentence-join`, and this kernel refused every such page on
+    gate 6 with exactly one finding (wrapped here, the hashes abbreviated):
+
+    ```
+    gate 6 FAIL — every block wrapper reconstructs from its atoms and nothing else
+           · the page names transform registry 83d23e12…8e, and this verifier
+             carries f2229284…e1
+    ```
+
+    That was gate 6 doing precisely the job it was given — telling a reader that
+    the table a page's descriptors refer to is not the table in front of them —
+    and it was a VERSION SKEW, not tampering: the only finding, on every page,
+    and the identical kernel with the fourth entry removed passed them all
+    (the author's measurement, 2026-09-27, over the 45 pages the origin then
+    served: 0 pass with it, 45 without). It closed when the origin
+    re-vendored the table and republished. A page saved before then still shows
+    that one line; a page served today must not. If you see any OTHER finding —
+    a hash that does not recompute, a block the manifest does not carry, a gate
+    other than 6, or that line on a page served today — it is worth a great deal
+    more than agreement.
 
 14. Report any disagreement as a finding, with your output beside it. A gate
-    that fails on a live page under this branch's kernel is either tampering,
+    that fails on a live page under this kernel is either tampering,
     an emission the origin has not yet republished, or a hole in the kernel —
     and telling which, from the output alone, is the single most useful thing a
     Full reviewer can send. If the served manifest lacks the three fields named

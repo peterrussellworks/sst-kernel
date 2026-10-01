@@ -353,6 +353,21 @@ in `sst-kernel.mjs`, and the conformance vectors pin both its input→output pai
 equal by reproducing that hash — and an entry present in one table and absent
 from the other is drift in either direction.
 
+**So adding an entry is a coordinated change, and the cost is visible rather
+than hidden.** The moment this kernel's table gains an entry, every artefact
+still emitted against the older table names a registry this kernel does not
+carry, and gate 6 says so by name until the emitter is re-vendored and the
+artefact republished. That is the check working, not a false alarm: a verifier
+that stayed silent about which table a page's labels were computed with is a
+verifier that would recompute a composed label with the wrong glue and call it
+agreement. It is also why the table was settled before `v1.3.0` was released:
+before the release an extension costs only the reference artefact a republish;
+after it, a new entry moves `registry_hash`, one of the frozen fields, and so is
+a new version. The fourth entry, `sentence-join`, was the one change of that kind
+v1.3 made: the reference artefact took the new table into its own copy of the
+kernel and republished on 2026-10-01, and every page it serves names this
+kernel's registry.
+
 **The table, in full — four entries, two of them composing.** `enum-label` lower-cases
 an enum and turns each `_` into a space; `rating-label` renders a number as the
 sentence a screen reader announces. Those are arity 1: one atom in, one string
@@ -502,8 +517,23 @@ What remains outside, and it is worth naming precisely:
   blocks. Moving one of them OUT of its exempt coordinate is a different edit
   and is caught: relabel the SEO block's section and gate 3 refuses the page by
   name. Closing the rest would mean a `head_block_labels` leaf in the
-  composition root with its own refusal vector; that is a format decision, free
-  while v1.3 is pre-release and a break afterwards, and it is not taken here.
+  composition root with its own refusal vector; that is a format decision — a
+  new version, now that `v1.3.0` is released — and it is not taken here.
+- **A block's `page` label is bound by no gate, on a body block as on a
+  head-only one.** The manifest's own `page` is bound — relabel it on this
+  kernel's `build` output and gate 8 refuses the page. But a block may also carry
+  a `page` label naming the page it belongs to (this kernel's fixture blocks do
+  not; the reference artefact's do), and a page legitimately places blocks that
+  belong to other pages — the reference artefact's `/about/`
+  carries project blocks labelled with the project pages they come from — so
+  "every block names this page" is not a rule a verifier can apply, and the label
+  enters no root. Measured 2026-10-01 on the reference artefact: relabel one body
+  block from `about` to `portfolio` in a served page, recompute nothing, and all
+  nine gates and the DOM-text rule pass. Nothing forgeable moves — the block's
+  content and its place on the page are still checked — but what the label
+  claims, the page that owns the block, is unattested. Binding it needs the label
+  inside a root, or a check that reads the owning page, which this kernel
+  deliberately never does; either is a format decision for a later version.
 - **A block relabelled into the charter section leaves the DOM-presence check.**
   Gate 3's exemption is read from the block's own section label, and that label is
   metadata rather than a hash input, so a page that relabels an ordinary block
@@ -745,9 +775,11 @@ it promised. That reading is proposed rather than settled; the alternative is a
 separate version number for the gate set. If it changes, what changes is the
 dispatch, not a single hash.
 
-The branch `v1.3-composition` is itself a pre-release: until `v1.3.0` is
-tagged, the manifest's composition fields may still change, and each change is
-recorded in `vectors/README.md`. Identities — atom ids, block roots, page
+`v1.3.0` is the release of this format version. From it on, the manifest's
+`placements`, `composition_root`, `furniture`, `furniture_root`,
+`registry_hash` and `geometry` are frozen, and a change to any of them is a new
+version; the changes made before the release are recorded in
+`vectors/README.md`. Identities — atom ids, block roots, page
 roots — never change with a version, at any point.
 
 ## Beyond the kernel
