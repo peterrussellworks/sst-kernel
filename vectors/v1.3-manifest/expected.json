@@ -3,7 +3,7 @@
   "fixture": "sst-kernel/substrate",
   "format": "SST Dual-Native v1.3",
   "frozen_by": "sst-kernel.mjs in this repository — a freeze, not a cross-implementation agreement. See vectors/README.md.",
-  "note": "The v1.3 page manifest and charter this kernel MUST reproduce from substrate/, plus page.html — the exact bytes the refusal set under refusals/ mutates, so a drifted page would make every refusal meaningless. Byte-exact: field order, omitted provenance labels and all. FOUR roots are pinned here: the page root (covering the charter attestation block), the composition root over the placement transcript AND two trailing leaves, this page's furniture root over the text it shows that no atom attests, and this page's geometry root over the sites its own placements define. The two trailing leaves are the furniture root and the transform registry the render descriptors refer to, named by the hash of the registry's own source region, so a swapped registry moves a published root instead of resting on a declaration. The composition root has been redefined three times while v1.3 is pre-release — first to fold each placement's RENDER declaration into its leaf, then to append the furniture leaf, now to append the registry leaf after it — so these bytes differ from all three earlier freezes; the whole-artefact geometry sidecar is unchanged by v1.3 and stays frozen in v1.2-manifest/, against the substrate frozen beside it.",
+  "note": "The v1.3 page manifest and charter this kernel MUST reproduce from substrate/, plus page.html — the exact bytes the refusal set under refusals/ mutates, so a drifted page would make every refusal meaningless. Byte-exact: field order, omitted provenance labels and all. FOUR roots are pinned here: the page root (covering the charter attestation block), the composition root over the placement transcript AND two trailing leaves, this page's furniture root over the text it shows that no atom attests, and this page's geometry root over the sites its own placements define. The two trailing leaves are the furniture root and the transform registry the render descriptors refer to, named by the hash of the registry's own source region, so a swapped registry moves a published root instead of resting on a declaration. The composition root was redefined three times before v1.3.0 was tagged — first to fold each placement's RENDER declaration into its leaf, then to append the furniture leaf, then to append the registry leaf after it — and the set was re-cut once more before the tag, when three of the fixture's sentences were corrected (the atom, block, page and composition roots moved with them; no rule changed), so these bytes differ from every earlier freeze and are frozen from the tag on; the whole-artefact geometry sidecar is unchanged by v1.3 and stays frozen in v1.2-manifest/, against the substrate frozen beside it.",
   "version_axis": "v1.3 proceeds on the reading that a format version names the manifest schema and the gate set together, while identities stay stable across versions. That reading is proposed, not yet ruled.",
   "page_manifest": {
     "@context": "https://danielarussell.com/contexts/sst-manifest-v1",
@@ -11,8 +11,8 @@
     "page": "paper",
     "version": "1.3",
     "registry_hash": "f222928405f9472e96680b3f57090e3b92e2d61d463670f6f951c842a12fb5e1",
-    "page_merkle_root": "56bf5439f7597dd3ea6b813764e002dfa4a1cef0fe858f4662177d1962086feb",
-    "composition_root": "c902933fdabf7cc641800689291d92867c8c2b5f0ea55bf359d899224b212668",
+    "page_merkle_root": "7dd91bbef17ce460d5e5ff7e680c0cc4e7697d366d213d4eb465b28a4cec6584",
+    "composition_root": "876d867ff85e2dc470dba20a7702875cd95f87f1ca924ea8804f2ce3cd0835e8",
     "furniture_root": "5670680c8a3a29883e9e908e20a76c1b7a8d79f92694dcbbc52e43ce81d3191c",
     "block_count": 12,
     "atom_count": 26,
@@ -93,7 +93,7 @@
       },
       {
         "@type": "SstBlock",
-        "hash": "5d36dd081432942407dff69b4d35a63713f2e826039aebfb3918880a5d10e15e",
+        "hash": "0dd9ab5e33c4d079c2e5093d776b8f41f71029b1233277390e601358ccee397c",
         "name": "body",
         "block_type": "paragraph",
         "atoms": [
@@ -113,10 +113,10 @@
           },
           {
             "@type": "SstAtom",
-            "hash": "888a9cc024f3b2c5a493e03a16a9ee6f0820e9cf5448c15904b794042b8cf459",
+            "hash": "f27942ac5588c19331109cc87be7dd87c74ea0822b0018da4232161bbc3bbd74",
             "role": "body",
             "order": 2,
-            "content": "Anyone can verify this page without trusting its publisher: re-hash the visible text, recompute the Merkle roots, and compare against the manifest. The artefact carries its own proof."
+            "content": "Anyone can check that what this page shows is what its manifest declares, with no access to its source: re-hash the visible text, recompute the Merkle roots, and compare against the manifest."
           },
           {
             "@type": "SstAtom",
@@ -129,7 +129,7 @@
       },
       {
         "@type": "SstBlock",
-        "hash": "29dbaa9fb189721f41cf2a35b49d488d534de74e4b7b6c6bef4d1afd6bc616bb",
+        "hash": "6508f418604f0bcf329698fdeda921b9142affdd2046c557ff5ad2012350d864",
         "page": "paper",
         "section": "method",
         "name": "body",
@@ -138,10 +138,10 @@
         "atoms": [
           {
             "@type": "SstAtom",
-            "hash": "b698b818022a138bd9649937afce35c173eed2a09a557eed8dc152e92567fe93",
+            "hash": "fef1b171f4d2b08366dbf2759428a212ae1662a99df257dc23630d229c4e910e",
             "role": "body",
             "order": 0,
-            "content": "Run the verifier against this very file to watch all six gates pass; flip a single character and watch them fail."
+            "content": "Run the verifier against this very file to watch all nine gates pass; flip a single character and watch them fail."
           },
           {
             "@type": "SstAtom",
@@ -154,7 +154,7 @@
       },
       {
         "@type": "SstBlock",
-        "hash": "8fed109f02c4333ba7a77208ca2087e3ad703ff9d73df31a49ea7d46167be517",
+        "hash": "7453e012bbb735508782913750f64eacbe796cb8c8052cae5ba612b7bcd265ac",
         "page": "paper",
         "section": "geometry",
         "name": "body",
@@ -163,10 +163,10 @@
         "atoms": [
           {
             "@type": "SstAtom",
-            "hash": "f832fb1c9b42fc5c68c3e7f1fe09292275976461142ccc5419632e023de70fb4",
+            "hash": "da97973a2650f9fd5c09af72306ab15817cc929947cf4c6f6b45af3ae125ca07",
             "role": "body",
             "order": 0,
-            "content": "Beyond the content lies the geometry: a second Merkle root over every declared site — present or vacant — so the shape of what is missing is provable, not merely asserted."
+            "content": "Beyond the content lies the geometry: a second Merkle root over every declared site — present or vacant — so the declared shape of what is missing is provable, not merely asserted."
           }
         ]
       },
@@ -338,17 +338,17 @@
         "name": "body"
       },
       {
-        "block": "5d36dd081432942407dff69b4d35a63713f2e826039aebfb3918880a5d10e15e",
+        "block": "0dd9ab5e33c4d079c2e5093d776b8f41f71029b1233277390e601358ccee397c",
         "section": "claims",
         "name": "body"
       },
       {
-        "block": "29dbaa9fb189721f41cf2a35b49d488d534de74e4b7b6c6bef4d1afd6bc616bb",
+        "block": "6508f418604f0bcf329698fdeda921b9142affdd2046c557ff5ad2012350d864",
         "section": "method",
         "name": "body"
       },
       {
-        "block": "8fed109f02c4333ba7a77208ca2087e3ad703ff9d73df31a49ea7d46167be517",
+        "block": "7453e012bbb735508782913750f64eacbe796cb8c8052cae5ba612b7bcd265ac",
         "section": "geometry",
         "name": "body"
       },

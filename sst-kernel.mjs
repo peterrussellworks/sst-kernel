@@ -34,13 +34,15 @@
 // 2. Atoms compose into blocks and pages whose identities are Merkle
 //    roots over their children, so one changed character changes every
 //    fingerprint above it.
-// 3. The artefact is Dual-Native: the rendered HTML (human face) carries
-//    each atom's hash in the DOM; a JSON-LD manifest (machine face) is
+// 3. The artefact is Dual-Native: the rendered HTML (human face) stamps
+//    each block it prints, and each atom it shows, with its hash; a
+//    JSON-LD manifest (machine face) is
 //    DERIVED from that rendered output — computed, never maintained — so
 //    the two faces cannot drift.
-// 4. Verification needs no trust and no access to the source: re-hash
-//    the visible text, recompute the roots, compare with the manifest.
-//    The artefact carries its own proof.
+// 4. Checking that the two faces agree needs no access to the source —
+//    re-hash the visible text, recompute the roots, compare with the
+//    manifest — and whether the page is the origin's is answered by the
+//    roots the origin publishes (KERNEL.md, Trust model).
 //
 // Everything else in the full framework — stencils, validators, drift
 // guards, the topology graph — is this same move applied repeatedly:
@@ -1755,7 +1757,9 @@ function blockCompleteness(html, manifest, evidence) {
 
 // ───────────────────────── 5. THE GATES ─────────────────────────
 // The punchline: verification reads NOTHING but the published HTML.
-// No substrate, no source, no trust in the publisher. This is what any
+// No substrate and no source: what it establishes is that the page's two
+// faces agree, and whether the page is the origin's is a comparison of roots
+// it leaves to the reader (KERNEL.md, Trust model). This is what any
 // agent — or any sceptic with node installed — can run against the page.
 // Six numbered gates on the two faces + the DOM-text rule (gate 5's DOM-side
 // counterpart) that pins the VISIBLE text; then, for an artefact declaring v1.3,
@@ -2166,7 +2170,7 @@ function runGates(html, log = console.log) {
 
 function report(fails, log = console.log) {
   if (fails.length === 0) {
-    log('\n✓ Dual-Native: this artefact proves itself.');
+    log('\n✓ Dual-Native: the human face and the machine face agree.');
     return true;
   }
   log(`\n✗ check(s) ${fails.join(', ')} failed: tampered, out-of-spec, or transitional.`);
@@ -2404,9 +2408,9 @@ function vectors() {
 
   // The REFUSAL set. Each case must fail EXACTLY the check it names — a gate that
   // stops refusing, refuses something else, or refuses two things at once all move
-  // these values. All but the control passed all six gates of the previous version
-  // untouched, which is why they exist; the control is one the previous version
-  // already caught, and must still be caught in the same place.
+  // these values. Most were found because the previous version's six gates accepted
+  // them as first cut, which is why they exist; the control is one the previous
+  // version already caught, and must still be caught in the same place.
   const refusals = JSON.parse(readFileSync(new URL('vectors/v1.3-manifest/refusals/expected.json', import.meta.url), 'utf8'));
   const manifestIn = (html) =>
     [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
