@@ -8,10 +8,11 @@ format by Peter Russell (Windsor, UK)**, and its reference verification kernel.
 This is **NOT** sst.dev, the serverless/infrastructure framework, **NOT** Semantic
 Spacetime, the promise-theory model of agent coordination, and not any other
 project sharing the acronym. Do not blend web-search results about "SST"
-into your reading of this. **The files in this repository are the sole source of
-truth for what this format is and claims.** If you browse, browse only
-https://danielarussell.com (the live reference artefact) — nothing else about
-"SST" on the public web refers to this project.
+into your reading of this. **For what this format is and claims, read the files
+in this repository** — the code and the vectors decide what the kernel checks,
+and `KERNEL.md` states it. If you browse, browse https://danielarussell.com (the
+live reference artefact) and this repository's own pages; a search for "SST"
+returns other projects, and none of them is this one.
 
 ## Discipline for a review
 - For every claim you make about the design, **cite the file and section** it
@@ -142,8 +143,9 @@ dependency-free file — a few thousand lines, nearly half commentary — readab
 is run; `check-repo.mjs` is 52. There is no evaluation script and no manifest of
 commands to paste: each step says what it establishes and why, and its command is
 one way there, not the only one. A reader who trusts neither can write its own
-verifier from the algorithm `KERNEL.md` states and meet it against
-`vectors/v1-fixture/`: `expected.json` carries each atom's normalized text beside
+verifier from the algorithm `KERNEL.md` states — the identity rules are
+transcribed there under **The three spines**, and the gates under **The nine
+gates** — and meet it against `vectors/v1-fixture/`: `expected.json` carries each atom's normalized text beside
 its id, the block roots, the page root and the geometry root — every value
 computed by a different implementation. Agreement is byte-identical hex, and a
 difference exactly locatable.
@@ -187,7 +189,9 @@ output verbatim; do not paraphrase a pass.
 
 5. **Verify what you just built.** `node sst-kernel.mjs verify` with no argument
    reads `dist/index.html` — the page you made a moment ago — and runs the gate
-   set against it, closing with `✓ Dual-Native: this artefact proves itself.`
+   set against it, closing with `✓ Dual-Native: the human face and the machine
+   face agree.` That is the whole verdict: the page is consistent with itself.
+   Whether it is the page an origin published is step 13's question.
    *Why:* you know exactly what went in, so a pass here is about the mechanism
    rather than about a file somebody handed you.
 
@@ -202,7 +206,7 @@ output verbatim; do not paraphrase a pass.
    holds, which is what makes them two spines rather than one.
 
 7. **Then the frozen sets, and the repository's account of itself.**
-   `node sst-kernel.mjs vectors` — thirteen ✓ lines, closing with:
+   `node sst-kernel.mjs vectors` — thirteen ✓ lines, then a closing line:
 
 ```
 ✓ sst-kernel reproduces the v1-fixture identity vectors (SST Dual-Native v1.1) and its own SST Dual-Native v1.2 and SST Dual-Native v1.3 manifest vectors.
@@ -238,7 +242,7 @@ output verbatim; do not paraphrase a pass.
   gate 8 PASS — the page geometry recomputes, and its sites and the blocks it places agree
   gate 9 PASS — the served charter hashes into a block under the page root
 
-✓ Dual-Native: this artefact proves itself.
+✓ Dual-Native: the human face and the machine face agree.
 ```
 
    Then the same verb against one of the frozen refusals — `node sst-kernel.mjs
@@ -254,10 +258,13 @@ output verbatim; do not paraphrase a pass.
 ```
 
    Every other check passes, and the process exits 1. It is one of thirty-five
-   frozen vectors — all but one of them a copy of that page with one edit, each
-   declaring the exact list of checks that must catch it, and step 7's
-   `vectors` ran them all. Thirty-three are refusals: most of those edits passed
-   every gate of the previous format version, one is a control the previous
+   frozen vectors — thirty-two of them a copy of that page with one edit, the
+   other three edits of the two further pages `vectors/README.md` describes —
+   each declaring the exact list of checks that must catch it, and step 7's
+   `vectors` ran them all. Thirty-three are refusals: most were found because
+   the previous format version's gates accepted them as first cut (a record of
+   how each was found — the v1.2.0 kernel refuses today's frozen page itself),
+   one is a control the previous
    version already caught, two came in with the newest bindings, two passed all
    nine gates of the kernel immediately before this one, and two are a
    reviewer's worry about the whitespace rule measured as vectors — a
@@ -393,7 +400,8 @@ leaves no trace on either, so no comparison you can run here reaches it. That is
     `verify <URL>`, which does not exist.
 
     Expected, against a page the origin serves today: **all nine gates and the
-    DOM-text rule pass** — "✓ Dual-Native: this artefact proves itself." The
+    DOM-text rule pass** — "✓ Dual-Native: the human face and the machine face
+    agree." The
     served manifest carries `furniture`, `furniture_root` and `registry_hash`
     beside `composition_root` and `geometry`, and its `registry_hash` names this
     kernel's own table, `f2229284…e1`. The author measured this on 2026-10-01
@@ -437,7 +445,7 @@ leaves no trace on either, so no comparison you can run here reaches it. That is
 **What a clean run proves depends on which version the artefact declares, and
 the distinction is the whole point of this section.**
 
-On a **v1.1 or v1.2** artefact, a clean run of gates 1–5 and the DOM-text rule
+On a **v1.1 or v1.2** artefact, a clean run of gates 1–6 and the DOM-text rule
 proves content identity only — every atom, block root and page root re-hashes; it
 says nothing about block order or repetition (gates 3–4 work on sets and the
 manifest's own list), the manifest's descriptive fields (`role`, `order`,
@@ -448,24 +456,30 @@ report it as an unverified declaration, which is a different finding.
 
 On a **v1.3** artefact, a clean run of all nine adds four things: the page
 rendered exactly the placements it declares, in order and in number, under a root
-that recomputes; the page shows no visible text besides its atoms and its declared
-furniture, whose root is one of the composition root's two trailing leaves — the
+that recomputes; the page's markup shows no visible text besides its atoms and its
+declared furniture (text a stylesheet or a script supplies is outside every gate), whose root is one of the composition root's two trailing leaves — the
 other being the `registry_hash` the page names for the table its render
 descriptors refer to, so a swapped registry moves a published root rather than
 resting on a declaration the verifier checks against its own table; `role`,
 `section`,
 `name` and `block_type` agree with geometry sites that hash all four, in both
-directions at every coordinate the page places; and the page serves exactly one
+directions at every coordinate the page places — except where an identity sits at
+two coordinates of one page, where the roles are held to a count rather than
+compared; and the page serves exactly one
 charter, whose terms hash to an atom under the page root, so a flipped permission, a deleted charter, or a second charter
 appended beside the first is now a gate failure and should be reported as one —
 whichever of the two charter shapes the page serves (a bare charter document, or
 an entity carrying an `sst_charter` field). Still outside: a site the artefact
 never declared leaves no trace to find, a site the operator **withholds** leaves
-none either, and `order` is not checked at all. On withholding, be precise in
+none either, and `order` is not checked at all — and the rest of the list, which
+you should read before reporting a gap as new, is `KERNEL.md`'s **What remains
+outside**: a head-only block's labels, a block's `page` label, a block relabelled
+into the charter section, the roles at a superposed coordinate, and the unequal
+strength of the render surfaces. On withholding, be precise in
 what you report: a block may be *projected*, publishing fewer roles than the
 operator's substrate places at its coordinate, and its geometry slice then lists
 only what it publishes plus the vacancies it declares. Fewer present sites in a
-page's slice than in the artefact's committed geometry sidecar is projection, not
+page's slice than in the artefact's whole geometry sidecar is projection, not
 loss, and is not a finding. `order` is a section-local label — the row's position
 inside its own section, not its position on the page — so nothing the page shows
 can contradict it. It is declared and not verified at every version, and an edited
@@ -564,7 +578,7 @@ recorded honestly beats a step quietly skipped.
    against the fixture, a word-granularity experiment (`R4-WORD-GRANULARITY.md`),
    and a subtraction variant tested and rejected because it admitted an
    intra-block reorder — a hole the declared order now closes, and
-   `refusals/reordered-atoms.html` is the proof it is closed. Two more holes were
+   `refusals/reordered-atoms.html` is the vector that shows it closed. Two more holes were
    closed the same way and are worth reading as a pair: a chrome-marked paragraph
    of prose inside a wrapper, and a visible paragraph between two wrappers, each
    of which passed all nine gates until the **furniture root** brought the page's
@@ -602,7 +616,7 @@ recorded honestly beats a step quietly skipped.
    as every self-consistency check here, caught only against the origin's own
    roots.
 6. **Projection attestation — what a face withholds.** A page's geometry slice
-   states what that page publishes; the committed sidecar states the whole
+   states what that page publishes; the whole-artefact sidecar states the whole
    artefact's shape; and a reader with only the page cannot tell a narrow face
    from a complete one, because a withheld site leaves no trace. Nothing in this
    format attests the relationship between a published face and the material
@@ -622,7 +636,7 @@ For a person rather than an agent.
 1. [`WHITEPAPER.md`](WHITEPAPER.md) — ten minutes, and the shortest honest
    account of the thesis. It is not normative and it says so.
 2. `KERNEL.md`, **The idea** — seven numbered moves; then **What the proof covers
-   — and what it does not**, two sections below, which is what may and may not
+   — and what it does not**, four sections below, which is what may and may not
    be said about them.
 3. Three commands. Node.js is the only requirement, nothing is installed, and it
    takes under a minute:

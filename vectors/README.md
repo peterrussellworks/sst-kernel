@@ -72,10 +72,9 @@ matters and is what a second implementation needs.
 
 ## `v1.2-manifest/` — the manifest shape, frozen by this kernel
 
-**Provenance: computed by THIS kernel. It is a freeze, not an agreement.** No
-production implementation emits v1.2 yet — the reference implementation still
-emits v1.1 semantics and says so — so there is no second implementation to
-agree with. Saying otherwise would be the exact overclaim this project exists
+**Provenance: computed by THIS kernel. It is a freeze, not an agreement.** The
+production implementation went from v1.1 to v1.3 and has never emitted v1.2, so
+there is no second implementation to agree with. Saying otherwise would be the exact overclaim this project exists
 to catch.
 
 What a freeze is worth: it makes drift a build failure rather than a surprise.
@@ -120,8 +119,9 @@ directory, and if your bytes differ from these, one of us is wrong and the
 difference is exactly locatable.
 
 This set also holds the kernel to a promise the version axis has to keep: the
-v1.2 shape is still emitted on demand, so an artefact built to it keeps verifying
-exactly as it did. If this set ever needs the kernel changed to keep reproducing,
+kernel can still emit the v1.2 shape — through `compileArtefact('1.2')`, which
+`vectors` calls; there is no command-line flag for it — so an artefact built to
+it keeps verifying exactly as it did. If this set ever needs the kernel changed to keep reproducing,
 the version axis is broken, not the vector.
 
 ---
@@ -129,11 +129,14 @@ the version axis is broken, not the vector.
 ## `v1.3-manifest/` — composition, geometry-in-page and the charter, frozen by this kernel
 
 **Provenance: computed by THIS kernel. A freeze, not an agreement**, on the same
-terms as `v1.2-manifest/`, over the same substrate.
+terms as `v1.2-manifest/`, over this repository's `substrate/`. The production
+implementation does emit v1.3, and every page the reference artefact serves
+passes these gates — agreement on the rules, over its own content — but it has
+not reproduced these bytes.
 
-**The composition root has moved three times by REDEFINITION and once because a
+**The composition root has moved three times by REDEFINITION and twice because a
 value it covers moved, and the version has not.** Every time before `v1.3.0`
-was tagged, and all four are recorded here rather than left in a commit
+was tagged, and all five are recorded here rather than left in a commit
 message.
 
 1. The placement leaf was `sha256(block ␟ section ␟ name)` when this set was first
@@ -182,6 +185,28 @@ across them; only `composition_root` and, the second time, the new `furniture`,
 `furniture_root` and `registry_hash` fields moved these bytes — the third time,
 `composition_root` alone. From the `v1.3.0` release on, that leaf list is as
 frozen as any other value here.
+
+And once more, last, and again WITHOUT a redefinition: three of the fixture's
+sentences were corrected before the tag. One told a reader to watch "all six
+gates" pass on a page that has nine; two claimed more than **Trust model** in
+`KERNEL.md` allows — that a reader need not trust the publisher, and that the
+shape of what is missing is provable when only the *declared* shape is. Content
+moved, so the composition root moved with it, which is the one-way coupling
+`KERNEL.md` describes under the three spines: three atom ids, their three block
+roots, the page root and the composition root — eight values — and no rule, no
+geometry root and no other value. The re-cut is mechanical and checkable: every
+frozen page here is its previous freeze with those eight values and the three
+sentences substituted, except where a page's own edit had recomputed a root
+over the old content — the composition root of
+`consistent-furniture-rewrite.html`, `head-block-not-charter.html`,
+`partial-placement-overclaims.html` and `placement-claims-foreign-atom.html`, and
+the page root of `page-sst-charter-field.html` and
+`sst-charter-field-flipped.html` — and each of those six is recomputed with the
+kernel's own `root` verb, which is how it was cut. Every refusal still fails
+exactly the checks it names. `v1-fixture/` and `v1.2-manifest/` carry their own
+copies of the substrate and did not move. In v1.2, "all six gates" was true; the
+other two sentences keep their older wording there too, frozen with the version that
+shipped them, and the correction above is what that wording overstated.
 
 The kernel's own fixture also grew — four blocks and eleven atoms — so that every
 render mode is exercised by something the kernel actually builds rather than
@@ -343,7 +368,7 @@ prove both halves of gate 8 rather than the arithmetic twice. The other pair tak
 the cross-check in both directions with the root recomputed each time: a published
 role missing from the slice, and a present site the block does not carry. The
 second of those is the one that keeps the projection rule honest — it claims for
-the page exactly the value the committed sidecar holds for that coordinate, so a
+the page exactly the value the whole-artefact sidecar holds for that coordinate, so a
 verifier that read the artefact's shape where it should read the page's would pass
 it. `second-charter.html` earns its place the same way: the first charter still
 hashes correctly, so anything that stops at the first charter it finds reports a
@@ -380,7 +405,7 @@ its refusal: the one present site at that coordinate deleted from the slice with
 the geometry root recomputed, so the labels being uncomparable there leaves the
 COUNT as the only thing that can still refuse it — which it does.
 
-**The nine render-mode cases are chosen the same way, one per thing that could
+**The ten render-mode cases are chosen the same way, one per thing that could
 quietly stop being checked.** Each surface gets the failure that is invisible to
 every other gate: the stamp gone from a non-text atom, a letter changed inside an
 attribute nobody reads as text, a composed label that no longer follows from the
@@ -406,9 +431,11 @@ nothing bounded its text, and a visible paragraph between two wrappers, which sa
 inside no wrapper's own markup and so inside no check. Both passed all nine gates
 and matched the origin's roots. `edited-furniture-text.html` is the third way to
 move furniture — edit a declared span in the page *and* in the list, so the two
-faces agree and only the roots disagree — and it is the one case in this set that
+faces agree and only the roots disagree — and it is the one furniture case that
 must fail two gates rather than one, because two checks are what bind the page to
-the root and the root to the list.
+the root and the root to the list. (Five cases in the whole set name two checks:
+this one and `registry-hash-edited.html`, gate 6 and gate 7; the control and its
+two whitespace siblings, gate 6 and the DOM-text rule.)
 
 **`registry-hash-edited.html` takes the second trailing leaf**, and it is a pair
 of checks rather than a doubling of one. The page names a registry whose hash
@@ -442,17 +469,22 @@ claim ladder's second rung frozen as bytes. If the furniture ever fell back out 
 the composition root, this page would become indistinguishable from the original
 and this vector would be the only thing left to say so.
 
-**The provenance of all but the control, the two furniture cases and the
-superposed pair is worth stating.**
-They are not hypotheticals written to make new gates look useful. Two of them come from a
-second stranger red team of the v1.3 draft, which found the two furniture holes by
-running edits against its own built page and watching all nine gates
-pass. The rest come from the first: a static read of
-`sst-kernel.mjs` by a stranger's model produced seven claims about what `verify`
-did not check; every one was executed against the kernel's own built page, and
-every one passed all six gates of the previous version and the DOM-text rule, exit
-code 0. Gates 7, 8 and 9 exist because of that run, and these files are what stop
-them decaying back into comments.
+**Where the cases came from is worth stating**, because none of them is a
+hypothetical written to make a new gate look useful. Six come from a first
+stranger red team: a static read of `sst-kernel.mjs` by a stranger's model
+produced seven claims about what `verify` did not check; every one was executed
+against the kernel's own built page as it then was, and every one passed all six
+gates of the previous version and the DOM-text rule, exit code 0. Gates 7, 8 and 9
+exist because of that run, and six of those files are what stop them decaying
+back into comments (the seventh is below). Two come from a second stranger red
+team of the v1.3 draft, which found the two furniture holes by running edits
+against its own built page and watching all nine gates pass. The rest were cut as
+the bindings they test were added — the render modes, the furniture list and its
+root, the registry name, an attribute-mode element's own children, the
+whitespace boundary — and each row of the table above, with its `mutation` in
+`refusals/expected.json`, says what it pins. They are a record of how each was
+found, not something to re-run against the older kernel: today's frozen page
+carries v1.3 render declarations, and the v1.2.0 kernel refuses the page itself.
 
 **One of those seven is no longer here, and its absence is a finding rather than a
 retreat.** `edited-block-order.html` changed a block's `order` label to a value

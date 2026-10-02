@@ -1,6 +1,6 @@
 This is the kernel's own account of how it reads a page. It was the greater
-part of the README until 2026-09-09, and moved here unchanged: the README
-orients, the whitepaper explains, this specifies.
+part of the README until 2026-09-09, when it moved here, and it has grown with
+the format since: the README orients, the whitepaper explains, this specifies.
 
 ## The idea
 
@@ -14,25 +14,30 @@ source and your screen. SST replaces the claim with a *measurement*:
    identity is a Merkle root over its children. Change one character anywhere and
    every fingerprint above it changes.
 3. **Two faces, derived, never maintained.** The rendered HTML (human face)
-   carries each atom's hash in the DOM. The JSON-LD manifest in `<head>` (machine
-   face) is *computed from the rendered output* — so the faces cannot disagree, by
-   construction rather than by discipline.
-4. **Self-verifying.** Anyone — a reader, a crawler, an AI agent — can verify the
-   artefact from the published HTML alone: re-hash the visible text, recompute the
-   roots, compare with the manifest. No access to the source, no trust in the
-   publisher. The artefact carries its own proof.
+   stamps every block it prints with the block's hash, and every atom it shows
+   with that atom's (one element bearing a composed run of atoms is declared as
+   such). The JSON-LD manifest in `<head>` (machine face) is *computed from the
+   rendered output* — so the faces cannot disagree, by construction rather than by
+   discipline.
+4. **Self-verifying.** Anyone — a reader, a crawler, an AI agent — can verify
+   from the published HTML alone that the two faces agree: re-hash the visible text,
+   recompute the roots, compare with the manifest. That needs no access to the
+   source. Whether the page is the one its origin published is a different
+   question, answered by comparing its roots with the origin's — see **Trust
+   model**.
 5. **Sovereignty as data.** A charter in `<head>` declares the operator's terms
    across all six universal permission categories — reading, agent ingestion,
    quoting, derivative works, training, oracle/sentiment mining — where every
    consumer must pass. Silence is not consent, so each category takes an explicit
    stance. Terms of engagement are data, not a request buried in a footer.
-6. **The shape is provable too.** A *vacant* site — a place the artefact declares
+6. **The declared shape is provable too.** A *vacant* site — a place the artefact declares
    but has not filled — is a row whose atom points at a reserved sentinel
    (`_PENDING_`, `_NA_OMITTED_`, `_NA_IMPOSSIBLE_`). Sentinels are filtered out of
    the content (they never enter a block id or the DOM) but feed a *separate*
    Merkle root — the **geometry spine** — over every declared site, present or vacant. So
-   "what is missing" is a measurement, not a guess: a tamper-evident census of the
-   artefact's known-unknowns.
+   what the artefact declares missing is a measurement, not a guess: a
+   tamper-evident census of its known-unknowns. A hole it never declares leaves no
+   trace, which **What remains outside** says plainly.
 7. **Projections, not the object.** The first-class object is the operator's
    *crystal* — the atoms, the lattice and the charter, held privately — and
    everything published is a **projection** of it. This repository projects an
@@ -85,8 +90,31 @@ Three Merkle roots over the same lattice, answering three different questions:
 | spine | attests | leaf | moves when |
 |---|---|---|---|
 | **content** | WHAT IS PRESENT — atoms → blocks → page root | an atom's hashed content | any character of any atom changes |
-| **composition** | WHERE, HOW MANY TIMES, AND HOW — the page's placements, in order, the page's own furniture, and the registry its descriptors name | a placement-coordinate: the identity placed, the coordinate it was placed at, and a root over the atoms it carried with the mode each was carried in; then two trailing leaves, one over the page's furniture root and one over its `registry_hash` | a block is moved, repeated or dropped, a placement changes what it prints or how, a word of the page's own furniture changes, or the registry the page names is swapped — **never** on a content edit |
+| **composition** | WHERE, HOW MANY TIMES, AND HOW — the page's placements, in order, the page's own furniture, and the registry its descriptors name | a placement-coordinate: the identity placed, the coordinate it was placed at, and a root over the atoms it carried with the mode each was carried in; then two trailing leaves, one over the page's furniture root and one over its `registry_hash` | a block is moved, repeated or dropped, a placement changes what it prints or how, a word of the page's own furniture changes, or the registry the page names is swapped — **and** whenever a placed block's content changes, because a placement names the block it placed |
 | **geometry** | THE SHAPE, incl. negative space | a site-coordinate valued by occupancy state | a site is added/removed, or a hole is filled/sealed — **never** on a content edit |
+
+**Identity, precisely — enough to write a verifier of your own.** These are the
+rules `normalize`, `atomId`, `merkleLeaf`, `merkleNode`, `merkleRoot` and
+`geomLeaf` near the top of `sst-kernel.mjs` apply, transcribed:
+
+- *Normalisation.* Trim; collapse every run of whitespace (JavaScript's `\s`) to
+  one ASCII space; fold `‘` and `’` to `'` and `“` and `”` to `"`; then Unicode
+  NFC.
+- *An atom's id* is SHA-256 over the UTF-8 bytes of its normalised text, written
+  as 64 lower-case hex characters.
+- *A Merkle root* over an ordered list of such hex strings: each is first hashed
+  as a leaf, SHA-256(`0x00` ‖ the hex string's UTF-8 bytes); adjacent pairs
+  combine as SHA-256(`0x01` ‖ left ‖ right), again over the hex strings; a lone
+  odd node at any level carries up unchanged; an empty list's root is SHA-256 of
+  the empty string. A one-item root is therefore that item's leaf hash, never
+  the item. A block's id is the root over its atoms' ids in order; a page root is
+  the root over its blocks' ids in canonical order.
+- *A geometry leaf* is SHA-256 over page, section, block, `block_type`, role and
+  state joined by `␟` (U+241F). Leaves root per block, blocks per section,
+  sections per page, and the whole-artefact root is the root over the page roots,
+  all by the rule above.
+- *The placement leaf and the two trailing leaves* are given with the render
+  modes and the furniture, below.
 
 **What a page root names.** The page root is the Merkle root of the page's block sequence
 in canonical order, and nothing else: it is the identity of the collection the page carries,
@@ -115,10 +143,15 @@ false-alarm mirror of the false pass, and the reason gate 8 was moved off the
 bill and onto the placements.
 
 The geometry spine is *matter-invariant*: editing an atom leaves the coordinate
-and its state untouched. So is the composition spine — moving a block changes
-neither the block nor the page root, and editing the block changes neither
-placement. That orthogonality is what `seal` demonstrates for the first pair, and
-it is why three roots are three roots rather than one.
+and its state untouched, and sealing a vacancy leaves every content root
+untouched — orthogonal both ways, which is what `seal` demonstrates. The
+composition spine is orthogonal one way only. Moving, repeating or dropping a
+block moves the composition root and leaves every block root and the page root
+where they were; but a placement leaf names the block it placed, so editing an
+atom of a placed block moves the composition root along with the content roots.
+Edit any atom of this kernel's fixture and rebuild: the atom, its block, the page
+root and the composition root move, and the geometry root does not. Three roots are three roots rather than one because
+each answers a question the others cannot, not because no edit moves two of them.
 
 The page publishes its own geometry slice, and the slice is defined by what the
 page PLACES and what it PUBLISHES: for every coordinate it prints, the roles it
@@ -130,8 +163,10 @@ is the property the format exists to make provable — declares both, instead of
 handing the second coordinate the first one's labels and refusing itself. It is deliberately not a *lattice page's* slice, because a rendered page is
 not a lattice page: one page draws its blocks from many, and a lattice page
 declares sites (a section still in draft) that no page renders. The whole-artefact
-`dist/geometry-manifest.json` stays a committed **sidecar** because it carries the
-cross-page root, which no single page can. Note what the page-side slice does and
+geometry manifest stays a **sidecar** beside the pages — this kernel's `build`
+writes it to `dist/geometry-manifest.json`, an output and not a file this
+repository commits, and an operator keeps it beside the artefact — because it
+carries the cross-page root, which no single page can. Note what the page-side slice does and
 does not buy you: the vacant sites are still not *rendered*, so a reader cannot
 discover a hole the artefact never declared. What they can now check is that the
 artefact's declaration of its own shape is internally consistent, hashed, and
@@ -438,8 +473,10 @@ address. This is the rule the reference implementation already applies to its ow
 charter — transcribed, not invented, so a page from either implementation is
 checked by one rule and not by two that happen to agree.
 
-A page passing all nine **and** the DOM-text rule is **Dual-Native**. A page
-failing any is a claim, not an artefact.
+A page passing every gate its declared version carries — all nine at v1.3, six
+at v1.1 and v1.2 — **and** the DOM-text rule is **Dual-Native**: its human face
+and its machine face agree, which is what `verify` reports. A page failing any is
+a claim, not an artefact.
 
 ## What the proof covers — and what it does not
 
@@ -456,22 +493,25 @@ catch, so this project holds its own language to account first.
   a hand-edited manifest, an injected sentence — all show up, and the failure
   names the atom or the block.
 - **Verifiable from the published output alone, for content identity.** No
-  access to the source, no API, no trust that the publisher served you
-  faithful bytes: one file and Node. On a **v1.3** artefact, gate 8 recomputes
-  the page's own geometry slice from the page alone; only the cross-page
-  geometry root still needs the committed sidecar. On a **v1.1 or v1.2**
-  artefact, where gate 8 does not run at all, the geometry attestation needs
-  the sidecar entirely.
+  access to the source and no API: one file and Node. Faithful bytes are a
+  different question — a consistent rewrite passes here and is caught only
+  against the origin's roots (**Trust model**). On a **v1.3** artefact, gate 8
+  recomputes the page's own geometry slice from the page alone; only the
+  cross-page geometry root still needs the whole-artefact sidecar. On a **v1.1
+  or v1.2** artefact, where gate 8 does not run at all, the geometry attestation
+  needs the sidecar entirely.
 
 **The boundary, stated once, plainly.** On a **v1.3** artefact, `verify`
 establishes content identity from the page alone — every atom's text re-hashes to
 its declared id, every block root and the page root recompute from that content,
-and the page carries no visible text besides its atoms and its declared furniture
-— and then three things that used to be declared and unchecked: the *sequence and multiplicity* of the page's
+and the page's markup carries no visible text besides its atoms and its declared
+furniture (text a stylesheet or a script supplies is outside every gate — **What
+the gates do NOT prove**) — and then three things that used to be declared and unchecked: the *sequence and multiplicity* of the page's
 placements, against a transcript whose own root recomputes; the *descriptive
 fields* `role`, `section`, `name` and `block_type` of every block the page
 PLACES, against the geometry sites that hash all four — the head-only blocks
-excepted, for the reason below; and the *charter*, whose served terms hash to an
+excepted, and at a coordinate whose identity the page also places elsewhere the
+roles held to a count rather than compared, both for the reasons below; and the *charter*, whose served terms hash to an
 atom inside a block the page root covers. Every one of those coordinates is
 attested by the page's own roots, not by a record outside it, so relabelling which coordinate a
 block occupies — consistently, across `manifest.blocks`, `placements` and
@@ -488,8 +528,8 @@ What remains outside, and it is worth naming precisely:
   site the operator *withholds*: a block may be **projected**, publishing fewer
   roles than the substrate places at its coordinate — a telephone number that
   stays in the lattice and never reaches a machine face. The page's slice is the
-  page's own shape and says only what the page publishes; the committed sidecar
-  carries the whole artefact's shape, where the withheld site is still present.
+  page's own shape and says only what the page publishes; the sidecar carries the
+  whole artefact's shape, where the withheld site is still present.
   A slice showing fewer present sites than the sidecar is **projection, not
   loss**, and gate 8 reads the page's. **The sidecar is a build output, not a
   guaranteed public one**, and for the live reference artefact it is not
@@ -503,12 +543,14 @@ What remains outside, and it is worth naming precisely:
 - **A head-only block's descriptive labels enter no root.** A block is hashed
   into a geometry site by the placement that puts it somewhere; a block the page
   places nowhere therefore has no site, and its `role`, `section`, `name`,
-  `order` and `block_type` are declared and checked by nothing. On this kernel's
-  fixture and on the live reference artefact alike that is exactly two blocks of
-  the twelve — `meta/seo`, whose atoms become the `<title>` and the
-  `<meta name="description">`, and `charter/attestation` — the same two gate 3
-  exempts from the DOM-presence check, and for the same reason: they are not in
-  the body to be placed. Measured: edit `order` and `block_type` on the SEO
+  `order` and `block_type` enter no root; the one thing read of them is whether
+  the `section` is one gate 3 exempts (see below). On this kernel's fixture that
+  is two blocks of its twelve — `meta/seo`, whose atoms become the `<title>` and
+  the `<meta name="description">`, and `charter/attestation` — the blocks gate 3
+  exempts from the DOM-presence check, for the same reason: they are not in the
+  body to be placed. On the live reference artefact, measured 2026-10-02, it is
+  `charter/attestation` on every one of its 47 pages and `meta/seo` as well on 5
+  of them. Measured: edit `order` and `block_type` on the SEO
   block and `name`, `order` and `block_type` on the attestation block in a
   served page, recompute nothing, and all nine gates plus the DOM-text rule
   PASS. Nothing forgeable moves — the title's *text* still re-hashes under gate
@@ -522,8 +564,9 @@ What remains outside, and it is worth naming precisely:
 - **A block's `page` label is bound by no gate, on a body block as on a
   head-only one.** The manifest's own `page` is bound — relabel it on this
   kernel's `build` output and gate 8 refuses the page. But a block may also carry
-  a `page` label naming the page it belongs to (this kernel's fixture blocks do
-  not; the reference artefact's do), and a page legitimately places blocks that
+  a `page` label naming the page it belongs to (ten of this kernel's twelve
+  fixture blocks carry one, and so do the reference artefact's — relabel one on
+  the `build` output and every gate still passes), and a page legitimately places blocks that
   belong to other pages — the reference artefact's `/about/`
   carries project blocks labelled with the project pages they come from — so
   "every block names this page" is not a rule a verifier can apply, and the label
@@ -567,9 +610,9 @@ What remains outside, and it is worth naming precisely:
   position on the page. Nothing the page shows can contradict it, so no gate reads
   it, and an edit to it is refused by nothing. Read it as a description the
   artefact offers, like a notes column, never as evidence of where anything was
-  printed. **This kernel's own emitter numbers it page-locally**
-  (`sst-kernel.mjs:235`), which on a fixture that puts one block in each of
-  eleven sections happens to print 0…11 — so the demonstrator's `order` column
+  printed. **This kernel's own emitter numbers it page-locally** — in
+  `compileArtefact`, a block's `order` is the count of blocks the page already
+  holds — so the demonstrator's `order` column
   and the reference artefact's are counting two different things, and the
   reference artefact's is the canonical one. That the difference is invisible to
   every gate is the point of the bullet, not an excuse for it: a field no root
@@ -584,9 +627,9 @@ What remains outside, and it is worth naming precisely:
   gets the six gates and the DOM-text rule — content identity and nothing more:
   reordered or repeated blocks, edited descriptive fields, and a flipped or
   deleted charter all pass, because that is what those versions promised. The
-  cross-page geometry root lives in the committed sidecar,
-  `dist/geometry-manifest.json`, at every version — with the availability
-  caveat above.
+  cross-page geometry root lives in the whole-artefact sidecar (this kernel's
+  `build` writes it to `dist/geometry-manifest.json`) at every version — with
+  the availability caveat above.
 
 **What the gates do NOT prove:**
 
@@ -624,8 +667,8 @@ document honest.
 **Level 1 — internal integrity.** The nine gates and the DOM-text rule, run
 against the published HTML alone. They establish that the artefact is consistent
 with itself: the visible text re-hashes, the roots recompute, the placements and
-the geometry and the charter agree with the page and with each other, and the page
-shows nothing besides its atoms and its declared furniture. The composition root
+the geometry and the charter agree with the page and with each other, and the
+page's markup shows nothing besides its atoms and its declared furniture. The composition root
 is where three kinds of leaf meet — the page's placements, the page's own
 furniture, and the registry its render descriptors name — so all three are one
 recomputation rather than three separate promises. This is what
@@ -676,8 +719,8 @@ hidden.
 - **Element type and attribute semantics.** The render descriptor names a surface
   and a transform. It does not name the element type, and no gate reads it: an
   atom printed in an `<h1>` and the same atom printed in a `<span>` are the same
-  placement to every root here. What is unchecked is now exactly one thing: the
-  **values of attributes no placement declares**. `href`, `lang`, `hidden`,
+  placement to every root here. Beyond the element type, what this bullet leaves
+  unchecked is one thing: the **values of attributes no placement declares**. `href`, `lang`, `hidden`,
   `title` and the rest are outside the attested face, and no root moves when one
   changes. An attribute value is markup a verifier reads rather than a sentence
   the document sets, so it is not prose smuggled past the residue rule; the edge
@@ -704,6 +747,13 @@ hidden.
 - **`order` is declared and never verified**, at every version, for the reason
   given above: it is a section-local label and nothing the page shows can
   contradict it.
+- **Labels no root binds, and the relabelling limit.** A head-only block's
+  descriptive labels, a block's `page` label, a block relabelled into the charter
+  section, the roles at a superposed coordinate, and the unequal strength of the
+  render surfaces are each set out under **What remains outside**, above, with
+  what closing it would take. Between them, that section, **What the gates do
+  NOT prove** and this one are what this kernel knows it does not establish, and
+  an item in any of the three is as much in scope for attack as one here.
 
 This repository is a demonstrator of a proposed architecture. It asks first to be
 considered — what publishing this way would mean, for whom, at what cost, and with
@@ -712,8 +762,9 @@ claim of completeness.
 
 ## Conformance
 
-That this kernel *is* SST rather than a sketch of it is a measurement, not a
-slogan:
+That this kernel computes the same identities as the production implementation
+is a measurement, not a slogan; that its manifests are the format's is, for now,
+a freeze by this kernel alone, and the sets below say which is which:
 
 ```
 node sst-kernel.mjs vectors
@@ -728,17 +779,26 @@ blurred:
   through its **own** primitives and must match byte for byte. Two independent
   implementations agreeing is evidence.
 - **`vectors/v1.2-manifest/`** — the v1.2 manifest shape frozen by **this
-  kernel** over its own substrate. No production implementation emits v1.2 yet,
-  so this set is a **freeze, not an agreement**, and it says so. It makes drift a
-  failure rather than a surprise, and it becomes a cross-implementation check the
-  day a second implementation reproduces it. It is also a promise kept: the kernel
-  still emits the v1.2 shape on demand, and this set is what proves it.
+  kernel** over its own substrate. The production implementation went from v1.1
+  to v1.3 and has never emitted v1.2, so this set is a **freeze, not an
+  agreement**, and it says so. It makes drift a failure rather than a surprise,
+  and it becomes a cross-implementation check the day a second implementation
+  reproduces it. It is also a promise kept: the kernel can still emit the v1.2
+  shape — through `compileArtefact('1.2')`, which `vectors` calls; there is no
+  command-line flag for it — and this set is what shows it.
 - **`vectors/v1.3-manifest/`** — the v1.3 shape on the same terms, plus the
   frozen page itself and something neither other set has: a **refusal set**.
-  Thirty-five files under `refusals/`, all but one of them a frozen page with one
-  edit, each naming the exact list of checks `verify` must report. Thirty-three
-  are refusals. Most of them passed all six of the previous version's gates
-  untouched, which is why they exist; the control is an edit the previous version
+  The production implementation does emit v1.3, and every page the reference
+  artefact serves passes this kernel's nine gates, which is agreement on the
+  rules over its own content; it has not reproduced these bytes, so for the
+  bytes this is still a freeze. Thirty-five files under `refusals/`: thirty-two
+  are the frozen page with one edit, one is the second charter-shape page with
+  one edit, and two are a page of their own; each names the exact list of
+  checks `verify` must report. Thirty-three are refusals. Most of them were
+  found because the previous version's six gates accepted them as they were
+  first cut — a record of how each was found rather than something to re-run:
+  today's frozen page carries v1.3 render declarations, and the v1.2.0 kernel
+  refuses the page itself; the control is an edit the previous version
   already caught and must still catch in the same place; two of them are the
   cases the newest bindings brought with them — a swapped registry name, and an
   inline script inside a block wrapper; two are nearer still, a sentence hidden
@@ -792,7 +852,11 @@ addressable. The reference implementation is a production website for a bespoke
 tailoring atelier, which is the right kind of test: a real business with real
 customers, not a demo.
 
-KERNEL.md is the canonical specification of the mechanism; the README orients
-and the whitepaper explains. The formal argument grows from it:
+KERNEL.md is the public specification of the mechanism this kernel checks, and
+it is held to the code and the vectors beside it: where KERNEL.md and
+`sst-kernel.mjs` disagree, that is a defect to report. The operator's fuller
+specification, SPEC, is not public; this repository cites it, and nothing a
+reader is asked to check here depends on it. The README orients and the
+whitepaper explains. The formal argument grows from it:
 [`WHITEPAPER.md`](WHITEPAPER.md) is the paper's skeleton, with the full paper
 and public specification forthcoming.

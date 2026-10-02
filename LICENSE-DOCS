@@ -6,14 +6,18 @@ repository — the written argument, not the machinery:
 
     WHITEPAPER.md
     README.md
+    KERNEL.md
     AI-REVIEWER.md
+    AGENTS.md
+    CONTRIBUTING.md
     R4-WORD-GRANULARITY.md
     substrate/README.md
     vectors/README.md
     charter.yaml (the prose of its declared terms)
 
-Everything else — sst-kernel.mjs, the substrate fixture and the frozen
-conformance vectors — is licensed under the Apache License 2.0. See LICENSE.
+Everything else — sst-kernel.mjs, check-repo.mjs, the substrate fixture and
+the frozen conformance vectors — is licensed under the Apache License 2.0.
+See LICENSE.
 
 Copyright 2026 Peter Russell.
 

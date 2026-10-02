@@ -5,13 +5,13 @@ the frozen vectors that hold it to account, and a crystal small enough to learn 
 
 ## What this is
 
-SST is Single Source of Truth. The data is the single source of truth: a record that stays or travels can exist in different forms, but each possible form is just a projection of the truth. The smallest unit of a projection, the atom, is a sentence. An operator keeps one private data crystal, a first-class object: the sentences themselves, a lattice that gives the crystal a structure — where each sentence sits, and in what role — and a charter that states the terms. Every production format — a web page, a document, or a machine-readable manifest — is a full or partial projection of that crystal through a lattice. Projections are second-class objects: derived, never edited in their own right. The crystal never leaves the operator's storage.
+SST is Single Source of Truth. The data is the single source of truth: a record that stays or travels can exist in different forms, but each possible form is just a projection of the truth. The smallest unit of a projection, the atom, is a sentence. An operator keeps one private data crystal, a first-class object: the sentences themselves, a lattice that gives the crystal a structure — where each sentence sits, and in what role — and a charter that states the terms. Every production format — a web page, a document, or a machine-readable manifest — is a full or partial projection of that crystal through a lattice. Projections are second-class objects: derived, never edited in their own right. The crystal stays in the operator's storage unless the operator chooses to share a slice of it.
 
-If the crystal is always private and the faces are public, how does a reader know a face is a true representation of the crystal and not a copy that drifted, a proxy's rewrite or a quote that changed before it arrived? SST's answer is that identity is a property of the atom itself. Every sentence's identity is computed from its own text; a block's from its sentences; a page's from its blocks. Therefore a face doesn't carry a description of the crystal that could disagree with it. It carries the crystal's own atoms, and a reader who re-hashes what they see re-derives the crystal's identities. The human face and the machine face are not merely agreeing with each other. They are the same atoms. Hashes and Merkle roots are only the medium for saying so.
+If the crystal is always private and the faces are public, how does a reader know a face is a true representation of the crystal and not a copy that drifted, a proxy's rewrite or a quote that changed before it arrived? SST's answer is that identity is a property of the atom itself. Every sentence's identity is computed from its own text; a block's from its sentences; a page's from its blocks. Therefore a face doesn't carry a description of the crystal that could disagree with it. It carries the crystal's own atoms, and a reader who re-hashes what they see re-derives the crystal's identities. The human face and the machine face are not merely agreeing with each other: every atom the page shows is one its machine face names, by the same identity. Hashes and Merkle roots are only the medium for saying so.
 
-What that proves, and what it does not, is stated once and precisely in [`KERNEL.md`](KERNEL.md). In short: from a face alone, that what it shows is the atoms, unchanged, complete within itself, with the operator's terms bound in; with the operator's own domain, that these are the roots the operator published; and not proven, not claimed, who authored the crystal or whether a face shows everything the crystal holds. That last question is open research, and the one the author most wants examined.
+What that proves, and what it does not, is stated once and precisely in [`KERNEL.md`](KERNEL.md). In short: from a face alone, that what it shows is the atoms its machine face names, consistent and complete within itself, and — on a v1.3 face — with the operator's terms bound in; with the operator's own domain, that these are the roots the operator published, which is what "unchanged" rests on; and not proven, not claimed, who authored the crystal or whether a face shows everything the crystal holds. That last question is open research, and the one the author most wants examined.
 
-A face that carries both at once — the rendered page a person reads and, derived from those same bytes, the machine face a verifier reads — is **Dual-Native**, which is the word `verify` prints when the two agree: `✓ Dual-Native: this artefact proves itself.`
+A face that carries both at once — the rendered page a person reads and, derived from those same bytes, the machine face a verifier reads — is **Dual-Native**, which is the word `verify` prints when the two agree: `✓ Dual-Native: the human face and the machine face agree.`
 
 This repository is a demonstrator. It hands you a crystal you can read whole, lets you assemble a page from it and watch the identities fall out, and points you at the live reference artefact: a working atelier's website, projected from a crystal you will never see.
 
@@ -35,8 +35,8 @@ declared:" — and follow the protocol in `AI-REVIEWER.md`; do what your capabil
 rest as claimed, not verified. If you are a person: the whitepaper first, then the five minutes below.
 
 > **This is not sst.dev, and not Semantic Spacetime.** sst.dev is a serverless-infrastructure framework
-> and Semantic Spacetime is a promise-theory model of agent coordination; both share the acronym, neither
-> is related to this, and nothing on the public web about "SST" refers to this project.
+> and Semantic Spacetime is a promise-theory model of agent coordination; both share the acronym and neither
+> is related to this; a web search for "SST" returns them, and not this.
 
 ## Five minutes
 
@@ -45,15 +45,14 @@ node sst-kernel.mjs build     # substrate → dist/index.html + dist/geometry-ma
 node sst-kernel.mjs verify    # run the nine gates + the DOM-text rule against the HTML alone
 node sst-kernel.mjs tamper    # flip one character of visible text — watch verification fail
 node sst-kernel.mjs seal      # seal a vacancy — watch the geometry root move, the content root hold
-node sst-kernel.mjs vectors   # prove the primitives reproduce the frozen conformance vectors
+node sst-kernel.mjs vectors   # check the primitives reproduce the frozen conformance vectors
 node sst-kernel.mjs root FILE # recompute a published root by hand from the list it is over
 ```
 
 Nothing here asks you to run code you have not read: the kernel is one file, and `KERNEL.md` states the
-algorithm so you can write your own verifier and meet it against `vectors/`. **Where a comment or a
+algorithm — the identity rules and the gates — so you can write your own verifier and meet it against `vectors/`. **Where a comment or a
 document cites `SPEC §…`, or a ruling identifier such as `P2`, it is pointing at a specification that is
-not in this repository and not yet public** — 31 such citations across these files, 9 of them inside
-`sst-kernel.mjs`. `WHITEPAPER.md` says what to do about that and the instruction is the right one:
+not in this repository and not yet public** — `sst-kernel.mjs` counts its own in its header. `WHITEPAPER.md` says what to do about that and the instruction is the right one:
 everything load-bearing is stated here or frozen in `vectors/`, and anything you cannot check from those,
 treat as a claim awaiting its paper. No dependencies; Node's
 standard library only; nothing is installed, downloaded or sent anywhere. Remove `dist/` afterwards —
@@ -64,8 +63,8 @@ and its own root, so "what is missing" is a measurement rather than a guess.
 
 **Have a folder of your own work?** The kit that turns it into a private, verifiable crystal, and the
 rig that grows the crystal afterwards, live in their own repository and will be published separately.
-The kit is complete and free at individual-operator scale; the paid layer is organisational only, and
-that split is said here rather than left to a pricing page.
+The author's stated terms for it are free at individual-operator scale and a paid layer for organisations
+only — announced here rather than left to a pricing page; nothing in this repository shows you the kit itself.
 
 ## What is in here
 
@@ -80,7 +79,7 @@ that split is said here rather than left to a pricing page.
 | `vectors/` | the frozen conformance vectors — three sets, the third of which also carries a refusal set |
 | `charter.yaml` | this repository's own terms, in the format's own instrument (PROPOSED) |
 | `R4-WORD-GRANULARITY.md` | the word-granularity falsifier, as a protocol |
-| `check-repo.mjs` | checks this table against the tree — every row a file, every file a row |
+| `check-repo.mjs` | checks this table against the tree's top-level entries — every row an entry, every entry a row, bar dotfiles, the licences, this README and CONTRIBUTING.md |
 
 ## Licence
 

@@ -13,19 +13,21 @@ made a forgery, not an edit; change the crystal and every projection follows.
 until now, had to trust that it matches whatever it was made from. SST makes identity a property of the
 matter: an atom's identity is the hash of its own normalised text, a block's the Merkle root of its atoms,
 a page's the root of its blocks. A projection therefore carries the crystal's own matter with identities
-that anyone can re-derive by reading it. Two faces of one crystal do not merely agree with each other;
-they are the same matter, and that is what a reader re-hashing a page establishes. Hashes and Merkle roots
+that anyone can re-derive by reading it. Two faces of one crystal do not merely agree with each other:
+where they show the same thing, they show the same matter under the same identities, and that is what a
+reader re-hashing a page establishes. Hashes and Merkle roots
 are the medium, not the idea.
 
-**Sovereignty.** The operator holds the crystal and nobody else can write to it. Public faces are read-only
-by construction. The operator's terms — reading, agent ingestion, quoting, derivative works, training,
-oracle and sentiment mining — travel with every face as data, hashed under the same roots, so that silence
-is never mistaken for consent.
+**Sovereignty.** The operator holds the crystal and is the only one who writes to it — a practice, which
+nothing in this repository enforces. Public faces are published read-only: the reference artefact serves no
+write endpoint. The operator's terms — reading, agent ingestion, quoting, derivative works, training,
+oracle and sentiment mining — travel with every face as data, and on a v1.3 face they are hashed under the
+same roots, so that silence is never mistaken for consent.
 
-**What is proved, and what is not.** From a face alone: that it is consistent by construction, that it is
-tamper-evident relative to its origin, and that its content identity is verifiable from the published
-output. With the origin — the operator's own domain, which publishes the roots — that the face is the one
-the operator published. Not proved: who authored the crystal (an origin is a domain, not a person), and
+**What is proved, and what is not.** From a face alone: that it is consistent by construction — its human
+face and its machine face agree — and that its content identity is verifiable from the published output.
+With the origin — the operator's own domain, which publishes the roots — that it is tamper-evident, and that
+the face is the one the operator published. Not proved: who authored the crystal (an origin is a domain, not a person), and
 whether a face shows everything the crystal holds. That last relationship, between a face and the
 material behind it, is open research; the kernel's own documents name it projection attestation.
 
@@ -34,14 +36,16 @@ The sections that follow are this paper's skeleton, to be written in full.
 **White-paper SKELETON.** This is the outline the full paper grows into, not the
 paper itself. It is planted here and grown post-launch, because the argument is
 only worth writing down once the format is frozen (the conformance vectors) and
-the reference implementations agree (production + the kernel).
+the reference implementations agree on it — today they agree on identity
+(`vectors/v1-fixture/`), and the newer manifest sets are this kernel's freeze.
 
 Each section below states **what it must establish** and points at the **canon**
 that already contains the material — SPEC (normative), COMPANION (rationale),
 GLOSSARY (definitions), the conformance vectors (`vectors/v1-fixture/`), and
-`sst-kernel.mjs` (the ten-minute reference). Writing the paper is turning these
+`sst-kernel.mjs` (the one-file reference). Writing the paper is turning these
 pointers into prose; it is not new research. Nothing here is normative — when
-this skeleton and SPEC disagree, SPEC wins.
+this skeleton and SPEC disagree, SPEC wins; for what this repository's kernel
+checks, its code and its vectors decide, and `KERNEL.md` states them.
 
 **Pointers, and where they lead.** SPEC, COMPANION, GLOSSARY and the reference
 implementation's source paths are named throughout as the canon
@@ -64,8 +68,9 @@ measurement should belong to the operator, not the platform.*
 One paragraph: the problem (content as unverifiable claim, authored on rented
 land), the move (identity from content + Merkle composition + a dual-native,
 self-verifying artefact + sovereignty declared as data + a second root over the
-negative space), and the evidence (a production site, a miniature reference, and
-frozen conformance vectors both reproduce byte-for-byte). Source: this whole
+negative space), and the evidence (a production site and a miniature reference that reproduce
+the same identity vectors byte-for-byte, and the kernel's own frozen manifest and
+refusal sets). Source: this whole
 document, compressed.
 
 ## Part I — The problem: content as a claim on rented land
@@ -135,7 +140,7 @@ KERNEL.md in full. This part **is** KERNEL.md, expanded.
   `compileBlocks`.
 - **§5.3 The geometry root.** A second Merkle root over shape-coordinates valued
   by occupancy-state; matter-invariant; a tamper-evident census of known-unknowns.
-  The `seal` demo proves content and geometry roots orthogonal.
+  The `seal` demo shows content and geometry roots orthogonal.
   *Sources:* `lattice/compiler/geometry-spine.ts`; the kernel's `buildGeometry` /
   `seal`; the geometry vectors.
 - **§5.4 The three faces.** Authoring (red ghosts nag), operator, public —
@@ -204,7 +209,8 @@ KERNEL.md in full. This part **is** KERNEL.md, expanded.
 ---
 
 *SST — Peter Russell. White-paper skeleton, 2026. Grows post-launch. Not
-normative; SPEC is the authority.*
+normative: SPEC is the authority for the format, and the kernel's code and
+vectors for what it checks.*
 
 *Licensed CC BY 4.0 — see LICENSE-DOCS. Attribution: Peter Russell · SST —
 Single Source of Truth.*
