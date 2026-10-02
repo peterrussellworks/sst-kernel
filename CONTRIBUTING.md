@@ -58,7 +58,7 @@ and styles belong outside one — not a gap in the check, and
 `refusals/script-inside-wrapper.html` freezes it. Relaxing the wrapper to admit
 them widens the single span in which the format asks an emitter to keep a
 completeness claim clean, so it is a format change to be argued for as an issue,
-never a one-line fix. A pull request that changes anything under `vectors/`, or changes what
+never a one-line fix. A pull request that changes any frozen vector file under `vectors/`, or changes what
 those primitives compute, will be declined on principle, not on quality. It does
 not matter how correct, well-tested, or well-argued the change is.
 

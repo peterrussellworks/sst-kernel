@@ -7,9 +7,9 @@ the frozen vectors that hold it to account, and a crystal small enough to learn 
 
 SST is Single Source of Truth. The data is the single source of truth: a record that stays or travels can exist in different forms, but each possible form is just a projection of the truth. The smallest unit of a projection, the atom, is a sentence. An operator keeps one private data crystal, a first-class object: the sentences themselves, a lattice that gives the crystal a structure — where each sentence sits, and in what role — and a charter that states the terms. Every production format — a web page, a document, or a machine-readable manifest — is a full or partial projection of that crystal through a lattice. Projections are second-class objects: derived, never edited in their own right. The crystal stays in the operator's storage unless the operator chooses to share a slice of it.
 
-If the crystal is always private and the faces are public, how does a reader know a face is a true representation of the crystal and not a copy that drifted, a proxy's rewrite or a quote that changed before it arrived? SST's answer is that identity is a property of the atom itself. Every sentence's identity is computed from its own text; a block's from its sentences; a page's from its blocks. Therefore a face doesn't carry a description of the crystal that could disagree with it. It carries the crystal's own atoms, and a reader who re-hashes what they see re-derives the crystal's identities. The human face and the machine face are not merely agreeing with each other: every atom the page shows is one its machine face names, by the same identity. Hashes and Merkle roots are only the medium for saying so.
+If the crystal is always private and the faces are public, how does a reader know a face is a true representation of the crystal and not a copy that drifted, a proxy's rewrite or a quote that changed before it arrived? SST's answer is that identity is a property of the atom itself. Every sentence's identity is computed from its own text; a block's from its sentences; a page's from its blocks. Therefore a face doesn't carry a description of the crystal that could disagree with it. It carries the crystal's own atoms, and a reader who re-hashes what they see re-derives the crystal's identities. The human face and the machine face are not merely agreeing with each other: every atom the page shows is one its machine face names, by the same identity. Hashes and Merkle roots are only the medium for saying so. None of it says the content is true — only that it is what the operator published.
 
-What that proves, and what it does not, is stated once and precisely in [`KERNEL.md`](KERNEL.md). In short: from a face alone, that what it shows is the atoms its machine face names, consistent and complete within itself, and — on a v1.3 face — with the operator's terms bound in; with the operator's own domain, that these are the roots the operator published, which is what "unchanged" rests on; and not proven, not claimed, who authored the crystal or whether a face shows everything the crystal holds. That last question is open research, and the one the author most wants examined.
+What that proves, and what it does not, is stated once and precisely in [`KERNEL.md`](KERNEL.md). In short: from a face alone, that what it shows is the atoms its machine face names and consistent within itself — and, on a v1.3 face, complete within its markup (text a stylesheet or a script supplies is outside every gate) with the operator's terms bound in; with the operator's own domain, that these are the roots the operator published, which is what "unchanged" rests on; and not proven, not claimed, who authored the crystal or whether a face shows everything the crystal holds. That last question is open research, and the one the author most wants examined.
 
 A face that carries both at once — the rendered page a person reads and, derived from those same bytes, the machine face a verifier reads — is **Dual-Native**, which is the word `verify` prints when the two agree: `✓ Dual-Native: the human face and the machine face agree.`
 
@@ -36,7 +36,7 @@ rest as claimed, not verified. If you are a person: the whitepaper first, then t
 
 > **This is not sst.dev, and not Semantic Spacetime.** sst.dev is a serverless-infrastructure framework
 > and Semantic Spacetime is a promise-theory model of agent coordination; both share the acronym and neither
-> is related to this; a web search for "SST" returns them, and not this.
+> is related to this; a web search for "SST" returns them.
 
 ## Five minutes
 
@@ -50,7 +50,8 @@ node sst-kernel.mjs root FILE # recompute a published root by hand from the list
 ```
 
 Nothing here asks you to run code you have not read: the kernel is one file, and `KERNEL.md` states the
-algorithm — the identity rules and the gates — so you can write your own verifier and meet it against `vectors/`. **Where a comment or a
+algorithm — the identity rules and the gates, and names the two short functions in the kernel that read visible
+text out of markup — so you can write your own verifier and meet it against `vectors/`. **Where a comment or a
 document cites `SPEC §…`, or a ruling identifier such as `P2`, it is pointing at a specification that is
 not in this repository and not yet public** — `sst-kernel.mjs` counts its own in its header. `WHITEPAPER.md` says what to do about that and the instruction is the right one:
 everything load-bearing is stated here or frozen in `vectors/`, and anything you cannot check from those,
@@ -59,12 +60,14 @@ standard library only; nothing is installed, downloaded or sent anywhere. Remove
 `check-repo.mjs` refuses a tree with entries the table below does not name.
 
 What `seal` just showed you: a vacancy is not missing data. It is a declared absence with its own identity
-and its own root, so "what is missing" is a measurement rather than a guess.
+and its own root, so what is *declared* missing is a measurement rather than a guess; a hole nobody declared
+leaves no trace.
 
 **Have a folder of your own work?** The kit that turns it into a private, verifiable crystal, and the
 rig that grows the crystal afterwards, live in their own repository and will be published separately.
-The author's stated terms for it are free at individual-operator scale and a paid layer for organisations
-only — announced here rather than left to a pricing page; nothing in this repository shows you the kit itself.
+The kit's stated intent, announced here rather than left to a pricing page, is to be free at
+individual-operator scale with a paid layer for organisations only. It is not a term of this repository's
+licences, and nothing in this repository shows you the kit itself.
 
 ## What is in here
 

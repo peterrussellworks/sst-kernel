@@ -22,13 +22,15 @@ stopped checking.
 
 **Provenance: computed by a DIFFERENT implementation.** Every value in
 `expected.json` was produced by the full production SST implementation (a
-TypeScript codebase, a different language and a different author of the code
-path) over the substrate in this directory. The kernel re-derives all of them
+TypeScript codebase in a different language) over the substrate in this
+directory. The kernel re-derives all of them
 through its **own** primitives and must match byte for byte.
 
 This is the cross-implementation check, and it is the reason "SST in miniature"
-is a measurement rather than a slogan. Two independent implementations agreeing
-on every hash is evidence; one implementation agreeing with itself is not.
+is a measurement rather than a slogan. Two codebases in two languages agreeing
+on every hash is evidence; one implementation agreeing with itself is not. Both
+have one author and follow one private specification, so a misreading they
+shared would not show here.
 
 What it pins:
 
@@ -188,7 +190,8 @@ frozen as any other value here.
 
 And once more, last, and again WITHOUT a redefinition: three of the fixture's
 sentences were corrected before the tag. One told a reader to watch "all six
-gates" pass on a page that has nine; two claimed more than **Trust model** in
+gates" pass on a page that has nine, and to flip one character and watch them
+fail, when two checks catch a flipped character and the rest still pass; two claimed more than **Trust model** in
 `KERNEL.md` allows — that a reader need not trust the publisher, and that the
 shape of what is missing is provable when only the *declared* shape is. Content
 moved, so the composition root moved with it, which is the one-way coupling
@@ -271,8 +274,8 @@ What it pins, in `expected.json`:
 - the **charter** — including the attestation that names the atom and the block
   under which its terms are hashed. Flip a permission and this file moves.
 
-The 20 sites are the sites of the 19 coordinates the page PLACES — the roles
-it PUBLISHES there, plus the one vacancy those same blocks declare. Three kinds of
+The 20 sites belong to the 11 coordinates the page PLACES — 19 present sites,
+the roles it PUBLISHES there, plus the one vacancy those same blocks declare. Three kinds of
 site are therefore absent from them, and each absence is deliberate. The two
 head-rendered sites (`meta/seo`) are absent because the page places no such block,
 so the slice makes no claim about it. The draft page's sites are absent for the
@@ -313,8 +316,8 @@ verifier must reject, which is the half a passing vector cannot reach: a gate ca
 be deleted, weakened, or accidentally short-circuited without a single frozen
 hash moving.
 
-Thirty-five files — all but one of them a frozen page with ONE edit — each
-declaring in `expected.json` the exact list of checks `verify` must report, so a
+Thirty-five vector pages, beside `expected.json` — thirty-four of them a frozen
+page with ONE edit, and one a page built in its own right — each declaring in `expected.json` the exact list of checks `verify` must report, so a
 gate that stops refusing, starts refusing something else, or starts refusing two
 things at once all show up as drift rather than as a quiet pass.
 

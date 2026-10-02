@@ -21,7 +21,10 @@ guessed in advance.
 1. Copy the three identity primitives — `normalize`, `atomId`, `merkleRoot` —
    out of `sst-kernel.mjs` verbatim. Both granularities in this experiment share
    the exact same identity rules; only the atomisation step differs.
-2. Load `substrate/atoms.csv` and `substrate/lattice.csv`. Scope to the
+2. Load `vectors/v1.2-manifest/atoms.csv` and `vectors/v1.2-manifest/lattice.csv`
+   — the substrate this experiment ran over, byte for byte as `substrate/` stood at
+   `v1.2.0` and frozen with the v1.2 set; the live `substrate/` has grown since,
+   and run over it this method gives different numbers. Scope to the
    **published page's body**: `page == "paper"`, the head-rendered `meta/seo`
    block excluded (its atoms become `<title>`/`<meta>`, which cannot carry a
    per-word span either way), the one declared vacancy (`_PENDING_`) excluded
@@ -47,8 +50,10 @@ guessed in advance.
    only spacing choice under which a reconstruction check even has a chance of
    matching.
 7. **Run the gate.** Copy gate 6's rule (`blockCompleteness` in
-   `sst-kernel.mjs`) verbatim: a block's own visible text, tags stripped and
-   normalized, must equal its atoms' content joined by one space. Run it over
+   `sst-kernel.mjs`) as it stood at `v1.2.0`: a block's own visible text, tags
+   stripped and normalized, must equal its atoms' content joined by one space.
+   (Gate 6 at v1.3 compares with all whitespace removed — `KERNEL.md`,
+   **Whitespace is not evidence** — so take the v1.2.0 rule for this step.) Run it over
    one real multi-atom block (`abstract/body`, two sentences) at both
    granularities, twice each — once untampered, once with one extra word
    spliced between two already-attested spans, inside the block wrapper,
@@ -146,7 +151,7 @@ fragile, or too coarse to name the claim you meant.
 ## Frozen expectations
 
 Computed by running the method above, twice, from two independent clean copies
-of `substrate/`. Both runs produced byte-identical output.
+of that v1.2.0 substrate. Both runs produced byte-identical output.
 
 ```
 sentence placements: 13
@@ -182,7 +187,7 @@ same word set, reversed order: run-root 91c5fb382316ea84b392ee66bc4e2cf8701a94de
 
 If you run the method above against an unmodified clone of this repository and
 your numbers differ from the block above, that is a finding, not a rounding
-error — `substrate/` is frozen the same way `vectors/` is, so a divergent
+error — the substrate in step 2 is frozen with `vectors/v1.2-manifest/`, so a divergent
 result means either your harness took a different scope than the one described
 in step 2 above, or something about the primitives has drifted. Report it the
 way `CONTRIBUTING.md` asks: say exactly what you ran and what you observed. The
@@ -192,7 +197,7 @@ is not binding on you; the eight lines of numbers above are.
 ## Reproduction
 
 There is no script in this repository that produces the block above — writing
-one, from the method in this file, over your own copy of `substrate/`, is the
+one, from the method in this file, over your own copy of that substrate, is the
 point. The kernel's own primitive sanity check is `node sst-kernel.mjs
 vectors` (green); a harness built on primitives that fail that check first is
 not testing this format.

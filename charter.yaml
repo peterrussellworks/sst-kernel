@@ -72,7 +72,7 @@ sst_charter:
 
   # What this charter does NOT claim. The gates in sst-kernel.mjs prove internal
   # consistency relative to an origin; they do not prove authorship (SPEC §6.5, and
-  # the "What the proof covers" section of README.md). Nothing here is a signature.
+  # the "What the proof covers" section of KERNEL.md). Nothing here is a signature.
   claims:
     - consistent_by_construction
     - tamper_evident_relative_to_origin

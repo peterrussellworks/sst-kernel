@@ -22,7 +22,8 @@ are the medium, not the idea.
 nothing in this repository enforces. Public faces are published read-only: the reference artefact serves no
 write endpoint. The operator's terms — reading, agent ingestion, quoting, derivative works, training,
 oracle and sentiment mining — travel with every face as data, and on a v1.3 face they are hashed under the
-same roots, so that silence is never mistaken for consent.
+same roots. That each of the six takes an explicit stance, so that silence is never mistaken for consent, is a
+rule an emitter keeps; no gate counts them.
 
 **What is proved, and what is not.** From a face alone: that it is consistent by construction — its human
 face and its machine face agree — and that its content identity is verifiable from the published output.
@@ -107,8 +108,8 @@ KERNEL.md in full. This part **is** KERNEL.md, expanded.
 - **§3.3 The page manifest.** The machine face: JSON-LD in `<head>`, minimal
   fields, Manifest–DOM parity (evidence-based inclusion, the SEO head exemption).
   *Sources:* SPEC §2.5, §2.6.
-- **§3.4 Dual-Native physics.** Two faces, one derived from the other, so they
-  cannot drift; the DOM as evidence trail; one atom = one element.
+- **§3.4 Dual-Native physics.** Two faces, one derived from the other, so an
+  emitter cannot produce faces that drift apart; the DOM as evidence trail; one atom = one element.
   *Sources:* SPEC §2.6, §2.7; COMPANION → "Dual-Native physics".
 - **§3.5 The inline vocabulary and projected atoms.** Emphasis is content; links
   are edges; a projected atom (`enum-label`) is a deterministic display of its

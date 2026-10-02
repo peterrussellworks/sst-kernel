@@ -13,9 +13,11 @@ Two CSVs. That is the whole substrate.
 | `lattice.csv` | WHERE it appears — `page,section,block,role,atom_ref` | placement is composition, not content |
 
 `node sst-kernel.mjs build` compiles these into `dist/index.html`. The page's
-content **is** the explanation of the mechanism that proves the page, which is
+content **is** the explanation of the mechanism that checks the page, which is
 the point: the demo artefact is its own documentation, and every sentence you
-read there is an atom you can re-hash.
+read there is an atom you can re-hash. All of it is fixture text written for this
+page — the testimony, its five-star rating, the telephone number and the tags
+included — and none of it is a client's words or a real number.
 
 ## Two pages, one published
 

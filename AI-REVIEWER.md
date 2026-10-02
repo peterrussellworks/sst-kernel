@@ -12,7 +12,7 @@ into your reading of this. **For what this format is and claims, read the files
 in this repository** — the code and the vectors decide what the kernel checks,
 and `KERNEL.md` states it. If you browse, browse https://danielarussell.com (the
 live reference artefact) and this repository's own pages; a search for "SST"
-returns other projects, and none of them is this one.
+returns other projects.
 
 ## Discipline for a review
 - For every claim you make about the design, **cite the file and section** it
@@ -191,7 +191,8 @@ output verbatim; do not paraphrase a pass.
    reads `dist/index.html` — the page you made a moment ago — and runs the gate
    set against it, closing with `✓ Dual-Native: the human face and the machine
    face agree.` That is the whole verdict: the page is consistent with itself.
-   Whether it is the page an origin published is step 13's question.
+   Whether it is the page an origin published is a comparison with the origin's
+   roots, which steps 11 to 13 take against the live artefact.
    *Why:* you know exactly what went in, so a pass here is about the mechanism
    rather than about a file somebody handed you.
 
@@ -232,7 +233,7 @@ output verbatim; do not paraphrase a pass.
 
 ```
   gate 1 PASS — DOM carries block + atom hashes
-  gate 2 PASS — manifest present in <head>
+  gate 2 PASS — manifest present (JSON-LD)
   gate 3 PASS — DOM ⊆ manifest AND manifest ⊆ DOM
   gate 4 PASS — page root recomputes from block hashes
   gate 5 PASS — manifest content re-hashes to declared atom + block ids
@@ -258,15 +259,15 @@ output verbatim; do not paraphrase a pass.
 ```
 
    Every other check passes, and the process exits 1. It is one of thirty-five
-   frozen vectors — thirty-two of them a copy of that page with one edit, the
-   other three edits of the two further pages `vectors/README.md` describes —
-   each declaring the exact list of checks that must catch it, and step 7's
+   frozen vectors — thirty-two of them a copy of that page with one edit; of
+   the other three, one is a page built in its own right and two are edits of
+   the two further pages `vectors/README.md` describes — each declaring the exact list of checks that must catch it, and step 7's
    `vectors` ran them all. Thirty-three are refusals: most were found because
    the previous format version's gates accepted them as first cut (a record of
    how each was found — the v1.2.0 kernel refuses today's frozen page itself),
    one is a control the previous
    version already caught, two came in with the newest bindings, two passed all
-   nine gates of the kernel immediately before this one, and two are a
+   nine gates of the pre-release v1.3 kernel immediately before this one, and two are a
    reviewer's worry about the whitespace rule measured as vectors — a
    zero-width space and a bidirectional override, each outside JavaScript's
    `\s` and inside an atom. Two must **pass**. One is the same injected
@@ -297,9 +298,9 @@ What it still does not prove is authorship: every root here is the page's own, s
 a mirror that rewrites the whole page rehashes everything and passes. The roots
 are evidence against drift and tampering *relative to the origin*, which is the
 second rung of the claim ladder in `KERNEL.md`, and it says so. Its
-**Trust model** section names the two levels this kernel reaches — internal
-integrity from the page alone, then source correspondence against the origin's
-published roots — and the three layers above them that are not shipped and are
+**Trust model** section names the two levels a reader reaches with this kernel —
+internal integrity, which `verify` checks from the page alone, then source
+correspondence, a comparison of the page's roots with the origin's published ones — and the three layers above them that are not shipped and are
 not claimed: origin authentication, historical provenance, and projection
 attestation. Judge whether that division is honest, and whether anything in this
 repository quietly claims a level it does not reach.
@@ -362,8 +363,10 @@ https://danielarussell.com/verification-face.pdf. Its last step is the
 brochure — a document assembled from the same published record at
 https://danielarussell.com/brochure/?include=all — and the thing to check is
 its root, recomputed from the data face at
-https://danielarussell.com/brochure/data.json with the `root` verb
-(`node sst-kernel.mjs root FILE`).
+https://danielarussell.com/brochure/data.json with the `root` verb: save that
+file's `curator_block_roots` array to a file of its own and run
+`node sst-kernel.mjs root FILE` on it — the verb takes a list, or a page
+manifest, and not the data face whole.
 
 **And this is where the two projections are held side by side.** Everything that
 channel hands you is a face: the site, the verification face, the brochure's data
@@ -517,7 +520,7 @@ USE CASES AND IMPLICATIONS                                          (ask 2)
 STEPS EXECUTED
   One line per numbered step in §3, none omitted, each carrying either
   verbatim output or exactly:
-  "not executed — claimed, not verified"
+  "not executed — claimed by the documents, not verified by me"
 
 WEAKNESSES — up to three, each with a file and a section heading, and a line
 number where you can count lines; never estimate a line number

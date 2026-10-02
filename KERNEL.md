@@ -11,14 +11,16 @@ source and your screen. SST replaces the claim with a *measurement*:
 1. **Identity from content.** Every sentence is an *atom* whose identity is the
    SHA-256 of its normalized text — not its position, not its URL.
 2. **Composition by Merkle.** Atoms form blocks, blocks form pages; each level's
-   identity is a Merkle root over its children. Change one character anywhere and
-   every fingerprint above it changes.
+   identity is a Merkle root over its children. Change one character of any atom
+   and every fingerprint above it changes.
 3. **Two faces, derived, never maintained.** The rendered HTML (human face)
    stamps every block it prints with the block's hash, and every atom it shows
    with that atom's (one element bearing a composed run of atoms is declared as
    such). The JSON-LD manifest in `<head>` (machine face) is *computed from the
-   rendered output* — so the faces cannot disagree, by construction rather than by
-   discipline.
+   rendered output* — so an emitter built this way cannot produce faces that
+   disagree, by construction rather than by discipline. A page altered after it
+   left the emitter can disagree with itself, and the gates are how a reader finds
+   out.
 4. **Self-verifying.** Anyone — a reader, a crawler, an AI agent — can verify
    from the published HTML alone that the two faces agree: re-hash the visible text,
    recompute the roots, compare with the manifest. That needs no access to the
@@ -29,7 +31,9 @@ source and your screen. SST replaces the claim with a *measurement*:
    across all six universal permission categories — reading, agent ingestion,
    quoting, derivative works, training, oracle/sentiment mining — where every
    consumer must pass. Silence is not consent, so each category takes an explicit
-   stance. Terms of engagement are data, not a request buried in a footer.
+   stance. Terms of engagement are data, not a request buried in a footer. That
+   every category is present is a rule an emitter keeps; gate 9 binds whatever
+   terms a page serves to its page root and does not count them.
 6. **The declared shape is provable too.** A *vacant* site — a place the artefact declares
    but has not filled — is a row whose atom points at a reserved sentinel
    (`_PENDING_`, `_NA_OMITTED_`, `_NA_IMPOSSIBLE_`). Sentinels are filtered out of
@@ -57,10 +61,10 @@ source and your screen. SST replaces the claim with a *measurement*:
    a verifier with a PDF text extractor lives outside this one-file kernel.
 
 The demo artefact's content **is** this explanation: the page describes the
-mechanism that proves the page. Run `tamper` to watch the content proof work (it
+mechanism that checks the page. Run `tamper` to watch the content check work (it
 reports exactly which sentence broke, and which block, and exits 1 — it ends in a
 `verify` of the tampered copy, and that refusal is the demonstration); run `seal`
-to watch the geometry proof work (seal a vacancy and the geometry root moves
+to watch the geometry check work (seal a vacancy and the geometry root moves
 while the content root holds — two independent spines, two concerns).
 
 ## The substrate
@@ -107,14 +111,32 @@ rules `normalize`, `atomId`, `merkleLeaf`, `merkleNode`, `merkleRoot` and
   combine as SHA-256(`0x01` ‖ left ‖ right), again over the hex strings; a lone
   odd node at any level carries up unchanged; an empty list's root is SHA-256 of
   the empty string. A one-item root is therefore that item's leaf hash, never
-  the item. A block's id is the root over its atoms' ids in order; a page root is
-  the root over its blocks' ids in canonical order.
-- *A geometry leaf* is SHA-256 over page, section, block, `block_type`, role and
-  state joined by `␟` (U+241F). Leaves root per block, blocks per section,
-  sections per page, and the whole-artefact root is the root over the page roots,
-  all by the rule above.
-- *The placement leaf and the two trailing leaves* are given with the render
-  modes and the furniture, below.
+  the item.
+- *A block's id* is the root over its atoms' ids in lattice row order, sentinel
+  rows left out; a block whose every row is a sentinel has no id and is not in
+  the content spine. *A page root* is the root over block ids in the order the
+  manifest's `blocks` list gives them — a verifier recomputes it from that list,
+  and which blocks an emitter lists, in lattice first-appearance order, is the
+  emitter's to decide and is exactly what the root names.
+- *The geometry sites* come from the lattice rows, sentinels included: one site
+  per distinct page, section, block and role, each kept in the order it first
+  appears. A role's state is `present` if any of its rows names a real atom, and
+  otherwise the state of its first row's sentinel (`pending`, `na-omitted`,
+  `na-impossible`); `block_type` is the lattice's column, or `paragraph` where
+  the lattice has none, as this kernel's does not. *A geometry leaf* is SHA-256
+  over page, section, block, `block_type`, role and state joined by `␟` (U+241F).
+  Leaves root per block, blocks per section, sections per page, and the
+  whole-artefact root is the root over the page roots, all by the rule above.
+- *A placement leaf* is SHA-256 over the block id, the section, the name and `R`
+  joined by `␟`, where `R` is the root over SHA-256(atom id ␟ render descriptor)
+  for each atom the placement carries, in the order it carries them — when it
+  declares no list, every atom of its block in order, each `verbatim`. *The
+  composition root* is the root over the placement leaves in document order,
+  then SHA-256(`furniture` ␟ `furniture_root`), then SHA-256(`registry` ␟
+  `registry_hash`).
+- *Reading visible text out of markup* — which inline tags are unwrapped, and the
+  closed table of named entities — is the one part not restated here: it is
+  `domTextToContent` and `decodeEntities` in `sst-kernel.mjs`, a few lines each.
 
 **What a page root names.** The page root is the Merkle root of the page's block sequence
 in canonical order, and nothing else: it is the identity of the collection the page carries,
@@ -139,8 +161,11 @@ are several atoms borne by one element and are declared as such. So: to ask
 "is every atom this page shows attested", read the transcript. To ask "does this
 block root recompute", read the bill. A reader who reads the bill as a transcript
 finds half of it apparently missing from a page that is in fact correct — the
-false-alarm mirror of the false pass, and the reason gate 8 was moved off the
-bill and onto the placements.
+false-alarm mirror of the false pass, and the reason gate 6 reads the atoms each
+placement declares rather than its block's whole list. The same confusion over
+labels rather than atoms — one bill entry per identity read at every coordinate
+that identity occupies — is why gate 8 reads the block placed at a coordinate
+rather than the bill.
 
 The geometry spine is *matter-invariant*: editing an atom leaves the coordinate
 and its state untouched, and sealing a vacancy leaves every content root
@@ -149,9 +174,12 @@ composition spine is orthogonal one way only. Moving, repeating or dropping a
 block moves the composition root and leaves every block root and the page root
 where they were; but a placement leaf names the block it placed, so editing an
 atom of a placed block moves the composition root along with the content roots.
-Edit any atom of this kernel's fixture and rebuild: the atom, its block, the page
-root and the composition root move, and the geometry root does not. Three roots are three roots rather than one because
-each answers a question the others cannot, not because no edit moves two of them.
+Edit any atom of a block this kernel's page places and rebuild: the atom, its
+block, the page root and the composition root move, and the geometry root does
+not. (An atom of a head-only block moves the page root and not the composition
+root; an atom the page withholds moves nothing on the page.) Three roots are
+three roots rather than one because each answers a question the others cannot,
+not because no edit moves two of them.
 
 The page publishes its own geometry slice, and the slice is defined by what the
 page PLACES and what it PUBLISHES: for every coordinate it prints, the roles it
@@ -178,8 +206,8 @@ one.
 | gate | property |
 |---|---|
 | 1 | the DOM carries the evidence trail (`data-block-hash`, `data-atom-hash`) |
-| 2 | the machine face exists (JSON-LD manifest in `<head>`) |
-| 3 | **parity**, both directions — the same identity SET on both faces, with one exemption in reverse: a block whose atoms become elements that can carry no data attribute at all — the page title, the meta description, and the operator's terms, which are a whole section of blocks rather than one — is attested by the manifest alone |
+| 2 | the machine face exists (a JSON-LD manifest; an emitter puts it, and the charter, in `<head>`, and no gate checks where) |
+| 3 | **parity**, both directions — the same identity SET on both faces, with one exemption in reverse: a block whose atoms become elements that can carry no data attribute at all — the page title, the meta description, and the operator's terms, which are a whole section of blocks rather than one — is attested by the manifest alone; and a manifest block also counts as present when one of its atoms is stamped outside every block wrapper |
 | 4 | the declared page root recomputes from the block list |
 | 5 | the **manifest** re-hashes — every manifest atom's content reproduces its id, every block root recomputes from its atoms |
 | 6 | **completeness** — every atom a placement declares is found on the surface it declares, in the order it declares, and once every declared element is accounted for — an attribute-mode element accounting for its attribute and never for what it shows — the wrapper holds *no visible text besides*; and, on a v1.3 page, the same question of the whole page — the furniture it carries is the furniture the manifest declares, the declared furniture root is the root over what the page shows, and nothing visible is left over |
@@ -410,8 +438,8 @@ out, recomputable from the single atom the element names. The other two are
 arity `n`, and an arity-`n` transform is the only thing that licenses the
 composed-projection exception — one element bearing several atoms' identities,
 where the placement's declared list is the only record of which ones and in what
-order. `tag-label` composes taxonomy atoms into one chip line, upper-cased and
-joined by a spaced mid-dot. `sentence-join` composes sentence atoms into one
+order. `tag-label` composes taxonomy atoms into one chip line: empty sources
+dropped, each `_` turned into a space, upper-cased, joined by a spaced mid-dot. `sentence-join` composes sentence atoms into one
 string, empty sources dropped, joined by a single ASCII space.
 
 **Why `sentence-join` is in the table rather than in an emitter.** A
@@ -488,11 +516,13 @@ catch, so this project holds its own language to account first.
 **The three accurate claims, in full:**
 
 - **Consistent by construction.** The visible text, the DOM evidence, and the
-  manifest agree with each other, byte-exact, and cannot drift, because one is
-  computed from the other rather than maintained beside it.
+  manifest agree with each other, byte-exact, as an emitter writes them, because
+  one is computed from the other rather than maintained beside it.
 - **Tamper-evident relative to its origin.** A mangling CDN, a misquoting proxy,
   a hand-edited manifest, an injected sentence — all show up, and the failure
-  names the atom or the block.
+  names the atom or the block, wherever the edit touches a value that is hashed,
+  or declared into a root. The labels listed under **What remains outside** are
+  neither, and an edit to one of them shows up nowhere.
 - **Verifiable from the published output alone, for content identity.** No
   access to the source and no API: one file and Node. Faithful bytes are a
   different question — a consistent rewrite passes here and is caught only
@@ -596,6 +626,13 @@ What remains outside, and it is worth naming precisely:
   refused; a role *renamed* there, with the geometry root recomputed, is not —
   the same relabelling limit as above, caught only against the origin's own roots.
   Every coordinate whose identity the page places once keeps the full comparison.
+- **A bill entry's `section` and `name` may be omitted, and an omitted label
+  claims nothing.** The format lets an entry leave out a label its coordinates
+  disagree about, so an identity placed twice can be listed once; gate 8 then
+  compares only the labels the entry does carry. The same allowance holds on an
+  ordinary entry: delete `section` and `name` from a body block's bill entry,
+  recompute nothing, and every gate passes. What the page placed where is still
+  bound by the placements, which carry both fields into the composition root.
 - **A declared render mode is checked, but the surfaces are not equal.** Gate 6
   proves that every atom a placement declares is present in the form it declares
   and that nothing else visible is in the wrapper. It does not make an attribute
@@ -612,7 +649,7 @@ What remains outside, and it is worth naming precisely:
   it, and an edit to it is refused by nothing. Read it as a description the
   artefact offers, like a notes column, never as evidence of where anything was
   printed. **This kernel's own emitter numbers it page-locally** — in
-  `compileArtefact`, a block's `order` is the count of blocks the page already
+  `compileBlocks`, a block's `order` is the count of blocks the page already
   holds — so the demonstrator's `order` column
   and the reference artefact's are counting two different things, and the
   reference artefact's is the canonical one. That the difference is invisible to
@@ -777,8 +814,9 @@ blurred:
 - **`vectors/v1-fixture/`** — identity ground truth computed by the full
   **production** implementation, a different codebase in a different language.
   The kernel re-derives every atom id, block root, page root and geometry root
-  through its **own** primitives and must match byte for byte. Two independent
-  implementations agreeing is evidence.
+  through its **own** primitives and must match byte for byte. Two codebases in
+  two languages agreeing is evidence; both have one author and follow one private
+  specification, so a misreading they shared would not show here.
 - **`vectors/v1.2-manifest/`** — the v1.2 manifest shape frozen by **this
   kernel** over its own substrate. The production implementation went from v1.1
   to v1.3 and has never emitted v1.2, so this set is a **freeze, not an
@@ -792,9 +830,10 @@ blurred:
   The production implementation does emit v1.3, and every page the reference
   artefact serves passes this kernel's nine gates, which is agreement on the
   rules over its own content; it has not reproduced these bytes, so for the
-  bytes this is still a freeze. Thirty-five files under `refusals/`: thirty-two
-  are the frozen page with one edit, one is the second charter-shape page with
-  one edit, and two are a page of their own; each names the exact list of
+  bytes this is still a freeze. Thirty-five vector pages under `refusals/`, beside
+  its `expected.json`: thirty-two are the frozen page with one edit, one is the
+  second charter-shape page with one edit, one is a page built in its own right,
+  and one is that page with one edit; each names the exact list of
   checks `verify` must report. Thirty-three are refusals. Most of them were
   found because the previous version's six gates accepted them as they were
   first cut — a record of how each was found rather than something to re-run:
@@ -856,8 +895,9 @@ customers, not a demo.
 KERNEL.md is the public specification of the mechanism this kernel checks, and
 it is held to the code and the vectors beside it: where KERNEL.md and
 `sst-kernel.mjs` disagree, that is a defect to report. The operator's fuller
-specification, SPEC, is not public; this repository cites it, and nothing a
-reader is asked to check here depends on it. The README orients and the
+specification, SPEC, is not public, and its public version is forthcoming;
+this repository cites it, and nothing a reader is asked to check here depends on
+it. The README orients and the
 whitepaper explains. The formal argument grows from it:
 [`WHITEPAPER.md`](WHITEPAPER.md) is the paper's skeleton, with the full paper
-and public specification forthcoming.
+forthcoming beside that specification.
