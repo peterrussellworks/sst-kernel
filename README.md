@@ -52,15 +52,15 @@ node sst-kernel.mjs root FILE # recompute a published root by hand from the list
 Nothing here asks you to run code you have not read: the kernel is one file, and `KERNEL.md` states the
 algorithm — the identity rules and the gates, and names the two short functions in the kernel that read visible
 text out of markup — so you can write your own verifier and meet it against `vectors/`. **Where a comment or a
-document cites `SPEC §…`, or a ruling identifier such as `P2`, it is pointing at a specification that is
+document cites `SPEC §…`, a bare `§…`, or a ruling identifier such as `P2`, it is pointing at a specification that is
 not in this repository and not yet public** — `sst-kernel.mjs` counts its own in its header. `WHITEPAPER.md` says what to do about that and the instruction is the right one:
 everything load-bearing is stated here or frozen in `vectors/`, and anything you cannot check from those,
 treat as a claim awaiting its paper. No dependencies; Node's
 standard library only; nothing is installed, downloaded or sent anywhere. Remove `dist/` afterwards —
 `check-repo.mjs` refuses a tree with entries the table below does not name.
 
-What `seal` just showed you: a vacancy is not missing data. It is a declared absence with its own identity
-and its own root, so what is *declared* missing is a measurement rather than a guess; a hole nobody declared
+What `seal` just showed you: a vacancy is not missing data. It is a declared absence with its own leaf in
+the geometry root, so what is *declared* missing is a measurement rather than a guess; a hole nobody declared
 leaves no trace.
 
 **Have a folder of your own work?** The kit that turns it into a private, verifiable crystal, and the

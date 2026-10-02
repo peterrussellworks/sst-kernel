@@ -51,9 +51,11 @@ two different ids and lose the superposition entirely.
 placement rather than per identity. Both readings look reasonable until you
 measure: `block_count`, `atom_count` and `page_merkle_root` differ between them,
 so two conformant-looking implementations produce different roots from the same
-page. The manifest is a **bill of the identities the page carries, not a
-transcript of its placements** — verifiers compare block SETS, and must not
-infer placement counts from either face.
+page. The manifest's `blocks` list is a **bill of the identities the page
+carries, not a transcript of its placements** — the parity gate compares block
+SETS, and nothing infers placement counts from the bill. At v1.3 the manifest
+also carries the transcript, `placements`, which lists this paragraph twice, and
+gate 7 checks count and order against it.
 
 *What the label does.* Both coordinates agree on `page` (`paper`, which is
 published, so it may be named) and on `name` (`note`); they disagree on
@@ -144,8 +146,12 @@ geometry root recomputed so that arithmetic alone cannot catch it.
 UTF-8, no BOM · LF line endings · header row · **row order is significant**
 (row order is meaning; sorting is editing) · a field containing a comma is
 quoted. The kernel's CSV reader is deliberately minimal — no escaped quotes, no
-embedded newlines — because neither substrate needs them. Keep content free of
-`"` and it stays parseable by the twelve-line reader you can audit in a minute.
+embedded newlines — because none of the files it reads needs them: these two,
+their v1.2 copies, and the conformance fixture's `lattice.csv`. The fixture's
+`atoms.csv` is full RFC 4180 (`""` for a quote, a line break inside a quoted
+field) and the kernel does not read it: its atoms' content comes from
+`expected.json`. Keep content here free of `"` and it stays parseable by the
+nine-line reader (`parseFields` and `parseCsv`) you can audit in a minute.
 
 ## If you change anything here
 

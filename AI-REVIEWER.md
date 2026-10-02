@@ -159,9 +159,10 @@ the §0 sentence against the ones it does not — a **Read + Browse** reviewer d
 1. Read in the order §2 gives, at least as far as `vectors/README.md`.
 2. Answer ask 1 and ask 2 from §1, in your own words rather than this
    repository's.
-3. Read `vectors/README.md`'s table: which frozen set was computed by which
-   implementation, and why two of the three are labelled freezes rather than
-   agreements. On this profile that table is **the claimed record**, not a
+3. Read the provenance sections of `vectors/README.md`: which frozen set was
+   computed by which implementation, and why two of the three are labelled
+   freezes rather than agreements. On this profile those sections are **the
+   claimed record**, not a
    verification you performed. Report it as claimed.
 
 ### Read + Run — steps 4–8
@@ -192,7 +193,8 @@ output verbatim; do not paraphrase a pass.
    set against it, closing with `✓ Dual-Native: the human face and the machine
    face agree.` That is the whole verdict: the page is consistent with itself.
    Whether it is the page an origin published is a comparison with the origin's
-   roots, which steps 11 to 13 take against the live artefact.
+   roots, which step 11 and the paragraph after step 12 take against the live
+   artefact.
    *Why:* you know exactly what went in, so a pass here is about the mechanism
    rather than about a file somebody handed you.
 
@@ -668,7 +670,8 @@ whether it has, rather than reading on.
 The format replaces a claim with a measurement, and a review of it should do the
 same. That is why §4 keeps claimed, verified and inferred apart, and asks for
 output rather than a verdict. Capability is declared first so an absent run is
-never mistaken for a pass: a step recorded as "claimed, not verified" is worth
+never mistaken for a pass: a step recorded as "not executed — claimed by the
+documents, not verified by me" is worth
 more than a confident summary that hides which half was measured. Consideration comes before attack because a weakness found by someone
 who has understood the design is worth more than one found by someone who has
 not. And the live artefact is a numbered step because a kernel that only passes

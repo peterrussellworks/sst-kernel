@@ -126,7 +126,9 @@ rules `normalize`, `atomId`, `merkleLeaf`, `merkleNode`, `merkleRoot` and
   the lattice has none, as this kernel's does not. *A geometry leaf* is SHA-256
   over page, section, block, `block_type`, role and state joined by `␟` (U+241F).
   Leaves root per block, blocks per section, sections per page, and the
-  whole-artefact root is the root over the page roots, all by the rule above.
+  whole-artefact root is the root over the page roots, all by the rule above. A
+  page's own slice root is the same construction over the sites the page
+  publishes, with the manifest's `page` as each leaf's page.
 - *A placement leaf* is SHA-256 over the block id, the section, the name and `R`
   joined by `␟`, where `R` is the root over SHA-256(atom id ␟ render descriptor)
   for each atom the placement carries, in the order it carries them — when it
@@ -134,6 +136,11 @@ rules `normalize`, `atomId`, `merkleLeaf`, `merkleNode`, `merkleRoot` and
   composition root* is the root over the placement leaves in document order,
   then SHA-256(`furniture` ␟ `furniture_root`), then SHA-256(`registry` ␟
   `registry_hash`).
+- *Identity follows publication.* A block's id is over the atoms the page
+  publishes for it. A block projected without a withheld role has an id over the
+  remaining atoms, which is not the id the full substrate block would have.
+- *The CSVs* are UTF-8 RFC 4180: a quoted field may hold commas, `""` for a
+  quote and line breaks (the conformance fixture's `atoms.csv` uses all three).
 - *Reading visible text out of markup* — which inline tags are unwrapped, and the
   closed table of named entities — is the one part not restated here: it is
   `domTextToContent` and `decodeEntities` in `sst-kernel.mjs`, a few lines each.
@@ -252,7 +259,7 @@ from its atoms and nothing else? Any residue is reported verbatim. It was found
 by adversarial injection, not by design review, which is the honest provenance of
 most good checks. On a v1.3 page it asks the same question of the whole body, not
 only of each wrapper — see **the furniture**, below, which is what made "the page
-contains nothing else" a true sentence rather than a nearly true one.
+contains nothing else" a true sentence of its markup rather than a nearly true one.
 
 **Placement render mode — how gate 6 reads a page that is not all prose.** An
 artefact of any size renders most of its atoms somewhere other than as a
@@ -487,8 +494,8 @@ carry.
 
 **The canonical form of a charter, precisely.** Gate 9 is only worth anything if
 two implementations apply one rule to the same bytes, so the rule is stated in
-full rather than left to the code. *Find* the charter: a JSON-LD document in
-`<head>` that either declares `@type: SstCharter` or carries an `sst_charter`
+full rather than left to the code. *Find* the charter: a JSON-LD document anywhere
+in the page (an emitter puts it in `<head>`; no gate checks where) that either declares `@type: SstCharter` or carries an `sst_charter`
 field — the second is the shape an artefact serves when its terms hang on an
 entity it already publishes, and both are read. *Canonicalize* it: remove the
 `attestation` member, and nothing else, then serialize what remains with the
@@ -575,7 +582,8 @@ What remains outside, and it is worth naming precisely:
   into a geometry site by the placement that puts it somewhere; a block the page
   places nowhere therefore has no site, and its `role`, `section`, `name`,
   `order` and `block_type` enter no root; the one thing read of them is whether
-  the `section` is one gate 3 exempts (see below). On this kernel's fixture that
+  gate 3 exempts them — by `section` for the charter's blocks, by `section` and
+  `name` together for `meta/seo` (see below). On this kernel's fixture that
   is two blocks of its twelve — `meta/seo`, whose atoms become the `<title>` and
   the `<meta name="description">`, and `charter/attestation` — the blocks gate 3
   exempts from the DOM-presence check, for the same reason: they are not in the
@@ -633,6 +641,10 @@ What remains outside, and it is worth naming precisely:
   ordinary entry: delete `section` and `name` from a body block's bill entry,
   recompute nothing, and every gate passes. What the page placed where is still
   bound by the placements, which carry both fields into the composition root.
+- **The manifest's counts, its `@context` and an atom's own `order` are declared
+  and checked by nothing.** Edit `block_count`, `atom_count`, `@context`, or the
+  `order` of an atom inside a bill entry, recompute nothing, and every gate
+  passes, because no gate reads them.
 - **A declared render mode is checked, but the surfaces are not equal.** Gate 6
   proves that every atom a placement declares is present in the form it declares
   and that nothing else visible is in the wrapper. It does not make an attribute

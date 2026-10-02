@@ -114,9 +114,11 @@ multiple.
 
 **(c) Reconstruction — CLOSED AT BOTH GRANULARITIES.** A stray word spliced
 between two correctly-hashed atom spans, inside their block wrapper, does
-**not** pass this kernel's checks, at either granularity: gate 6 compares a
-block's whole visible text against its atoms' content joined by one space, and
-it does not care how big the atoms are. Splicing `STRAY_INJECTED_WORD`
+**not** pass this kernel's checks, at either granularity: gate 6 as it stood at
+`v1.2.0` compared a block's whole visible text against its atoms' content joined
+by one space, and it does not care how big the atoms are. (At v1.3 it compares
+with all whitespace removed and still refuses a splice inside a wrapper —
+`vectors/v1.3-manifest/refusals/injected-visible-text.html`.) Splicing `STRAY_INJECTED_WORD`
 between the two sentence atoms of `abstract/body` fails gate 6 (residue caught);
 splicing the same word between two word-atom spans in the word-level rendering
 of the identical block **also** fails gate 6 (residue caught). Gate 6 exists
