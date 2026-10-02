@@ -335,11 +335,12 @@ reviewer who skipped the live artefact has reviewed half of this.
     **Read `blocks` as a bill and `placements` as the transcript, and do not
     swap them.** A block's hash is the Merkle root over all of its atoms, so the
     bill carries all of them whether or not this page printed each one; the
-    transcript is what says which reached the reader, and on which surface. On
-    the fifteen live pages reachable from the site's own navigation the bill
-    names 1,713 distinct atoms of which 808 carry no `data-atom-hash` element,
-    while the transcript names 912 of which 7 do not — and all 7 are the tail of
-    one composed label, several atoms borne by one element by declaration. If you
+    transcript is what says which reached the reader, and on which surface. Over
+    all 47 pages the site serves (measured 2026-10-02, each page against its own
+    bill), the bills list 4,780 atoms of which 2,069 carry no `data-atom-hash`
+    element on their page, while the transcripts list 2,718 of which 7 do not —
+    and all 7 sit inside composed labels, several atoms borne by one element by
+    declaration. If you
     report "half this page's atoms are missing from the DOM", you have compared
     against the bill; that finding is an artefact of the list you chose and not a
     defect in the page. Say which list you measured.

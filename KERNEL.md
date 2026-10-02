@@ -130,12 +130,12 @@ Merkle root over ALL its atoms, so the manifest must carry all of them or the
 block root cannot be recomputed from the page alone; gates 4 and 5 need the whole
 list. But a placement may print a subset of a block's atoms, and may carry others
 on an attribute or as a composed run, so the bill routinely names atoms the page
-never stamps. Measured over the fifteen live pages of the reference artefact
-reachable from its own navigation: **1,713 distinct atoms in the `blocks` bill,
-of which 808 have no `data-atom-hash` element in the DOM** — 47%. Over the
-`placements` transcript the same measurement is **912 atoms, of which 7 are
-absent**, and all 7 are the tail of one composed `tag-label` run, which by SPEC
-§2.7 is several atoms borne by one element and is declared as such. So: to ask
+never stamps. Measured on 2026-10-02 over all 47 pages the reference artefact
+serves, each page against its own bill: **the bills list 4,780 atoms, of which
+2,069 have no `data-atom-hash` element on the page that lists them** — 43%. Over
+the `placements` transcripts the same measurement is **2,718 atoms, of which 7
+are absent**, and all 7 sit inside composed `tag-label` runs, which by SPEC §2.7
+are several atoms borne by one element and are declared as such. So: to ask
 "is every atom this page shows attested", read the transcript. To ask "does this
 block root recompute", read the bill. A reader who reads the bill as a transcript
 finds half of it apparently missing from a page that is in fact correct — the
@@ -425,11 +425,12 @@ the join is arithmetic a verifier repeats: the atoms are the free parameters, th
 glue is the registry's, the glue is hashed into the registry leaf, and an edit to
 either is refused. The glue is one space and nothing else — no case change, no
 punctuation, no sentence made out of parts that were not sentences. Measured
-against the live reference artefact, that is what its descriptions are already
-joined by: `/about/`, `/portfolio/` and the project pages each carry two
-sentences separated by a single ASCII space and no double space anywhere, so the
-transform reproduces what the origin serves rather than proposing a new house
-style.
+against the live reference artefact on 2026-10-02, that is what its
+descriptions are already joined by: across all 47 pages, every description of
+more than one sentence separates them with a single ASCII space, and none
+carries a double space or any other space character — `/about/` and
+`/portfolio/` carry two sentences each — so the transform reproduces what the
+origin serves rather than proposing a new house style.
 
 **What none of this reaches, stated once.** `non-text` proves that the page
 claims this matter at this site and nothing more: matter is never served, so no
