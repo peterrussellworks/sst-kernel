@@ -3,7 +3,7 @@
   "fixture": "sst-kernel/substrate",
   "format": "SST Dual-Native v1.2",
   "frozen_by": "sst-kernel.mjs in this repository — a freeze, not a cross-implementation agreement. See vectors/README.md.",
-  "note": "The v1.2 page manifest and geometry spine this kernel MUST reproduce from substrate/. Byte-exact: field order, omitted provenance labels and all. Three superposition twins in the fixture make three separate rules visible here — see substrate/README.md.",
+  "note": "The v1.2 page manifest and geometry spine this kernel MUST reproduce from the substrate frozen beside it in this directory (atoms.csv and lattice.csv, byte for byte the substrate/ of v1.2.0). Byte-exact: field order, omitted provenance labels and all. Three superposition twins in the fixture make three separate rules visible here — see substrate/README.md.",
   "page_manifest": {
     "@context": "https://danielarussell.com/contexts/sst-manifest-v1",
     "@type": "SstPageManifest",

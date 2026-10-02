@@ -3,7 +3,7 @@
   "fixture": "sst-kernel/substrate",
   "format": "SST Dual-Native v1.3",
   "frozen_by": "sst-kernel.mjs in this repository — a freeze, not a cross-implementation agreement. See vectors/README.md.",
-  "note": "The v1.3 page manifest and charter this kernel MUST reproduce from substrate/, plus page.html — the exact bytes the refusal set under refusals/ mutates, so a drifted page would make every refusal meaningless. Byte-exact: field order, omitted provenance labels and all. FOUR roots are pinned here: the page root (covering the charter attestation block), the composition root over the placement transcript AND two trailing leaves, this page's furniture root over the text it shows that no atom attests, and this page's geometry root over the sites its own placements define. The two trailing leaves are the furniture root and the transform registry the render descriptors refer to, named by the hash of the registry's own source region, so a swapped registry moves a published root instead of resting on a declaration. The composition root was redefined three times before v1.3.0 was tagged — first to fold each placement's RENDER declaration into its leaf, then to append the furniture leaf, then to append the registry leaf after it — and the set was re-cut once more before the tag, when three of the fixture's sentences were corrected (the atom, block, page and composition roots moved with them; no rule changed), so these bytes differ from every earlier freeze and are frozen from the tag on; the whole-artefact geometry sidecar is unchanged by v1.3 and stays frozen in v1.2-manifest/, against the substrate frozen beside it.",
+  "note": "The v1.3 page manifest and charter this kernel MUST reproduce from substrate/, plus page.html — the exact bytes the refusal set under refusals/ mutates, so a drifted page would make every refusal meaningless. Byte-exact: field order, omitted provenance labels and all. FOUR roots are pinned here: the page root (covering the charter attestation block), the composition root over the placement transcript AND two trailing leaves, this page's furniture root over the text it shows that no atom attests, and this page's geometry root over the sites its own placements define. The two trailing leaves are the furniture root and the transform registry the render descriptors refer to, named by the hash of the registry's own source region, so a swapped registry moves a published root instead of resting on a declaration. The composition root was redefined three times before v1.3.0 was tagged — first to fold each placement's RENDER declaration into its leaf, then to append the furniture leaf, then to append the registry leaf after it — and the set was re-cut once more before the tag, when four of the fixture's sentences were corrected (the atom, block, page and composition roots moved with them; no rule changed), so these bytes differ from every earlier freeze and are frozen from the tag on; the whole-artefact geometry sidecar is unchanged by v1.3 and stays frozen in v1.2-manifest/, against the substrate frozen beside it.",
   "version_axis": "v1.3 proceeds on the reading that a format version names the manifest schema and the gate set together, while identities stay stable across versions. That reading is proposed, not yet ruled.",
   "page_manifest": {
     "@context": "https://danielarussell.com/contexts/sst-manifest-v1",
@@ -11,8 +11,8 @@
     "page": "paper",
     "version": "1.3",
     "registry_hash": "f222928405f9472e96680b3f57090e3b92e2d61d463670f6f951c842a12fb5e1",
-    "page_merkle_root": "bf63c4b5db3b6af0ed7b0147792985fd1193db1c747164c9c83cbfd462ddc7ab",
-    "composition_root": "37e850d0bff1bed81fc1a7eb18a6aa4668b6fbcc5a0401449a1bff2318319ab4",
+    "page_merkle_root": "cc3f05fb82d4f17cf91eeb7968a221aee9d9c0da4788f7465cb638873e2752f9",
+    "composition_root": "5a63578e7d5aeb3c9160330844fbf5288303905e1b3a28100bbbafdcb95327ab",
     "furniture_root": "5670680c8a3a29883e9e908e20a76c1b7a8d79f92694dcbbc52e43ce81d3191c",
     "block_count": 12,
     "atom_count": 26,
@@ -172,17 +172,17 @@
       },
       {
         "@type": "SstBlock",
-        "hash": "2ec0cb788cd320b69bde7d36d5f64c7727fe38bc3851c4f6389ef041ef033f66",
+        "hash": "4b6f0f0548760991a5fe2278166eaafccb618adda6d734fea687518c56110a37",
         "page": "paper",
         "name": "note",
         "block_type": "paragraph",
         "atoms": [
           {
             "@type": "SstAtom",
-            "hash": "f1e13c0c4bb2f8899ef884137689300f66e1bbb4e0829042b64eae6b1b94c9ae",
+            "hash": "b9bc4ed5f9059b5ef9101e32004222b812e91018f95112d5df0262b654910743",
             "role": "body",
             "order": 0,
-            "content": "This paragraph is one identity at two coordinates, printed twice on this page and listed once in the manifest: a bill of what the page carries, never a transcript of where."
+            "content": "This paragraph is one identity at two coordinates, printed twice on this page: listed once in the manifest's bill of what the page carries, and twice in its transcript of where."
           }
         ]
       },
@@ -353,12 +353,12 @@
         "name": "body"
       },
       {
-        "block": "2ec0cb788cd320b69bde7d36d5f64c7727fe38bc3851c4f6389ef041ef033f66",
+        "block": "4b6f0f0548760991a5fe2278166eaafccb618adda6d734fea687518c56110a37",
         "section": "superposition",
         "name": "note"
       },
       {
-        "block": "2ec0cb788cd320b69bde7d36d5f64c7727fe38bc3851c4f6389ef041ef033f66",
+        "block": "4b6f0f0548760991a5fe2278166eaafccb618adda6d734fea687518c56110a37",
         "section": "colophon",
         "name": "note"
       },

@@ -188,28 +188,33 @@ across them; only `composition_root` and, the second time, the new `furniture`,
 `composition_root` alone. From the `v1.3.0` release on, that leaf list is as
 frozen as any other value here.
 
-And once more, last, and again WITHOUT a redefinition: three of the fixture's
+And once more, last, and again WITHOUT a redefinition: four of the fixture's
 sentences were corrected before the tag. One told a reader to watch "all six
 gates" pass on a page that has nine, and to flip one character and watch them
-fail, when two checks catch a flipped character and the rest still pass; two claimed more than **Trust model** in
-`KERNEL.md` allows — that a reader need not trust the publisher, and that the
-shape of what is missing is provable when only the *declared* shape is. Content
-moved, so the composition root moved with it, which is the one-way coupling
-`KERNEL.md` describes under the three spines: three atom ids, their three block
-roots, the page root and the composition root — eight values — and no rule, no
-geometry root and no other value. The re-cut is mechanical and checkable: every
-frozen page here is its previous freeze with those eight values and the three
-sentences substituted, except where a page's own edit had recomputed a root
-over the old content — the composition root of
-`consistent-furniture-rewrite.html`, `head-block-not-charter.html`,
-`partial-placement-overclaims.html` and `placement-claims-foreign-atom.html`, and
-the page root of `page-sst-charter-field.html` and
-`sst-charter-field-flipped.html` — and each of those six is recomputed with the
-kernel's own `root` verb, which is how it was cut. Every refusal still fails
-exactly the checks it names. `v1-fixture/` and `v1.2-manifest/` carry their own
-copies of the substrate and did not move. In v1.2, "all six gates" was true; the
-other two sentences keep their older wording there too, frozen with the version that
-shipped them, and the correction above is what that wording overstated.
+fail, when two checks catch a flipped character and the rest still pass. Two
+claimed more than **Trust model** in `KERNEL.md` allows — that a reader need not
+trust the publisher, and that the shape of what is missing is provable when only
+the *declared* shape is. The fourth said the superposed paragraph is "listed once
+in the manifest … never a transcript of where", on a v1.3 page whose manifest
+carries that transcript, `placements`, and lists the paragraph there twice.
+Content moved, so the composition root moved with it, which is the one-way
+coupling `KERNEL.md` describes under the three spines: four atom ids, their four
+block roots, the page root and the composition root — ten values, measured
+against the release commit before the corrections — and no rule, no geometry root
+and no other value. The re-cut is mechanical and checkable: every frozen page
+here is its previous freeze with those values and the sentences substituted,
+except where a page's own edit had recomputed a root over the old content — the
+composition root of `consistent-furniture-rewrite.html`,
+`head-block-not-charter.html`, `partial-placement-overclaims.html` and
+`placement-claims-foreign-atom.html`, and the page root of
+`page-sst-charter-field.html` and `sst-charter-field-flipped.html` — and each of
+those is recomputed with the kernel's own `root` verb, which is how it was cut.
+Every refusal still fails exactly the checks it names. `v1-fixture/` and
+`v1.2-manifest/` carry their own copies of the substrate and no value in either
+moved; the v1.2 set's note was reworded, because it named the wrong substrate. In
+v1.2 "all six gates" was true, and the other sentences keep their older wording
+there, frozen with the version that shipped them; the corrections above are what
+that wording overstates when read as a description of v1.3.
 
 The kernel's own fixture also grew — four blocks and eleven atoms — so that every
 render mode is exercised by something the kernel actually builds rather than

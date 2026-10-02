@@ -22,7 +22,8 @@
 //
 // WHERE THE COMMENTS BELOW CITE `SPEC §…`, OR A RULING IDENTIFIER SUCH AS `P2`,
 // they point at a specification that is not in this repository and not yet
-// public — 9 SPEC citations and 16 ruling identifiers in this file. They are
+// public — 40 section references to it in this file (9 written `SPEC §`, the
+// rest a bare `§`) and 16 ruling identifiers. They are
 // provenance notes, not a place to look something up. Nothing here depends on
 // reading them: every rule this file applies is stated in the comment beside
 // it, specified in KERNEL.md, and frozen in vectors/. Anything you cannot check
@@ -38,7 +39,7 @@
 //    each block it prints, and each atom it shows, with its hash; a
 //    JSON-LD manifest (machine face) is
 //    DERIVED from that rendered output — computed, never maintained — so
-//    the two faces cannot drift.
+//    an emitter built this way cannot produce faces that drift apart.
 // 4. Checking that the two faces agree needs no access to the source —
 //    re-hash the visible text, recompute the roots, compare with the
 //    manifest — and whether the page is the origin's is answered by the
@@ -192,7 +193,10 @@ const occupancyOf = (ref) => SENTINEL_STATE[(ref ?? '').trim()] ?? 'present';
 /** Split one CSV line into fields — quoted (commas survive) or bare. Used for the
  *  header too, so a quote-all dialect (the conformance fixture) parses the same
  *  as this kernel's own bare-header files. (Minimal: no escaped-quote / embedded-
- *  newline handling — neither substrate needs it.) */
+ *  newline handling. The files it parses — the substrate's two CSVs, their v1.2
+ *  copies and the fixture's lattice.csv — need neither; the fixture's atoms.csv
+ *  uses both and is not parsed here: its atoms' content comes from
+ *  expected.json.) */
 const parseFields = (line) => [...line.matchAll(/"([^"]*)"|([^,]+)/g)].map((m) => m[1] ?? m[2]);
 
 function parseCsv(path) {
@@ -654,7 +658,8 @@ function renderHeadBlocks(blocks) {
 // Manifest–DOM Parity: the manifest is built FROM the rendered body.
 // Selection comes from rendering (which block hashes appear in the DOM);
 // content comes from the substrate. Both faces trace to the same source,
-// so they cannot disagree — by construction, not by discipline.
+// so this emitter cannot make them disagree — by construction, not by
+// discipline. A page altered after it is emitted can, and the gates find it.
 
 /** Elements with no closing tag, and elements whose content is character data
  *  rather than markup. ONE copy, read by both scanners below: two scanners that
@@ -1643,7 +1648,7 @@ function blockCompleteness(html, manifest, evidence) {
 
       if (surface === 'attribute') {
         // An attribute is markup a verifier reads, not text a reader is shown —
-        // the boundary is stated in the README and not narrowed here.
+        // the boundary is stated in KERNEL.md and not narrowed here.
         const value = attrValue(el.attrs, attribute);
         if (value === null) why(`declares atom …${item.hash.slice(0, 8)} in attribute "${attribute}", which its element does not carry`);
         else if (squeeze(value) !== squeeze(expected))
@@ -2148,7 +2153,7 @@ function runGates(html, log = console.log) {
   );
   const charter = charters[0];
   let why9 = null;
-  if (!charter) why9 = 'no charter in <head>';
+  if (!charter) why9 = 'no charter on the page';
   else if (charters.length > 1)
     why9 = `the page serves ${charters.length} charter objects; a page declares the terms of exactly one`;
   else {
