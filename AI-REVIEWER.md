@@ -328,8 +328,8 @@ reviewer who skipped the live artefact has reviewed half of this.
       `geometry` (a `root` and a list of `sites`);
     - the other object is the entity carrying `sst_charter`, whose `format`
       field reads `SST Dual-Native v1.3`;
-    - `furniture_root` and `registry_hash` — the two trailing leaves v1.3
-      folds into the composition root — are **present** on the pages
+    - `furniture_root` and `registry_hash` — the two values v1.3 folds into
+      the composition root's trailing leaves — are **present** on the pages
       the origin serves, beside the `furniture` list the first of them is
       computed over. Say which of the three you found. Whether they hold is
       step 13's subject: that takes a saved page and this kernel, and reading
@@ -463,8 +463,8 @@ report it as an unverified declaration, which is a different finding.
 On a **v1.3** artefact, a clean run of all nine adds four things: the page
 rendered exactly the placements it declares, in order and in number, under a root
 that recomputes; the page's markup shows no visible text besides its atoms and its
-declared furniture (text a stylesheet or a script supplies is outside every gate), whose root is one of the composition root's two trailing leaves — the
-other being the `registry_hash` the page names for the table its render
+declared furniture (text a stylesheet or a script supplies is outside every gate), whose root a trailing leaf of the composition root is built over — the
+other trailing leaf being built over the `registry_hash` the page names for the table its render
 descriptors refer to, so a swapped registry moves a published root rather than
 resting on a declaration the verifier checks against its own table; `role`,
 `section`,
@@ -604,13 +604,15 @@ recorded honestly beats a step quietly skipped.
 5. Gates 7, 8 and 9, which are newer than gate 6 and correspondingly less
    battle-tested. Can you edit a v1.3 page so that the placements, the geometry
    sites and the charter still agree with each other while the page says
-   something else? Gate 8 in particular now asks three things and no more: the
+   something else? Gate 8 in particular now asks four things: the
    geometry root recomputes from the published sites; at every placed coordinate
    the roles the block placed *there* published and the present sites declared
    there are the same set, both ways — or, where the page also places that
    identity at another coordinate, merely the same NUMBER of them, since the
    manifest's one entry per identity can label only one of the coordinates
-   sharing it; and no site names a coordinate the page does not place.
+   sharing it; no site names a coordinate the page does not place; and each
+   site's section, block and `block_type` agree with the labels the bill entry
+   for the block placed there carries.
    A page that withholds a site publishes a slice narrower than the operator's
    substrate, on purpose — so the sharp question is whether a page can withhold
    something the reader needed and still look complete. The refusal vectors show

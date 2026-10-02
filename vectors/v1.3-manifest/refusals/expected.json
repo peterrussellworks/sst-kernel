@@ -63,7 +63,7 @@
     },
     {
       "file": "withheld-site-claimed-present.html",
-      "mutation": "the withheld site of the page’s one projected block claimed present in the slice — the value the committed sidecar holds for that coordinate, which is exactly what a page’s slice may not import. The geometry root is recomputed, so only the cross-check against the placed block refuses it",
+      "mutation": "the withheld site of the page’s one projected block claimed present in the slice — the value the whole-artefact sidecar holds for that coordinate, which is exactly what a page’s slice may not import. The geometry root is recomputed, so only the cross-check against the placed block refuses it",
       "refuses": [
         8
       ]

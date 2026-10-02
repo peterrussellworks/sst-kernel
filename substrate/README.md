@@ -33,7 +33,7 @@ Two lattice rows whose blocks hold identical atoms — *as published* — in
 identical order Merkle to **the same block id**: the same identity at two
 coordinates. That is Data
 Superposition, and it is where implementations quietly disagree. The frozen
-conformance fixture that preceded this one had **zero** superposed identities,
+conformance fixture that preceded this one had **zero** superposed block identities,
 so its vectors could not see this class of defect at all. These three can.
 
 ### A · one identity, two placements on the SAME page
@@ -163,6 +163,7 @@ node sst-kernel.mjs vectors
 
 fails the moment the built manifest stops matching
 `vectors/v1.2-manifest/expected.json` or `vectors/v1.3-manifest/expected.json`
-byte for byte — the kernel emits both shapes from this substrate, and both are
-frozen. Re-freezing is a deliberate act, never a side effect — regenerate it,
+byte for byte — the v1.3 shape is built from this substrate, and the v1.2 shape
+from the copy of it frozen in `vectors/v1.2-manifest/`, so an edit here moves
+only the v1.3 set. Re-freezing is a deliberate act, never a side effect — regenerate it,
 read the diff, and say why in the commit message.

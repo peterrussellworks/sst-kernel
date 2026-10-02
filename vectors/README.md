@@ -104,7 +104,10 @@ diff <(git show v1.2.0:vectors/v1.2-manifest/expected.json) vectors/v1.2-manifes
 ```
 
 All three are silent. If any of them ever is not, the sentence above this block
-is the one that broke.
+is the one that broke. One consequence is worth saying: the set's own `note`
+still reads "reproduce from substrate/", as it did when the set was cut, before
+the copy was pinned beside it. It is frozen with the set; this paragraph is the
+correction.
 
 What it pins:
 
@@ -210,13 +213,13 @@ composition root of `consistent-furniture-rewrite.html`,
 `page-sst-charter-field.html` and `sst-charter-field-flipped.html` — and each of
 those is recomputed with the kernel's own `root` verb, which is how it was cut.
 Every refusal still fails exactly the checks it names. `v1-fixture/` and
-`v1.2-manifest/` carry their own copies of the substrate and no value in either
-moved; the v1.2 set's note was reworded, because it named the wrong substrate. In
+`v1.2-manifest/` carry their own copies of the substrate, and not a byte of
+either moved. In
 v1.2 "all six gates" was true, and the other sentences keep their older wording
 there, frozen with the version that shipped them; the corrections above are what
 that wording overstates when read as a description of v1.3.
 
-The kernel's own fixture also grew — four blocks and eleven atoms — so that every
+The kernel's own fixture also grew — four blocks and twelve atoms — so that every
 render mode is exercised by something the kernel actually builds rather than
 described in prose: a matter-hash atom stamped on a `<picture>` and showing
 nothing, an `alt` carried on the `<img>` nested inside it, a rating whose atom is
@@ -240,11 +243,13 @@ What it pins, in `expected.json`:
   one: the page root, the **composition root** over the placement transcript and
   the two trailing leaves, this page's **furniture root**, and this page's own
   **geometry root** over the sites its placements define. The whole-artefact
-  geometry sidecar is unchanged by v1.3 and stays frozen in `v1.2-manifest/`.
+  geometry sidecar is unchanged by v1.3 as a construction, and the one frozen
+  in `v1.2-manifest/` is over the substrate frozen beside it; the sidecar for
+  today's substrate is what `build` writes, and no vector pins it.
 - the **furniture** — the two spans this page carries that no atom attests: the
   plate number, marked `data-sst-chrome` inside a wrapper, and the footer line
   outside them all. Both are in the list, in document order, and the root over
-  them is the composition root's first trailing leaf. Add a word to either and
+  them is the value the composition root's first trailing leaf is built over. Add a word to either and
   these bytes move, which is the whole point of the leaf.
 - the **registry the descriptors refer to** — `registry_hash`, the SHA-256 of the
   registry's own source region, published in the manifest as well as frozen below,
@@ -287,9 +292,11 @@ so the slice makes no claim about it. The draft page's sites are absent for the
 same reason. And the colophon block's `phone` site is absent because the page
 **withholds** it: the substrate places an atom there and the published faces do
 not carry it, so the block the page publishes is a projection of the substrate's,
-and the slice lists what was published. The whole-artefact sidecar in
-`v1.2-manifest/` is where all three are still counted — a page's slice showing
-fewer present sites than the sidecar is projection, not loss.
+and the slice lists what was published. The head and draft sites are
+still counted in the sidecar frozen in `v1.2-manifest/`; the phone site, added
+to the fixture after that set was cut, is counted in the sidecar `build` writes
+for today's substrate. A page's slice showing fewer present sites than the
+sidecar is projection, not loss.
 
 Both narrowings are load-bearing. A slice keyed on the lattice page rather than on
 the placements publishes sites the page cannot show, which on any composed page
@@ -369,7 +376,7 @@ must admit rather than an edit they must catch — see the notes below the table
 | `registry-hash-edited.html` | the registry the descriptors name edited in its last character, the composition root left alone | gate 6 + gate 7 |
 | `consistent-furniture-rewrite.html` | the chrome paragraph again, DECLARED — furniture list extended, both roots recomputed | *nothing — it must pass, with a composition root that is not the frozen page's* |
 
-The first four geometry cases are matched pairs on purpose. Removing a site with the
+The four geometry cases after the first are matched pairs on purpose. Removing a site with the
 root left alone is caught by the root; adding one with the root *recomputed* can
 only be caught by the cross-check against the placements, so between them they
 prove both halves of gate 8 rather than the arithmetic twice. The other pair takes

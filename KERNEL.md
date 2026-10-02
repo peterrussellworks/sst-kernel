@@ -139,8 +139,11 @@ rules `normalize`, `atomId`, `merkleLeaf`, `merkleNode`, `merkleRoot` and
 - *Identity follows publication.* A block's id is over the atoms the page
   publishes for it. A block projected without a withheld role has an id over the
   remaining atoms, which is not the id the full substrate block would have.
-- *The CSVs* are UTF-8 RFC 4180: a quoted field may hold commas, `""` for a
-  quote and line breaks (the conformance fixture's `atoms.csv` uses all three).
+- *The CSVs* are UTF-8 with LF line endings and a header row; a field holding a
+  comma is quoted. The conformance fixture's `atoms.csv` also uses `""` for a
+  quote and a line break inside a quoted field, which this kernel's reader does
+  not handle and never needs to: it takes that fixture's atom text from
+  `expected.json`.
 - *Reading visible text out of markup* — which inline tags are unwrapped, and the
   closed table of named entities — is the one part not restated here: it is
   `domTextToContent` and `decodeEntities` in `sst-kernel.mjs`, a few lines each.
@@ -225,8 +228,9 @@ one.
 
 **The artefact chooses the gate set, not the verifier.** A page declares its
 format version and gets that version's gates: an artefact built to v1.1 or v1.2
-is checked by the six gates and the DOM-text rule it was built to meet, and gets
-them unchanged. The one thing a version string must not become is a switch that
+is checked by gates 1–6 and the DOM-text rule, and gets them unchanged. Gate 6
+arrived at v1.2; a v1.1 page is run through it too, and the production-rendered
+v1.1 fixture passes it without a byte changing. The one thing a version string must not become is a switch that
 turns checks off, so a manifest declaring an older version while carrying the
 newer declarations is itself a refusal.
 
@@ -509,8 +513,8 @@ address. This is the rule the reference implementation already applies to its ow
 charter — transcribed, not invented, so a page from either implementation is
 checked by one rule and not by two that happen to agree.
 
-A page passing every gate its declared version carries — all nine at v1.3, six
-at v1.1 and v1.2 — **and** the DOM-text rule is **Dual-Native**: its human face
+A page passing every gate its declared version gets — all nine at v1.3, gates
+1–6 at v1.1 and v1.2 — **and** the DOM-text rule is **Dual-Native**: its human face
 and its machine face agree, which is what `verify` reports. A page failing any is
 a claim, not an artefact.
 
@@ -674,7 +678,7 @@ What remains outside, and it is worth naming precisely:
   it: the placement's own `section` and `name`, hashed into the composition root,
   where an edit to either moves the root.
 - **An older artefact keeps the older boundary.** A page declaring v1.1 or v1.2
-  gets the six gates and the DOM-text rule — content identity and nothing more:
+  gets gates 1–6 and the DOM-text rule — content identity and nothing more:
   reordered or repeated blocks, edited descriptive fields, and a flipped or
   deleted charter all pass, because that is what those versions promised. The
   cross-page geometry root lives in the whole-artefact sidecar (this kernel's

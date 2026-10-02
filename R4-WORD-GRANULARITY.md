@@ -18,8 +18,9 @@ guessed in advance.
 
 ## The method
 
-1. Copy the three identity primitives — `normalize`, `atomId`, `merkleRoot` —
-   out of `sst-kernel.mjs` verbatim. Both granularities in this experiment share
+1. Copy the identity primitives — `normalize`, `atomId`, and `merkleRoot` with
+   the `merkleLeaf`, `merkleNode` and tag constants it calls — out of
+   `sst-kernel.mjs` verbatim. Both granularities in this experiment share
    the exact same identity rules; only the atomisation step differs.
 2. Load `vectors/v1.2-manifest/atoms.csv` and `vectors/v1.2-manifest/lattice.csv`
    — the substrate this experiment ran over, byte for byte as `substrate/` stood at
@@ -29,7 +30,7 @@ guessed in advance.
    block excluded (its atoms become `<title>`/`<meta>`, which cannot carry a
    per-word span either way), the one declared vacancy (`_PENDING_`) excluded
    (a vacant site has no content to split). This is exactly what
-   `node sst-kernel.mjs build` renders into `<body>`.
+   `node sst-kernel.mjs build` rendered into `<body>` at `v1.2.0`.
 3. **Sentence-level** is what the lattice already gives you: one placement per
    row, one atom id per unique `atom_ref`, one `<TAG data-atom-hash>` element
    per atom, one block wrapper per `page/section/block`.
@@ -98,18 +99,19 @@ given in (c).
 atoms explode to 317 word placements over 175 unique word-atoms — a 24.4×
 placement multiplier, 14.6× more unique atoms — and 44.8% of every word
 placement is a **repeat** of an existing word-atom. The most-superposed atoms
-are exactly the function words: `"the"`×22, `"is"`×16, `"a"`×10, `"of"`×8,
+are mostly function words: `"the"`×22, `"is"`×16, `"a"`×10, `"of"`×8,
 `"this"`×7, `"page"`×7, `"and"`×7, `"in"`×6. An atom table addressed at word
 grain stops being a set of citable claims and becomes a word-frequency
 concordance: `"the"` is one atom addressed from twenty-two coordinates.
 
 **(b) Weight — CONFIRMED.** The rendered body grows 8.59× (3,810 B → 32,742 B)
-for the same 7 blocks. Per-word DOM chrome measures **103.3 B/word** — the
-`data-atom-hash="` + 64 hex + `"` attribute alone is 81 bytes before the tag,
-the word, or the closing tag are counted. The atom-list JSON (hash + role +
+for the same 7 blocks. The body measures **103.3 B per word** (32,742 B ÷ 317), of which
+the span markup around each word is 96 B — the `data-atom-hash="` + 64 hex + `"`
+attribute alone is 81 bytes before the tag, the word, or the closing tag are
+counted. The atom-list JSON (hash + role +
 order + content, one entry per atom — the shape the manifest's `atoms` array
-uses) inflates **12.23×** (3,542 B → 43,314 B): 305 more atoms means roughly
-305 more manifest entries, and the growth tracks the word count, not a fixed
+uses) inflates **12.23×** (3,542 B → 43,314 B): 304 more atoms means roughly
+304 more manifest entries, and the growth tracks the word count, not a fixed
 multiple.
 
 **(c) Reconstruction — CLOSED AT BOTH GRANULARITIES.** A stray word spliced
@@ -194,7 +196,7 @@ result means either your harness took a different scope than the one described
 in step 2 above, or something about the primitives has drifted. Report it the
 way `CONTRIBUTING.md` asks: say exactly what you ran and what you observed. The
 prose in this file — the reading of what the numbers mean — is not frozen and
-is not binding on you; the eight lines of numbers above are.
+is not binding on you; the numbers above are.
 
 ## Reproduction
 
