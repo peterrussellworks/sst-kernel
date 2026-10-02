@@ -54,7 +54,8 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 
 // ───────────────────────── 1. IDENTITY PRIMITIVES ─────────────────────────
-// These three functions ARE the format (SST Dual-Native v1.3). They must
+// These five functions and the separator below them ARE the format (SST
+// Dual-Native v1.3). They must
 // reproduce the production implementation byte-for-byte — the conformance
 // vectors (`node sst-kernel.mjs vectors`) check it on the cases they hold. Change any of them and every
 // identity in every SST artefact re-baselines; that is a format-version bump,
@@ -485,7 +486,7 @@ function coordinateSites(rows, page, section, block) {
  *  refuse every page that withholds anything — which, measured on the reference
  *  artefact, is every page it serves.
  *
- *  A withheld site is not lost. It stays `present` in the committed sidecar, which
+ *  A withheld site is not lost. It stays `present` in the whole-artefact sidecar, which
  *  attests the whole artefact's shape; a page's slice may therefore show fewer
  *  present sites than the sidecar for a projected block. That difference is
  *  PROJECTION, not loss.
@@ -779,8 +780,8 @@ function ownMarkup(html, blocks, i) {
 // it was placed at — under the same unit separator the geometry leaf uses. The
 // root is the same `merkleRoot`, so the leaves are domain-separated by the
 // existing tags and a single-placement page still has a root distinct from its
-// leaf. A FINAL leaf, after every placement, carries the page's furniture: the
-// text the page shows that no atom attests. See "THE FURNITURE" below.
+// leaf. The first of two trailing leaves, after every placement, carries the
+// page's furniture: the text the page shows that no atom attests. See "THE FURNITURE" below.
 // ── THE PLACEMENT LEAF ────────────────────────────────────────────────────
 // The identity placed, the coordinate it was placed at, and the RENDER ROOT —
 // a Merkle root over one leaf per atom carried, each leaf the atom's id joined to
@@ -830,7 +831,7 @@ const placementLeaf = (block, section, name, atoms) =>
 //     wrapper and outside every chrome-marked element.
 //
 // The manifest publishes that list and its root; gate 6 checks the list against
-// the page; the root enters the composition root as a final leaf, so an injected
+// the page; the root enters the composition root in a trailing leaf, so an injected
 // sentence moves a published value and is caught against the origin's roots even
 // when the page rewrites its own declarations to agree with itself.
 
@@ -1234,8 +1235,9 @@ function build() {
 // so this kernel and the full framework share ONE definition of the rule — the
 // whole point of the conformance vectors is that there is only one.
 
-/** The HTML entities an emitter produces in text content. `&amp;` is decoded in
- *  the same single left-to-right pass, so `&amp;lt;` yields the literal `&lt;`. */
+/** The HTML entities an emitter produces in text content. Every reference —
+ *  named, decimal or hex — is decoded in ONE left-to-right pass, as a browser
+ *  does, so `&amp;lt;` and `&#38;lt;` both yield the literal `&lt;`, never `<`. */
 const NAMED_ENTITIES = {
   lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', amp: '&',
   ldquo: '“', rdquo: '”', lsquo: '‘', rsquo: '’',
@@ -1245,12 +1247,11 @@ const NAMED_ENTITIES = {
 };
 
 const decodeEntities = (t) =>
-  t
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(parseInt(n, 10)))
-    .replace(/&([a-zA-Z][a-zA-Z0-9]*);/g, (m, name) =>
-      Object.prototype.hasOwnProperty.call(NAMED_ENTITIES, name) ? NAMED_ENTITIES[name] : m
-    );
+  t.replace(/&(?:#x([0-9a-fA-F]+)|#(\d+)|([a-zA-Z][a-zA-Z0-9]*));/g, (m, hex, dec, name) =>
+    hex !== undefined ? String.fromCodePoint(parseInt(hex, 16))
+      : dec !== undefined ? String.fromCodePoint(parseInt(dec, 10))
+        : Object.prototype.hasOwnProperty.call(NAMED_ENTITIES, name) ? NAMED_ENTITIES[name] : m
+  );
 
 /** Reconstruct an atom's content from its element's innerHTML (§6.2): strip every
  *  tag EXCEPT <em>/<strong> (decorative children drop, their text stays), decode
@@ -1702,7 +1703,7 @@ function blockCompleteness(html, manifest, evidence) {
   // It cannot prove the PAGE does, and the difference was two live holes: a
   // chrome-marked element had its span cut and nothing bounded its text, and text
   // between two wrappers lay outside every wrapper's own markup. Both passed all
-  // nine gates while the README said the page contains nothing else.
+  // nine gates while the kernel's documents said the page contains nothing else.
   //
   // So the page states its furniture, and this rule closes the page:
   //   · the furniture the page CARRIES, in document order, is the furniture the
@@ -1772,8 +1773,9 @@ function blockCompleteness(html, manifest, evidence) {
 // three more that pin composition, geometry and the charter.
 //
 // The gate set is chosen by the artefact's OWN declared version, not by the
-// verifier's: a v1.1 or v1.2 page gets the six gates it was built to meet, and
-// gets them unchanged. Returns the list of checks that failed, so a caller with
+// verifier's: a v1.1 or v1.2 page gets gates 1–6 and the DOM-text rule, and gets
+// them unchanged. (Gate 6 arrived at v1.2; a v1.1 page is run through it too,
+// and the production-rendered v1.1 fixture passes it without a byte changing.) Returns the list of checks that failed, so a caller with
 // no interest in the transcript (the refusal vectors) can compare it.
 
 function verify(path = 'dist/index.html', log = console.log) {
@@ -1921,12 +1923,12 @@ function runGates(html, log = console.log) {
   // The artefact names its format; the verifier runs that format's gate set. The
   // version names the manifest SHAPE and the GATE SET together — identities are
   // stable across versions, so an older artefact is not stale, it is older, and
-  // the six gates are the whole of what it ever promised.
+  // gates 1–6 are the whole of what is checked of it.
   //
   // The one thing a version string must not become is a switch that turns checks
   // off: a v1.3 manifest relabelled `1.2` still carries its v1.3 declarations, and
   // silently skipping the gates that check them would let an attacker downgrade a
-  // page by editing five characters. So an older version carrying newer fields is
+  // page by editing one character. So an older version carrying newer fields is
   // itself the refusal.
   const V13_FIELDS = ['placements', 'composition_root', 'geometry', 'furniture', 'furniture_root', 'registry_hash'];
   const carried = V13_FIELDS.filter((f) => manifest[f] !== undefined);
@@ -2018,14 +2020,17 @@ function runGates(html, log = console.log) {
   // The geometry spine hashes section, block, block_type, role and occupancy
   // state; the manifest declares the same fields and hashed none of them, so an
   // edited role or a silently dropped vacancy cost nothing. Publishing the page's
-  // slice binds the two. THREE CHECKS, and no more:
+  // slice binds the two. FOUR CHECKS:
   //
   //   · the declared geometry root recomputes from the published sites;
   //   · at every coordinate the page places, the roles the block published there
   //     and the present sites declared there are the same set, BOTH WAYS — so an
   //     invented present site and a published role missing from the slice are each
   //     refused;
-  //   · no site names a coordinate the page does not place.
+  //   · no site names a coordinate the page does not place;
+  //   · each site's section, block and block_type agree with the bill entry of
+  //     the block placed there, for every label that entry carries.
+  // (A page that publishes no sites at all fails too.)
   //
   // PER PLACEMENT, NOT PER IDENTITY. The roles a coordinate carries are the ones
   // the block placed THERE publishes, which is what §6.2 asks for. The manifest
@@ -2042,7 +2047,7 @@ function runGates(html, log = console.log) {
   //
   // THE PAGE'S GEOMETRY IS THE PAGE'S OWN SHAPE, not the substrate's. A projected
   // block publishes fewer roles than the substrate places at its coordinate, and
-  // the slice says exactly that; the whole artefact's shape stays in the committed
+  // the slice says exactly that; the whole artefact's shape stays in the whole-artefact
   // sidecar, where the withheld site is still present. The difference between the
   // two is PROJECTION, not loss. A gate that demanded the substrate's present
   // sites instead would refuse every page that withholds anything — measured on
@@ -2357,7 +2362,7 @@ function vectors() {
   // ── v1.3-manifest: composition, the page's geometry slice, the charter ──
   // Same provenance as v1.2 — a freeze by this kernel over its own substrate. The
   // frozen PAGE is pinned beside the manifest, because the refusal set below is a
-  // set of one-character-scale edits to exactly those bytes: a drifted page would
+  // set of single edits to exactly those bytes: a drifted page would
   // quietly make every refusal a test of nothing.
   const f13 = JSON.parse(readFileSync(new URL('vectors/v1.3-manifest/expected.json', import.meta.url), 'utf8'));
   const b13 = compileArtefact('1.3');
@@ -2517,4 +2522,4 @@ else if (cmd === 'tamper') process.exit(tamper() ? 0 : 1);
 else if (cmd === 'seal') process.exit(seal() ? 0 : 1);
 else if (cmd === 'vectors') process.exit(vectors() ? 0 : 1);
 else if (cmd === 'root') rootOf(process.argv[3]);
-else console.log('usage: node sst-kernel.mjs [build|verify <file>|tamper|seal|vectors|root <json-file>]');
+else console.log('usage: node sst-kernel.mjs [build|verify [file]|tamper|seal|vectors|root <json-file>]');
