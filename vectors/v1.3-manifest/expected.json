@@ -11,8 +11,8 @@
     "page": "paper",
     "version": "1.3",
     "registry_hash": "f222928405f9472e96680b3f57090e3b92e2d61d463670f6f951c842a12fb5e1",
-    "page_merkle_root": "7dd91bbef17ce460d5e5ff7e680c0cc4e7697d366d213d4eb465b28a4cec6584",
-    "composition_root": "876d867ff85e2dc470dba20a7702875cd95f87f1ca924ea8804f2ce3cd0835e8",
+    "page_merkle_root": "bf63c4b5db3b6af0ed7b0147792985fd1193db1c747164c9c83cbfd462ddc7ab",
+    "composition_root": "37e850d0bff1bed81fc1a7eb18a6aa4668b6fbcc5a0401449a1bff2318319ab4",
     "furniture_root": "5670680c8a3a29883e9e908e20a76c1b7a8d79f92694dcbbc52e43ce81d3191c",
     "block_count": 12,
     "atom_count": 26,
@@ -129,7 +129,7 @@
       },
       {
         "@type": "SstBlock",
-        "hash": "6508f418604f0bcf329698fdeda921b9142affdd2046c557ff5ad2012350d864",
+        "hash": "9d7d61924ab315e9fe7a17bf3b16b5733dafa4641b347812899309907b22ecc3",
         "page": "paper",
         "section": "method",
         "name": "body",
@@ -138,10 +138,10 @@
         "atoms": [
           {
             "@type": "SstAtom",
-            "hash": "fef1b171f4d2b08366dbf2759428a212ae1662a99df257dc23630d229c4e910e",
+            "hash": "b46843b138ae4ae74370364157a8202652b0a9822936f479627a4c25e321dfb2",
             "role": "body",
             "order": 0,
-            "content": "Run the verifier against this very file to watch all nine gates pass; flip a single character and watch them fail."
+            "content": "Run the verifier against this very file to watch all nine gates pass; flip a single character of its text and watch the checks catch it."
           },
           {
             "@type": "SstAtom",
@@ -343,7 +343,7 @@
         "name": "body"
       },
       {
-        "block": "6508f418604f0bcf329698fdeda921b9142affdd2046c557ff5ad2012350d864",
+        "block": "9d7d61924ab315e9fe7a17bf3b16b5733dafa4641b347812899309907b22ecc3",
         "section": "method",
         "name": "body"
       },

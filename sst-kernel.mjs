@@ -55,7 +55,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 // ───────────────────────── 1. IDENTITY PRIMITIVES ─────────────────────────
 // These three functions ARE the format (SST Dual-Native v1.3). They must
 // reproduce the production implementation byte-for-byte — the conformance
-// vectors (`node sst-kernel.mjs vectors`) prove it. Change any of them and every
+// vectors (`node sst-kernel.mjs vectors`) check it on the cases they hold. Change any of them and every
 // identity in every SST artefact re-baselines; that is a format-version bump,
 // never a casual edit. v1.1 → v1.2 moved the MANIFEST SHAPE and the GATE SET,
 // and deliberately left this section untouched: every v1.1 identity survives.
@@ -1422,13 +1422,14 @@ function domTextRule(html, manifest) {
 }
 
 // ─────────── GATE 6 — BLOCK COMPLETENESS (Dual-Native v1.2) ───────────
-// Gates 1–5 prove every hashed element authentic; only completeness proves the
-// page contains NOTHING ELSE. For every block wrapper, the block's visible text —
-// §6.2-extracted, §2.2-normalized, declared projections applied — must reconstruct
-// exactly from the concatenation of the block's atoms' canonical text in lattice
-// order. Any residue is visible text no atom attests, and is reported verbatim.
-// Structural markup carrying no visible text is permitted; visible glue characters
-// either live inside atoms or are declared projections.
+// Gates 1–5 check every hashed element against its hash; only completeness checks
+// that the page's markup carries NOTHING ELSE (text a stylesheet or a script
+// supplies is outside every gate). For every block wrapper, each atom its placement
+// declares must be found on the surface the placement declares, in the order it
+// declares, with all whitespace removed from both sides of every comparison. Any
+// residue is visible text no atom attests, and is reported verbatim. Structural
+// markup carrying no visible text is permitted; visible glue characters either
+// live inside atoms or are declared projections.
 //
 // Found by adversarial injection (2026-08-04): a paragraph inserted BETWEEN two
 // attested atoms, inside their block wrapper, passes gates 1–5 and the DOM-text
@@ -1790,7 +1791,7 @@ function runGates(html, log = console.log) {
   // Gate 2: the machine face exists.
   const ld = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
   const manifest = ld.find((d) => d['@type'] === 'SstPageManifest');
-  gate(2, !!manifest, 'manifest present in <head>');
+  gate(2, !!manifest, 'manifest present (JSON-LD)');
   if (!manifest) return fails;
 
   // Gate 3: parity, both directions — same identity SET on both faces.
@@ -2244,8 +2245,8 @@ function seal() {
 }
 
 // ───────────────────────── 7. THE CONFORMANCE VECTORS ─────────────────────────
-// Two frozen sets, with two different provenances, proving two different things.
-// vectors/README.md states both in full; the short version:
+// Three frozen sets, with different provenances, checking different things.
+// vectors/README.md states them in full; the short version:
 //
 //   v1-fixture     — identity ground truth computed by the PRODUCTION
 //                    implementation at format v1.1. This kernel re-derives every
@@ -2257,18 +2258,20 @@ function seal() {
 //                    itself the claim being tested here.
 //
 //   v1.2-manifest  — the v1.2 MANIFEST SHAPE, frozen by THIS kernel over its own
-//                    substrate. No production implementation emits v1.2 yet, so
-//                    this set is a freeze, not an agreement: it pins the dedupe
+//                    substrate. The production implementation went from v1.1
+//                    to v1.3 and never emitted v1.2, so this set is a freeze,
+//                    not an agreement: it pins the dedupe
 //                    rule, the provenance labels, and the geometry census against
 //                    accidental drift. It becomes a cross-implementation check
 //                    the day a second implementation reproduces it. It is also a
-//                    PROMISE: the older shape is still emitted on demand, so an
+//                    PROMISE: the older shape can still be emitted (through
+//                    compileArtefact('1.2'), which this verb calls), so an
 //                    artefact built to it keeps verifying exactly as before.
 //
 //   v1.3-manifest  — the v1.3 shape on the same terms, plus something the other
-//                    two sets do not have: a REFUSAL set. Each file is the frozen
-//                    page with one edit, and each names the check that must catch
-//                    it. A gate nobody has watched refuse is a comment.
+//                    two sets do not have: a REFUSAL set. Each file is one edit of
+//                    a frozen page, bar one page built in its own right, and each
+//                    names the check that must catch it. A gate nobody has watched refuse is a comment.
 
 function vectors() {
   let ok = true;
