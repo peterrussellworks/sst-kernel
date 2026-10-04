@@ -320,8 +320,16 @@ reviewer who skipped the live artefact has reviewed half of this.
     type="application/ld+json">` manifest, and compare its structure against the
     whitepaper's description: page Merkle root, ordered blocks, atom hashes,
     canonical text. That manifest plus this kernel is the verifiability claim.
-    There are two JSON-LD objects in `<head>`. What to look for, and report by
-    field rather than by value:
+    There are two JSON-LD objects in `<head>`. Beside every page that carries a
+    manifest the site also publishes the `SstPageManifest` object byte for byte
+    as `sst-manifest.json` (`/sst-manifest.json` for the home page), and a short
+    `sst-summary.json` with the roots, the block hashes and the charter's
+    stances; `/llms.txt` lists both. If your fetcher drops `<script>`, read
+    `sst-manifest.json`; if it truncates long files, read `sst-summary.json`,
+    since the manifest is most of a page's length. The charter's terms are in
+    the manifest as the text of its charter attestation atom, every field but
+    the `attestation` pointer; the page's own charter object is in neither
+    file. What to look for, and report by field rather than by value:
 
     - the page manifest declares `"version": "1.3"`, and carries
       `page_merkle_root`, `blocks`, `placements`, `composition_root` and

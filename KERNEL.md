@@ -532,7 +532,9 @@ catch, so this project holds its own language to account first.
 - **Tamper-evident relative to its origin.** A mangling CDN, a misquoting proxy,
   a hand-edited manifest, an injected sentence — all show up, and the failure
   names the atom or the block, wherever the edit touches a value that is hashed,
-  or declared into a root. The labels listed under **What remains outside** are
+  or declared into a root. An edit that leaves the page inconsistent fails
+  `verify` outright; one that recomputes every root shows up only against roots
+  the reader obtains from the origin by a path the tamperer does not control. The labels listed under **What remains outside** are
   neither, and an edit to one of them shows up nowhere.
 - **Verifiable from the published output alone, for content identity.** No
   access to the source and no API: one file and Node. Faithful bytes are a
@@ -705,8 +707,23 @@ What remains outside, and it is worth naming precisely:
   part of atom content. The gates verify the *text* of a link is attested; they
   do not verify where it points.
 - **Served images.** An image's identity can be attested for provenance, but the
-  original is never served, so a reader cannot re-hash a served image the way
-  they re-hash served text.
+  original is never served, so a reader cannot re-derive the original's identity
+  from a served image the way they re-hash served text. An operator can publish an image face naming each
+  served derivative file by its hash beside the original's identity, so a reader
+  can check that a file they were served is one the origin declared — the
+  reference artefact does, at `/image-manifest.json`. That attests the served
+  files, not the original, and not how a derivative was made from it.
+- **Not that every visitor received the same page.** `verify` reads the page it
+  is given. Whoever serves the page — the origin, or anything in front of it that
+  can answer with its own bytes — can send different readers different pages,
+  each consistent with itself, and each passes every gate. Comparing roots with
+  the origin helps only when those roots come by a path the server in front does
+  not control, and not at all when the origin itself varies its answer. What
+  would make it detectable is the origin signing its roots and appending them to
+  a public, append-only log, so that two different signed roots for one page at
+  one time are evidence for anyone who checks. The signature extension described
+  above is a step towards that; the log is not designed, and neither is shipped
+  or claimed here.
 
 **Language discipline.** SST surfaces — this document included — must not claim
 "proof of authorship", "provably authored", or any equivalent while the artefact
@@ -739,6 +756,8 @@ table. The reference artefact already does
 this in public: its machine itinerary walks a reader from the kernel to a live
 page to the verification face, to `curator_root`, to the crystal state, so the
 roots on the page can be checked against the roots the origin stands behind.
+Level 2 assumes the origin gives every reader the same roots; an origin that
+answers different readers differently, or one that is spoofed, defeats it.
 
 Above and outside this kernel, three further layers, none of them shipped and none
 of them claimed here:
@@ -907,6 +926,22 @@ rendering spine, a generated topology graph that makes the artefact's own anatom
 addressable. The reference implementation is a production website for a bespoke
 tailoring atelier, which is the right kind of test: a real business with real
 customers, not a demo.
+
+**Publishing the machine face where agents can read it.** An emitter puts a
+page's manifest in its `<head>`, and the gates find it wherever it is, provided
+its tag is exactly `<script type="application/ld+json">`. But an
+agent's fetcher may turn a page into text and drop every `<script>`, or stop
+reading long files: measured on 2026-10-03, at least one agent's fetcher never saw
+a manifest and cut a 574 KB file off at 32,793 characters. So an implementation
+should also publish, for each page that carries a manifest, the text of its
+`SstPageManifest` object as a file beside the page — `/about/sst-manifest.json`
+for `/about/`, `/sst-manifest.json` for the home page — and a summary of a few
+kilobytes as `sst-summary.json`: the roots, the block hashes, the charter's
+stance in each category, and the SHA-256 of that manifest file. Link both from
+the page's `<head>` and name them in `/llms.txt`. The reference artefact has done
+so since 2026-10-04. These files are conveniences, not a second source: `verify`
+reads the page, and the manifest file's SHA-256 equals the SHA-256 of the manifest
+object's text as the page serves it, which anyone can recompute.
 
 KERNEL.md is the public specification of the mechanism this kernel checks, and
 it is held to the code and the vectors beside it: where KERNEL.md and

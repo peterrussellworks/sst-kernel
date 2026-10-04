@@ -13,9 +13,9 @@ made a forgery, not an edit; change the crystal and every projection follows.
 until now, had to trust that it matches whatever it was made from. SST makes identity a property of the
 matter: an atom's identity is the hash of its own normalised text, a block's the Merkle root of its atoms,
 a page's the root of its blocks. A projection therefore carries the crystal's own matter with identities
-that anyone can re-derive by reading it. Two faces of one crystal do not merely agree with each other:
-where they show the same thing, they show the same matter under the same identities, and that is what a
-reader re-hashing a page establishes. Hashes and Merkle roots
+that anyone can re-derive by reading it. Two faces of one crystal share identities: where they show the same
+thing, they show the same matter under the same hashes, and that is what a reader re-hashing a page
+checks. Hashes and Merkle roots
 are the medium, not the idea.
 
 **Sovereignty.** The operator holds the crystal and is the only one who writes to it — a practice, which
@@ -28,9 +28,11 @@ rule an emitter keeps; no gate counts them.
 **What is proved, and what is not.** From a face alone: that it is consistent by construction — its human
 face and its machine face agree — and that its content identity is verifiable from the published output.
 With the origin — the operator's own domain, which publishes the roots — that it is tamper-evident, and that
-the face is the one the operator published. Not proved: who authored the crystal (an origin is a domain, not a person), and
-whether a face shows everything the crystal holds. That last relationship, between a face and the
-material behind it, is open research; the kernel's own documents name it projection attestation.
+the face is the one the operator published, provided the roots come by a path that whoever served the face
+does not control and the origin gives every reader the same ones. Not proved: that the content is true, who
+authored the crystal (an origin is a domain, not a person), whether a face shows everything the crystal
+holds, that every visitor was sent the same page, or that the origin itself was not spoofed or compromised. The relationship between a face and the
+material behind it is open research; the kernel's own documents name it projection attestation.
 
 The sections that follow are this paper's skeleton, to be written in full.
 
